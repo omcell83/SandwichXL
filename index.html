@@ -15,6 +15,7 @@
     
     <!-- İkonlar için Font Awesome (Sepet vb.) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <script>
         // Tailwind CSS'i özel renklerimizle genişletiyoruz
@@ -40,29 +41,7 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #05594C; /* primary */
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #044a3f;
-        }
-
-        /* Modal geçiş animasyonları için */
-        .modal {
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-        .modal-content {
-            transition: transform 0.25s ease;
-        }
-        .modal.hidden {
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
+@@ -66,172 +66,172 @@
         .modal:not(.hidden) {
             opacity: 1;
             transform: scale(1);
@@ -93,10 +72,16 @@
                 <button onclick="showCategory('salads')" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Salatalar</button>
                 <button onclick="showCategory('desserts')" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Tatlılar</button>
                 <button onclick="showCategory('drinks')" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">İçecekler</button>
+                <button data-action="show-category" data-category="sandwiches" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Sandviçler</button>
+                <button data-action="show-category" data-category="pasta" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Makarnalar</button>
+                <button data-action="show-category" data-category="salads" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Salatalar</button>
+                <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Tatlılar</button>
+                <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">İçecekler</button>
             </nav>
             
             <!-- Sepet Butonu -->
             <button onclick="toggleCartModal(true)" class="relative flex items-center justify-center p-3 bg-white text-primary rounded-full shadow-md hover:bg-gray-100 transition-colors">
+            <button data-action="open-cart" class="relative flex items-center justify-center p-3 bg-white text-primary rounded-full shadow-md hover:bg-gray-100 transition-colors">
                 <i class="fa-solid fa-basket-shopping text-xl"></i>
                 <!-- Sepet Ürün Sayacı -->
                 <span id="cart-count" class="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
@@ -111,6 +96,11 @@
                 <button onclick="showCategory('salads')" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Salatalar</button>
                 <button onclick="showCategory('desserts')" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Tatlılar</button>
                 <button onclick="showCategory('drinks')" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">İçecekler</button>
+                <button data-action="show-category" data-category="sandwiches" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Sandviçler</button>
+                <button data-action="show-category" data-category="pasta" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Makarnalar</button>
+                <button data-action="show-category" data-category="salads" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Salatalar</button>
+                <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Tatlılar</button>
+                <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">İçecekler</button>
             </div>
         </nav>
     </header>
@@ -126,15 +116,25 @@
 
     <!-- 3.1. SEPET MODALI -->
     <div id="cart-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70">
-        <!-- Modal İçeriği -->
-        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl relative flex flex-col max-h-[90vh]">
-            <!-- Başlık -->
-            <div class="flex justify-between items-center p-5 border-b">
+        <!-- Modal İçeriği -->␍␊
+        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl relative flex flex-col max-h-[90vh]">␍␊
+            <!-- Başlık -->␍␊
+            <div class="flex justify-between items-center p-5 border-b">␍␊
                 <h2 class="text-2xl font-bold text-primary">Sepetiniz</h2>
                 <button onclick="toggleCartModal(false)" class="text-gray-400 hover:text-gray-600">
-                    <i class="fa-solid fa-times text-2xl"></i>
-                </button>
-            </div>
+                    <i class="fa-solid fa-times text-2xl"></i>␍␊
+                </button>␍␊
+            </div>␍␊
+    <div id="cart-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="cart-modal-title">
+        <!-- Modal İçeriği -->␊
+        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl relative flex flex-col max-h-[90vh]">␊
+            <!-- Başlık -->␊
+            <div class="flex justify-between items-center p-5 border-b">␊
+                <h2 id="cart-modal-title" class="text-2xl font-bold text-primary">Sepetiniz</h2>
+                <button data-action="close-cart" class="text-gray-400 hover:text-gray-600" aria-label="Sepeti kapat">
+                    <i class="fa-solid fa-times text-2xl"></i>␊
+                </button>␊
+            </div>␊
             
             <!-- Sepet Ürünleri Listesi -->
             <!-- !!! HATA DÜZELTMESİ: 'cart-empty-msg' 'cart-items' dışına alındı !!! -->
@@ -155,61 +155,117 @@
                     <span id="cart-total" class="text-2xl font-bold text-primary">€0.00</span>
                 </div>
                 <button id="confirm-order-btn" onclick="confirmOrder()" class="w-full p-4 bg-secondary text-white text-lg font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Siparişi Onayla
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3.2. BOYUT SEÇİM MODALI (XL/XXL) -->
+                    Siparişi Onayla␍␊
+                </button>␍␊
+            </div>␍␊
+        </div>␍␊
+    </div>␍␊
+␍␊
+    <!-- 3.2. BOYUT SEÇİM MODALI (XL/XXL) -->␍␊
     <div id="size-modal" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-70">
-        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-6">
+        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-6">␍␊
             <h2 class="text-2xl font-bold text-primary mb-4 text-center">Boyut Seçin</h2>
-            <div id="size-options" class="space-y-3">
-                <!-- Boyut seçenekleri JavaScript ile buraya eklenecek -->
-            </div>
+            <div id="size-options" class="space-y-3">␍␊
+                <!-- Boyut seçenekleri JavaScript ile buraya eklenecek -->␍␊
+            </div>␍␊
             <button onclick="closeSizeModal()" class="w-full mt-4 p-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">İptal</button>
-        </div>
-    </div>
-
-    <!-- 3.3. İÇECEK SEÇİM MODALI -->
+        </div>␍␊
+    </div>␍␊
+␍␊
+    <!-- 3.3. İÇECEK SEÇİM MODALI -->␍␊
     <div id="drink-modal" class="modal hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black bg-opacity-70">
-        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center p-5 border-b">
+        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[90vh]">␍␊
+            <div class="flex justify-between items-center p-5 border-b">␍␊
                 <h2 class="text-2xl font-bold text-primary">İçecek Seçin</h2>
                 <button onclick="closeDrinkModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fa-solid fa-times text-2xl"></i>
-                </button>
-            </div>
-            <div id="drink-options" class="p-5 overflow-y-auto space-y-3">
-                <!-- İçecek seçenekleri JavaScript ile buraya eklenecek -->
-            </div>
-            <div class="p-5 border-t bg-gray-50 rounded-b-xl">
+                    <i class="fa-solid fa-times text-2xl"></i>␍␊
+                </button>␍␊
+            </div>␍␊
+            <div id="drink-options" class="p-5 overflow-y-auto space-y-3">␍␊
+                <!-- İçecek seçenekleri JavaScript ile buraya eklenecek -->␍␊
+            </div>␍␊
+            <div class="p-5 border-t bg-gray-50 rounded-b-xl">␍␊
                 <button onclick="skipDrink()" class="w-full p-4 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300 transition-colors">
-                    İçecek İstemiyorum
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3.4. SİPARİŞ ONAY MODALI -->
+                    İçecek İstemiyorum␍␊
+                </button>␍␊
+            </div>␍␊
+        </div>␍␊
+    </div>␍␊
+␍␊
+    <!-- 3.4. SİPARİŞ ONAY MODALI -->␍␊
     <div id="order-success-modal" class="modal hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black bg-opacity-70">
-        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-8 text-center">
-            <div class="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-check text-5xl"></i>
-            </div>
+        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-8 text-center">␍␊
+            <div class="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-6">␍␊
+                <i class="fa-solid fa-check text-5xl"></i>␍␊
+            </div>␍␊
             <h2 class="text-3xl font-bold text-primary mb-3">Siparişiniz Alındı!</h2>
-            <p class="text-gray-600 text-lg mb-6">Lütfen sipariş numaranızı kasaya bildiriniz.</p>
-            <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4">
-                <span class="text-6xl font-bold text-secondary tracking-widest" id="order-number">
-                    ---
-                </span>
-            </div>
+            <p class="text-gray-600 text-lg mb-6">Lütfen sipariş numaranızı kasaya bildiriniz.</p>␍␊
+            <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4">␍␊
+                <span class="text-6xl font-bold text-secondary tracking-widest" id="order-number">␍␊
+                    ---␍␊
+                </span>␍␊
+            </div>␍␊
             <button onclick="closeSuccessModal()" class="w-full mt-8 p-4 bg-primary text-white text-lg font-bold rounded-lg shadow-md hover:bg-primary/90 transition-colors">
-                Kapat
-            </button>
-        </div>
-    </div>
+                Kapat␍␊
+            </button>␍␊
+        </div>␍␊
+    </div>␍␊
+                <button id="confirm-order-btn" data-action="confirm-order" class="w-full p-4 bg-secondary text-white text-lg font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Siparişi Onayla␊
+                </button>␊
+            </div>␊
+        </div>␊
+    </div>␊
+␊
+    <!-- 3.2. BOYUT SEÇİM MODALI (XL/XXL) -->␊
+    <div id="size-modal" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="size-modal-title">
+        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-6">␊
+            <h2 id="size-modal-title" class="text-2xl font-bold text-primary mb-4 text-center">Boyut Seçin</h2>
+            <div id="size-options" class="space-y-3">␊
+                <!-- Boyut seçenekleri JavaScript ile buraya eklenecek -->␊
+            </div>␊
+            <button data-action="close-size" class="w-full mt-4 p-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">İptal</button>
+        </div>␊
+    </div>␊
+␊
+    <!-- 3.3. İÇECEK SEÇİM MODALI -->␊
+    <div id="drink-modal" class="modal hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="drink-modal-title">
+        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[90vh]">␊
+            <div class="flex justify-between items-center p-5 border-b">␊
+                <h2 id="drink-modal-title" class="text-2xl font-bold text-primary">İçecek Seçin</h2>
+                <button data-action="close-drink" class="text-gray-400 hover:text-gray-600" aria-label="İçecek seçim penceresini kapat">
+                    <i class="fa-solid fa-times text-2xl"></i>␊
+                </button>␊
+            </div>␊
+            <div id="drink-options" class="p-5 overflow-y-auto space-y-3">␊
+                <!-- İçecek seçenekleri JavaScript ile buraya eklenecek -->␊
+            </div>␊
+            <div class="p-5 border-t bg-gray-50 rounded-b-xl">␊
+                <button data-action="skip-drink" class="w-full p-4 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300 transition-colors">
+                    İçecek İstemiyorum␊
+                </button>␊
+            </div>␊
+        </div>␊
+    </div>␊
+␊
+    <!-- 3.4. SİPARİŞ ONAY MODALI -->␊
+    <div id="order-success-modal" class="modal hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="success-modal-title">
+        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-8 text-center">␊
+            <div class="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-6">␊
+                <i class="fa-solid fa-check text-5xl"></i>␊
+            </div>␊
+            <h2 id="success-modal-title" class="text-3xl font-bold text-primary mb-3">Siparişiniz Alındı!</h2>
+            <p class="text-gray-600 text-lg mb-6">Lütfen sipariş numaranızı kasaya bildiriniz.</p>␊
+            <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4">␊
+                <span class="text-6xl font-bold text-secondary tracking-widest" id="order-number">␊
+                    ---␊
+                </span>␊
+            </div>␊
+            <button data-action="close-success" class="w-full mt-8 p-4 bg-primary text-white text-lg font-bold rounded-lg shadow-md hover:bg-primary/90 transition-colors">
+                Kapat␊
+            </button>␊
+        </div>␊
+    </div>␊
 
     <!-- JavaScript Bölümü -->
     <script>
@@ -235,17 +291,7 @@
             'pasta': [
                 { id: 'p1', name: 'PilePasta', description: 'Fusilli Pasta, Chicken Breast, Pesto Sauce, Parmesan Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=PilePasta', sizes: [{ size: 'XL', price: 9, weight: '400gr' }] },
                 { id: 'p2', name: 'BoomPasta', description: 'Fusilli Pasta, Basil Tomato Sauce, Vegan Boom Balls', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=BoomPasta', sizes: [{ size: 'XL', price: 11, weight: '430gr' }] },
-                { id: 'p3', name: 'TunaTwist', description: 'Fusilli Pasta, Tuna, Capers, Corn, Pickles, Green Olives', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TunaTwist', sizes: [{ size: 'XL', price: 10, weight: '480gr' }] },
-                { id: 'p4', name: 'TandooriTangle', description: 'Fusilli Pasta, Tandoori Meat, Cheddar Sauce, Parmesan Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TandooriTangle', sizes: [{ size: 'XL', price: 12, weight: '410gr' }] },
-                { id: 'p5', name: 'CrunchPasta', description: 'Fusilli Pasta, Crispy Chicken, Cheddar Sauce, Caesar Sauce, Parmesan Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=CrunchPasta', sizes: [{ size: 'XL', price: 12, weight: '420gr' }] },
-                { id: 'p6', name: 'Veganissimo', description: 'Fusilli Pasta, Tomato Sauce, Tomato, Red Peppers, Green Peppers, Green Olive, Thinly sliced Pickles, Sweet Corn', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Veganissimo', sizes: [{ size: 'XL', price: 9, weight: '420gr' }] }
-            ],
-            'salads': [
-                { id: 'sa1', name: 'VegetableSalad', description: 'Tomato, Cucumber, Pickles, Green-Red Pepper, Red Onion, Corn, Olive, Lemon, Olive Oil, Lettuce, Arugula', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=VegetableSalad', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
-                { id: 'sa2', name: 'TunaSalad', description: 'Tuna, Capers, Corn, Pickles, Red Onion, Green Olives, Lettuce, Arugula, Green-Red Peppers', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TunaSalad', sizes: [{ size: 'XL', price: 10, weight: '530gr' }] },
-                { id: 'sa3', name: 'CaesarSalad', description: 'Crispy Chicken, Caesar Sauce, Lettuce, Tomatoes, Arugula, Lemon', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=CaesarSalad', sizes: [{ size: 'XL', price: 10, weight: '470gr' }] }
-            ],
-            'desserts': [ // Kullanıcının isteği üzerine eklenen varsayılan kategori
+@@ -249,244 +249,376 @@
                 { id: 'd1', name: 'Çikolatalı Sufle', description: 'Akışkan çikolatalı, sıcak ve taze sufle.', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Sufle', sizes: [{ size: 'Tek Boy', price: 6, weight: '200gr' }] },
                 { id: 'd2', name: 'Cheesecake', description: 'Limonlu veya Çilekli seçenekleriyle.', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Cheesecake', sizes: [{ size: 'Tek Boy', price: 5, weight: '250gr' }] },
                 { id: 'd3', name: 'Tiramisu', description: 'Geleneksel İtalyan tatlısı.', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Tiramisu', sizes: [{ size: 'Tek Boy', price: 7, weight: '220gr' }] }
@@ -277,6 +323,13 @@
             updateActiveCategory('sandwiches');
             attachModalListeners();
             populateDrinkModal(); // İçecek modalını bir kez doldur
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEventDelegation();
+            loadCart();
+            renderProducts('sandwiches'); // Ana sayfa sandviçler
+            updateActiveCategory('sandwiches');
+            attachModalListeners();
+            populateDrinkModal(); // İçecek modalını bir kez doldur
         });
         
         /**
@@ -292,32 +345,58 @@
             }
 
             menuData[categoryKey].forEach(item => {
-                const productCard = `
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02]">
-                        <!-- Ürün Resmi -->
-                        <img src="${item.image}" alt="${item.name}" class="w-full h-48 md:h-56 object-cover" onerror="this.src='https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok'">
+                const productCard = `␍␊
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02]">␍␊
+                        <!-- Ürün Resmi -->␍␊
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-48 md:h-56 object-cover" onerror="this.src='https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok'">␍␊
                         
-                        <div class="p-5 flex flex-col flex-grow">
-                            <!-- Ürün Adı ve Fiyatı -->
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-bold text-primary">${item.name}</h3>
-                                <!-- Fiyat, XL/XXL durumuna göre değişir -->
-                                <span class="text-xl font-bold text-secondary">
-                                    €${item.sizes[0].price.toFixed(2)}
-                                    ${item.sizes.length > 1 ? '+' : ''} <!-- Birden fazla boyut varsa + işareti -->
-                                </span>
-                            </div>
-                            <!-- Ürün Açıklaması -->
-                            <p class="text-gray-600 text-sm mb-4 flex-grow">${item.description}</p>
+                        <div class="p-5 flex flex-col flex-grow">␍␊
+                            <!-- Ürün Adı ve Fiyatı -->␍␊
+                            <div class="flex justify-between items-start mb-2">␍␊
+                                <h3 class="text-xl font-bold text-primary">${item.name}</h3>␍␊
+                                <!-- Fiyat, XL/XXL durumuna göre değişir -->␍␊
+                                <span class="text-xl font-bold text-secondary">␍␊
+                                    €${item.sizes[0].price.toFixed(2)}␍␊
+                                    ${item.sizes.length > 1 ? '+' : ''} <!-- Birden fazla boyut varsa + işareti -->␍␊
+                                </span>␍␊
+                            </div>␍␊
+                            <!-- Ürün Açıklaması -->␍␊
+                            <p class="text-gray-600 text-sm mb-4 flex-grow">${item.description}</p>␍␊
                             
-                            <!-- Sepete Ekle Butonu -->
+                            <!-- Sepete Ekle Butonu -->␍␊
                             <button onclick="startAddToCartFlow('${item.id}', '${categoryKey}')" class="w-full mt-auto p-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors">
-                                <i class="fa-solid fa-plus mr-2"></i>Sepete Ekle
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.innerHTML += productCard;
+                                <i class="fa-solid fa-plus mr-2"></i>Sepete Ekle␍␊
+                            </button>␍␊
+                        </div>␍␊
+                    </div>␍␊
+                `;␍␊
+                grid.innerHTML += productCard;␍␊
+                const productCard = `␊
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02]">␊
+                        <!-- Ürün Resmi -->␊
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-48 md:h-56 object-cover" onerror="this.src='https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok'">␊
+
+                        <div class="p-5 flex flex-col flex-grow">␊
+                            <!-- Ürün Adı ve Fiyatı -->␊
+                            <div class="flex justify-between items-start mb-2">␊
+                                <h3 class="text-xl font-bold text-primary">${item.name}</h3>␊
+                                <!-- Fiyat, XL/XXL durumuna göre değişir -->␊
+                                <span class="text-xl font-bold text-secondary">␊
+                                    €${item.sizes[0].price.toFixed(2)}␊
+                                    ${item.sizes.length > 1 ? '+' : ''} <!-- Birden fazla boyut varsa + işareti -->␊
+                                </span>␊
+                            </div>␊
+                            <!-- Ürün Açıklaması -->␊
+                            <p class="text-gray-600 text-sm mb-4 flex-grow">${item.description}</p>␊
+
+                            <!-- Sepete Ekle Butonu -->␊
+                            <button data-action="start-add" data-product-id="${item.id}" data-category="${categoryKey}" class="w-full mt-auto p-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors">
+                                <i class="fa-solid fa-plus mr-2"></i>Sepete Ekle␊
+                            </button>␊
+                        </div>␊
+                    </div>␊
+                `;␊
+                grid.innerHTML += productCard;␊
             });
         }
 
@@ -332,9 +411,13 @@
             
             // İlgili kategori butonlarına 'active' sınıfını ekle
             document.querySelectorAll(`.nav-link[onclick="showCategory('${categoryKey}')"]`).forEach(link => {
-                link.classList.add('active');
-            });
-        }
+                link.classList.add('active');␍␊
+            });␍␊
+        }␍␊
+            document.querySelectorAll(`.nav-link[data-category="${categoryKey}"]`).forEach(link => {
+                link.classList.add('active');␊
+            });␊
+        }␊
 
         /**
          * Kategori değiştirme fonksiyonu
@@ -345,6 +428,88 @@
         }
 
         // --- 4. SEPETE EKLEME AKIŞI (Add to Cart Flow) ---
+        function showCategory(categoryKey) {
+            renderProducts(categoryKey);
+            updateActiveCategory(categoryKey);
+        }
+
+        function initializeEventDelegation() {
+            document.addEventListener('click', handleGlobalClick);
+        }
+
+        function handleGlobalClick(event) {
+            const actionElement = event.target.closest('[data-action]');
+            if (!actionElement) {
+                return;
+            }
+
+            const action = actionElement.dataset.action;
+
+            switch (action) {
+                case 'show-category': {
+                    const category = actionElement.dataset.category;
+                    if (category) {
+                        showCategory(category);
+                    }
+                    break;
+                }
+                case 'open-cart':
+                    toggleCartModal(true);
+                    break;
+                case 'close-cart':
+                    toggleCartModal(false);
+                    break;
+                case 'confirm-order':
+                    confirmOrder();
+                    break;
+                case 'close-size':
+                    closeSizeModal();
+                    break;
+                case 'close-drink':
+                    closeDrinkModal();
+                    break;
+                case 'skip-drink':
+                    skipDrink();
+                    break;
+                case 'close-success':
+                    closeSuccessModal();
+                    break;
+                case 'start-add': {
+                    const productId = actionElement.dataset.productId;
+                    const category = actionElement.dataset.category;
+                    if (productId && category) {
+                        startAddToCartFlow(productId, category);
+                    }
+                    break;
+                }
+                case 'select-drink': {
+                    const drinkId = actionElement.dataset.drinkId;
+                    if (drinkId) {
+                        selectDrink(drinkId);
+                    }
+                    break;
+                }
+                case 'update-quantity': {
+                    const cartItemId = actionElement.dataset.cartItemId;
+                    const change = Number(actionElement.dataset.change);
+                    if (cartItemId && Number.isFinite(change)) {
+                        updateQuantity(cartItemId, change);
+                    }
+                    break;
+                }
+                case 'remove-from-cart': {
+                    const cartItemId = actionElement.dataset.cartItemId;
+                    if (cartItemId) {
+                        removeFromCart(cartItemId);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        // --- 4. SEPETE EKLEME AKIŞI (Add to Cart Flow) ---
 
         /**
          * Akış Başlangıcı: Kullanıcı "Sepete Ekle" butonuna bastığında
@@ -352,6 +517,20 @@
         function startAddToCartFlow(itemId, categoryKey) {
             const product = menuData[categoryKey].find(p => p.id === itemId);
             currentProductToAdd = product;
+        function startAddToCartFlow(itemId, categoryKey) {
+            const categoryItems = menuData[categoryKey];
+            if (!categoryItems) {
+                showToast('Seçilen kategori bulunamadı.');
+                return;
+            }
+
+            const product = categoryItems.find(p => p.id === itemId);
+            if (!product) {
+                showToast('Seçilen ürün bulunamadı.');
+                return;
+            }
+            currentProductToAdd = product;
+            currentSizeSelection = null;
             
             // Kategoriye göre akışı belirle (Sandviç, Makarna, Tatlı ise boyut sor)
             const needsSizeSelection = ['sandwiches', 'pasta', 'desserts'].includes(categoryKey);
@@ -383,6 +562,44 @@
                 showToast(`${product.name} sepete eklendi.`);
             }
         }
+            if (needsSizeSelection) {
+                if (!product.sizes || product.sizes.length === 0) {
+                    showToast('Bu ürün için boyut bilgisi bulunamadı.');
+                    resetAddFlow();
+                    return;
+                }
+
+                // --- !!! GÜNCELLEME BAŞLANGICI: Tek boyutlu ürünler için akış düzeltmesi !!! ---
+                if (product.sizes.length === 1) {
+                    // Ürünün sadece bir boyutu varsa (örn: XL veya "Tek Boy")
+                    // Bu boyutu otomatik olarak seç ve doğrudan içecek modalına geç.
+                    const size = product.sizes[0];
+                    currentSizeSelection = { size: size.size, price: size.price };
+
+                    // Boyut modalını GÖSTERME, doğrudan içecek modalını aç
+                    toggleDrinkModal(true);
+                } else {
+                    // Ürünün birden fazla boyutu varsa (örn: XL ve XXL)
+                    // Boyut modalını doldur ve göster
+                    populateSizeModal(product);
+                    toggleSizeModal(true);
+                }
+                // --- !!! GÜNCELLEME SONU !!! ---
+
+            } else {
+                // Salata veya içecek gibi doğrudan eklenen ürünler
+                const defaultSize = product.sizes?.[0];
+                if (!defaultSize) {
+                    showToast('Bu ürün için fiyat bilgisi bulunamadı.');
+                    resetAddFlow();
+                    return;
+                }
+                addItemToCart(product, defaultSize);
+                resetAddFlow();
+                // Başarılı ekleme bildirimi (isteğe bağlı)
+                showToast(`${product.name} sepete eklendi.`);
+            }
+        }
 
         /**
          * Boyut (XL/XXL) modalını ürün bilgisiyle doldurur
@@ -404,6 +621,17 @@
                 optionsContainer.appendChild(sizeButton);
             });
         }
+                const sizeButton = document.createElement('button');
+                sizeButton.type = 'button';
+                sizeButton.className = "w-full p-4 bg-primary text-white text-lg font-semibold rounded-lg shadow-md hover:bg-primary/90 transition-colors flex justify-between items-center";
+                sizeButton.innerHTML = `
+                    <span>${size.size} (${size.weight})</span>
+                    <span>€${size.price.toFixed(2)}</span>
+                `;
+                sizeButton.addEventListener('click', () => selectSize(size));
+                optionsContainer.appendChild(sizeButton);
+            });
+        }
         
         /**
          * İçecek modalını doldurur (Bu sadece bir kez yapılır)
@@ -422,6 +650,27 @@
                     </button>
                 `;
                 optionsContainer.innerHTML += drinkButton;
+            });
+        }
+        function populateDrinkModal() {
+            const optionsContainer = document.getElementById('drink-options');
+            optionsContainer.innerHTML = '';
+            menuData.drinks.forEach(drink => {
+                const drinkButton = document.createElement('button');
+                drinkButton.type = 'button';
+                drinkButton.className = 'w-full p-4 bg-white border border-gray-300 rounded-lg shadow-sm hover:border-primary hover:bg-primary/5 transition-colors flex justify-between items-center text-left';
+                drinkButton.dataset.action = 'select-drink';
+                drinkButton.dataset.drinkId = drink.id;
+                const drinkSize = drink.sizes?.[0];
+                const priceLabel = drinkSize ? `+ €${drinkSize.price.toFixed(2)}` : 'Fiyat bilgisi yok';
+                drinkButton.innerHTML = `
+                        <div>
+                            <span class="text-lg font-semibold text-gray-800">${drink.name}</span>
+                            <span class="text-sm text-gray-500 block">${drink.description}</span>
+                        </div>
+                        <span class="text-lg font-bold text-secondary">${priceLabel}</span>
+                `;
+                optionsContainer.appendChild(drinkButton);
             });
         }
 
@@ -465,6 +714,61 @@
             resetAddFlow();
             showToast(`${currentProductToAdd.name} sepete eklendi.`);
         }
+        function selectDrink(drinkId) {
+            if (!currentProductToAdd || !currentSizeSelection) {
+                showToast('Ürün seçimi tamamlanamadı. Lütfen yeniden deneyin.');
+                toggleDrinkModal(false);
+                resetAddFlow();
+                return;
+            }
+
+            const drinkProduct = menuData.drinks.find(d => d.id === drinkId);
+            if (!drinkProduct) {
+                showToast('Seçilen içecek bulunamadı.');
+                return;
+            }
+
+            const drinkSize = drinkProduct.sizes?.[0];
+            if (!drinkSize) {
+                showToast('Seçilen içecek için fiyat bilgisi bulunamadı.');
+                return;
+            }
+
+            const mainProductName = currentProductToAdd.name;
+            const drinkName = drinkProduct.name;
+
+            // 1. Ana ürünü sepete ekle
+            addItemToCart(currentProductToAdd, currentSizeSelection);
+
+            // 2. İçeceği sepete ekle (ayrı bir ürün olarak)
+            addItemToCart(drinkProduct, drinkSize);
+
+            // Modalları kapat ve sıfırla
+            toggleDrinkModal(false);
+            resetAddFlow();
+            showToast(`${mainProductName} ve ${drinkName} sepete eklendi.`);
+        }
+
+        /**
+         * Akış 3. Alternatif: Kullanıcı içecek istemediğinde
+         */
+        function skipDrink() {
+            if (!currentProductToAdd || !currentSizeSelection) {
+                showToast('Ürün seçimi tamamlanamadı. Lütfen yeniden deneyin.');
+                toggleDrinkModal(false);
+                resetAddFlow();
+                return;
+            }
+
+            const mainProductName = currentProductToAdd.name;
+            // Sadece ana ürünü sepete ekle
+            addItemToCart(currentProductToAdd, currentSizeSelection);
+
+            // Modalları kapat ve sıfırla
+            toggleDrinkModal(false);
+            resetAddFlow();
+            showToast(`${mainProductName} sepete eklendi.`);
+        }
         
         /**
          * Akış sıfırlama
@@ -490,64 +794,7 @@
                 // Varsa, adedi artır
                 existingItem.quantity++;
             } else {
-                // Yoksa, yeni bir sepet öğesi oluştur
-                cart.push({
-                    cartItemId: cartItemId,
-                    id: product.id,
-                    name: product.name,
-                    size: sizeInfo.size,
-                    price: sizeInfo.price,
-                    quantity: 1,
-                    image: product.image // Sepette göstermek için
-                });
-            }
-            // Sepeti güncelle
-            updateCart();
-        }
-
-        /**
-         * Sepet miktarını günceller (+ veya -)
-         */
-        function updateQuantity(cartItemId, change) {
-            const item = cart.find(item => item.cartItemId === cartItemId);
-            if (!item) return;
-
-            item.quantity += change;
-
-            if (item.quantity <= 0) {
-                // Adet 0 veya altına düşerse, sepetten kaldır
-                removeFromCart(cartItemId);
-            } else {
-                updateCart();
-            }
-        }
-
-        /**
-         * Ürünü sepetten kaldırır
-         */
-        function removeFromCart(cartItemId) {
-            cart = cart.filter(item => item.cartItemId !== cartItemId);
-            updateCart();
-        }
-
-        /**
-         * Sepet arayüzünü (DOM) ve toplam fiyatı günceller
-         * !!! HATA DÜZELTMESİ: 'cart-empty-msg' ile 'cart-items' 'ın silme/gösterme mantığı düzeltildi !!!
-         */
-        function updateCart() {
-            const cartItemsContainer = document.getElementById('cart-items');
-            const cartTotalEl = document.getElementById('cart-total');
-            const cartCountEl = document.getElementById('cart-count');
-            const cartEmptyMsg = document.getElementById('cart-empty-msg'); // Bu 'p' elementi artık güvende
-            const confirmOrderBtn = document.getElementById('confirm-order-btn');
-
-            // 'cart-items' div'ini her zaman temizle
-            cartItemsContainer.innerHTML = ''; 
-
-            let total = 0;
-            let totalItems = 0;
-
-            if (cart.length === 0) {
+@@ -551,60 +683,60 @@
                 // Sepet boşsa
                 cartEmptyMsg.style.display = 'block'; // Boş mesajını göster
                 confirmOrderBtn.disabled = true;
@@ -573,16 +820,26 @@
                             </div>
                             <div class="flex items-center space-x-3">
                                 <!-- Adet Kontrolü -->
-                                <div class="flex items-center border border-gray-300 rounded-lg">
+                                <div class="flex items-center border border-gray-300 rounded-lg">␍␊
                                     <button onclick="updateQuantity('${item.cartItemId}', -1)" class="w-8 h-8 text-lg font-bold text-primary hover:bg-gray-100">-</button>
-                                    <span class="w-10 text-center font-semibold">${item.quantity}</span>
+                                    <span class="w-10 text-center font-semibold">${item.quantity}</span>␍␊
                                     <button onclick="updateQuantity('${item.cartItemId}', 1)" class="w-8 h-8 text-lg font-bold text-primary hover:bg-gray-100">+</button>
-                                </div>
-                                <!-- Sil Butonu -->
+                                </div>␍␊
+                                <!-- Sil Butonu -->␍␊
                                 <button onclick="removeFromCart('${item.cartItemId}')" class="text-red-500 hover:text-red-700 transition-colors">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
+                                    <i class="fa-solid fa-trash"></i>␍␊
+                                </button>␍␊
+                            </div>␍␊
+                                <div class="flex items-center border border-gray-300 rounded-lg">␊
+                                    <button data-action="update-quantity" data-cart-item-id="${item.cartItemId}" data-change="-1" class="w-8 h-8 text-lg font-bold text-primary hover:bg-gray-100">-</button>
+                                    <span class="w-10 text-center font-semibold">${item.quantity}</span>␊
+                                    <button data-action="update-quantity" data-cart-item-id="${item.cartItemId}" data-change="1" class="w-8 h-8 text-lg font-bold text-primary hover:bg-gray-100">+</button>
+                                </div>␊
+                                <!-- Sil Butonu -->␊
+                                <button data-action="remove-from-cart" data-cart-item-id="${item.cartItemId}" class="text-red-500 hover:text-red-700 transition-colors">
+                                    <i class="fa-solid fa-trash"></i>␊
+                                </button>␊
+                            </div>␊
                         </div>
                     `;
                     cartItemsContainer.innerHTML += cartItemHTML;
@@ -608,75 +865,7 @@
          */
         function loadCart() {
             const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-            if (storedCart) {
-                cart = JSON.parse(storedCart);
-            }
-            updateCart();
-        }
-
-        // --- 6. SİPARİŞ ONAYI VE NUMARA ÜRETME ---
-
-        /**
-         * Kullanıcı "Siparişi Onayla" butonuna bastığında
-         */
-        function confirmOrder() {
-            if (cart.length === 0) return;
-
-            const orderNumber = getNewOrderNumber();
-            document.getElementById('order-number').innerText = String(orderNumber).padStart(3, '0');
-            
-            // Sepeti temizle
-            cart = [];
-            updateCart(); // Arayüzü ve localStorage'i günceller
-            
-            // Modalları kapat/aç
-            toggleCartModal(false);
-            toggleSuccessModal(true);
-        }
-
-        /**
-         * Benzersiz, günlük sıfırlanan sipariş numarası üretir
-         */
-        function getNewOrderNumber() {
-            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD formatı
-            let orderCounter;
-
-            try {
-                orderCounter = JSON.parse(localStorage.getItem(ORDER_COUNTER_KEY));
-            } catch (e) {
-                orderCounter = null;
-            }
-
-            if (!orderCounter || orderCounter.date !== today) {
-                // Gün değişti veya ilk sipariş
-                // Yeni bir başlangıç numarası ata (101 ile 601 arası)
-                const startNumber = Math.floor(Math.random() * 501) + 101; 
-                orderCounter = {
-                    date: today,
-                    number: startNumber
-                };
-            } else {
-                // Aynı gün, numarayı artır
-                orderCounter.number++;
-            }
-
-            // Yeni sayacı kaydet
-            localStorage.setItem(ORDER_COUNTER_KEY, JSON.stringify(orderCounter));
-            
-            // Sadece 3 haneli kısmı al (eğer 999'u aşarsa 1000 yerine 000 veya 001'e dönmesin, 1000 olsun)
-            // Kullanıcı 3 haneli istedi, 999'dan sonra 1000, 1001 diye devam etmesi daha mantıklı.
-            // Amaç gün içinde benzersiz olmasıysa, 3 haneye sadık kalmak için:
-            // return orderCounter.number % 1000; (Eğer 999'dan sonra 000'a dönmesi istenirse)
-            
-            // Biz 3 haneli "en az" diyelim ve 101'den başlatalım
-            return orderCounter.number;
-        }
-
-        // --- 7. MODAL KONTROLLERİ VE YARDIMCI FONKSİYONLAR ---
-
-        function toggleCartModal(show) {
-            toggleModal('cart-modal', show);
-        }
+@@ -680,74 +812,102 @@
         function toggleSizeModal(show) {
             toggleModal('size-modal', show);
         }
@@ -710,6 +899,27 @@
                 modal.classList.add('hidden');
             }
         }
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.setAttribute('aria-hidden', 'false');
+            } else {
+                modal.classList.add('hidden');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+
+            updateBodyScrollLock();
+        }
+
+        function updateBodyScrollLock() {
+            const anyModalVisible = Array.from(document.querySelectorAll('.modal')).some(modal => !modal.classList.contains('hidden'));
+            document.body.classList.toggle('overflow-hidden', anyModalVisible);
+        }
         
         /**
          * Modalların dışına tıklandığında kapatma (Sepet hariç)
@@ -725,6 +935,33 @@
                     });
                 }
              });
+        }
+        function attachModalListeners() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target !== modal) {
+                        return;
+                    }
+
+                    switch (modal.id) {
+                        case 'cart-modal':
+                            toggleCartModal(false);
+                            break;
+                        case 'size-modal':
+                            closeSizeModal();
+                            break;
+                        case 'drink-modal':
+                            closeDrinkModal();
+                            break;
+                        case 'order-success-modal':
+                            closeSuccessModal();
+                            break;
+                        default:
+                            toggleModal(modal.id, false);
+                            break;
+                    }
+                });
+            });
         }
         
         /**
@@ -751,7 +988,3 @@
                 }, 300);
             }, 3000);
         }
-
-    </script>
-</body>
-</html>
