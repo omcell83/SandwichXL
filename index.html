@@ -75,14 +75,15 @@
         }
 
         .cart-animate {
-            animation: cart-bounce 0.6s ease;
+            animation: cart-bounce 0.9s ease;
         }
 
         @keyframes cart-bounce {
-            0% { transform: translateY(0); }
-            30% { transform: translateY(-6px); }
-            60% { transform: translateY(2px); }
-            100% { transform: translateY(0); }
+            0% { transform: translateY(0) scale(1); }
+            20% { transform: translateY(-10px) scale(1.08); }
+            55% { transform: translateY(4px) scale(0.98); }
+            75% { transform: translateY(-4px) scale(1.03); }
+            100% { transform: translateY(0) scale(1); }
         }
     </style>
 </head>
@@ -95,7 +96,7 @@
             <!-- Logo -->
             <h1 class="text-2xl md:text-3xl font-bold">
                 <a href="#" class="flex items-center space-x-3">
-                    <img src="/logo/logoo.png" alt="Sandwich XL" class="h-10 w-auto">
+                    <img src="logo/logoo.png" alt="Sandwich XL" class="h-10 w-auto">
                     <span class="sr-only">Sandwich XL</span>
                 </a>
             </h1>
@@ -177,29 +178,70 @@
 
     <!-- 3.2. BOYUT SEÇİM MODALI (XL/XXL) -->
     <div id="size-modal" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="size-modal-title">
-        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-6 flex flex-col max-h-[90vh]">
-            <h2 id="size-modal-title" class="text-2xl font-bold text-primary mb-4 text-center">Boyut Seçin</h2>
-            <div id="size-options" class="space-y-3 overflow-y-auto pr-1 flex-1">
-                <!-- Boyut seçenekleri JavaScript ile buraya eklenecek -->
+        <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h2 id="size-modal-title" class="text-2xl font-bold text-primary">Boyut Seçin</h2>
+                <button data-action="close-size" class="text-gray-400 hover:text-gray-600" aria-label="Boyut seçim penceresini kapat">
+                    <i class="fa-solid fa-times text-2xl"></i>
+                </button>
             </div>
-            <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500">Seçili Boyut</p>
-                    <p id="size-selection-label" class="text-lg font-semibold text-gray-800">Henüz seçilmedi</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-500">Toplam</p>
-                    <p id="size-selection-total" class="text-2xl font-bold text-primary">€0.00</p>
+            <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                <p class="text-sm text-gray-500">Lütfen ürününüz için uygun boyutu işaretleyin.</p>
+                <div id="size-options" class="space-y-3">
+                    <!-- Boyut seçenekleri JavaScript ile buraya eklenecek -->
                 </div>
             </div>
-            <div class="mt-4 flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
-                <button id="confirm-size-btn" data-action="confirm-size" class="w-full p-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>Devam Et</button>
-                <button data-action="close-size" class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">Vazgeç</button>
+            <div class="p-5 border-t bg-gray-50 rounded-b-xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">Seçili Boyut</p>
+                        <p id="size-selection-label" class="text-base font-semibold text-gray-800">Henüz seçilmedi</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Boyut Fiyatı</p>
+                        <p id="size-selection-total" class="text-2xl font-bold text-secondary">€0.00</p>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
+                    <button data-action="close-size" class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300 transition-colors">Vazgeç</button>
+                    <button id="confirm-size-btn" data-action="confirm-size" class="w-full p-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>Seçimi Onayla</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 3.3. İÇECEK SEÇİM MODALI -->
+    <!-- 3.3. HIZLI ONAY MODALI (Tek boyutlu ürünler) -->
+    <div id="quick-confirm-modal" class="modal hidden fixed inset-0 z-[65] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="quick-confirm-title">
+        <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl flex flex-col">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h2 id="quick-confirm-title" class="text-2xl font-bold text-primary">Sepete Ekleyelim mi?</h2>
+                <button data-action="close-quick-confirm" class="text-gray-400 hover:text-gray-600" aria-label="Ürün eklemeyi iptal et">
+                    <i class="fa-solid fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok" alt="" data-quick-image class="max-h-full max-w-full object-contain">
+                    </div>
+                    <div>
+                        <h3 data-quick-name class="text-xl font-semibold text-primary"></h3>
+                        <p data-quick-size class="text-sm text-gray-500"></p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <span class="text-sm text-gray-500">Toplam</span>
+                    <span data-quick-price class="text-2xl font-bold text-secondary">€0.00</span>
+                </div>
+            </div>
+            <div class="p-5 border-t bg-gray-50 rounded-b-xl flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
+                <button data-action="close-quick-confirm" class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300 transition-colors">Vazgeç</button>
+                <button data-action="confirm-quick-add" class="w-full p-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors">Sepete Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3.4. İÇECEK SEÇİM MODALI -->
     <div id="drink-modal" class="modal hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="drink-modal-title">
         <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center p-5 border-b">
@@ -246,7 +288,7 @@
         </div>
     </div>
 
-    <!-- 3.4. SİPARİŞ ONAY MODALI -->
+    <!-- 3.5. SİPARİŞ ONAY MODALI -->
     <div id="order-success-modal" class="modal hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="success-modal-title">
         <div class="modal-content bg-white w-full max-w-md rounded-xl shadow-2xl p-8 text-center">
             <div class="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-6">
@@ -319,199 +361,129 @@
         let currentCategoryKey = null; // Ürünün ait olduğu kategori
         let currentSizeSelection = null; // Geçici boyut seçimi
         let currentDrinkSelection = null; // Seçilen içecek bilgisi
+        let quickConfirmImageSources = [];
         const CART_STORAGE_KEY = 'sandwichXL_cart';
         const ORDER_COUNTER_KEY = 'sandwichXL_orderCounter';
         const IMAGE_BASE_PATH = 'assets/images/menu';
         const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok';
-        const imageAvailabilityCache = new Map();
-        const COMMON_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.avif'];
+        const COMMON_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
         const DRINK_SELECTION_CATEGORIES = new Set(['sandwiches', 'pasta']);
 
-        function generateFileNameVariants(raw) {
-            if (!raw || typeof raw !== 'string') {
-                return [];
+        function buildLocalImagePath(fileName) {
+            if (!fileName || typeof fileName !== 'string') {
+                return null;
             }
 
-            const trimmed = raw.trim();
+            const trimmed = fileName.trim().replace(/^\/+/, '');
             if (!trimmed) {
-                return [];
+                return null;
             }
 
-            const bases = [trimmed, trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '')];
-            const variants = new Set();
+            if (trimmed.startsWith(IMAGE_BASE_PATH)) {
+                return trimmed;
+            }
 
-            bases.forEach(base => {
-                const collapsed = base.replace(/\s+/g, ' ').trim();
-                if (!collapsed) {
-                    return;
-                }
+            if (trimmed.includes('/')) {
+                return trimmed;
+            }
 
-                const noSpaces = collapsed.replace(/\s+/g, '');
-                const hyphen = collapsed.replace(/\s+/g, '-');
-                const underscore = collapsed.replace(/\s+/g, '_');
-                const stripped = collapsed.replace(/[^A-Za-z0-9._-]/g, '');
-
-                [
-                    collapsed,
-                    collapsed.toLowerCase(),
-                    noSpaces,
-                    noSpaces.toLowerCase(),
-                    hyphen,
-                    hyphen.toLowerCase(),
-                    underscore,
-                    underscore.toLowerCase(),
-                    stripped,
-                    stripped.toLowerCase()
-                ].forEach(value => {
-                    if (value) {
-                        variants.add(value);
-                    }
-                });
-            });
-
-            return Array.from(variants);
+            return `${IMAGE_BASE_PATH}/${trimmed}`;
         }
 
-        function resolveProductImageCandidates(product) {
+        function resolveProductImageSources(product) {
             if (!product) {
                 return [PLACEHOLDER_IMAGE];
             }
 
-            const candidates = [];
-            const seen = new Set();
-
-            function addCandidate(rawCandidate) {
-                if (!rawCandidate || typeof rawCandidate !== 'string') {
+            const sources = [];
+            const pushUnique = (value) => {
+                if (!value || sources.includes(value)) {
                     return;
                 }
-
-                let candidate = rawCandidate.trim();
-                if (!candidate) {
-                    return;
-                }
-
-                if (/^(https?:)?\/\//i.test(candidate) || candidate.startsWith('data:')) {
-                    if (!seen.has(candidate)) {
-                        seen.add(candidate);
-                        candidates.push(candidate);
-                    }
-                    return;
-                }
-
-                candidate = candidate.replace(/^\/+/, '');
-                if (!candidate.startsWith(IMAGE_BASE_PATH)) {
-                    candidate = `${IMAGE_BASE_PATH}/${candidate}`;
-                }
-
-                if (!seen.has(candidate)) {
-                    seen.add(candidate);
-                    candidates.push(candidate);
-                }
-            }
-
-            function addFileNameCandidates(basePath, fileName) {
-                if (!fileName) {
-                    return;
-                }
-
-                const hasExtension = /\.[a-z0-9]+$/i.test(fileName);
-                if (hasExtension) {
-                    addCandidate(basePath ? `${basePath}/${fileName}` : fileName);
-                    return;
-                }
-
-                const nameVariants = generateFileNameVariants(fileName);
-                const directory = basePath ? `${basePath}/` : '';
-                nameVariants.forEach(variant => {
-                    COMMON_IMAGE_EXTENSIONS.forEach(ext => {
-                        addCandidate(`${directory}${variant}${ext}`);
-                        addCandidate(`${directory}${variant}${ext.toUpperCase()}`);
-                    });
-                });
-            }
+                sources.push(value);
+            };
 
             const rawImage = typeof product.image === 'string' ? product.image.trim() : '';
             if (rawImage) {
                 if (/^(https?:)?\/\//i.test(rawImage) || rawImage.startsWith('data:')) {
-                    addCandidate(rawImage);
+                    pushUnique(rawImage);
                 } else {
-                    const sanitized = rawImage.replace(/^\/+/, '');
-                    const lastSlashIndex = sanitized.lastIndexOf('/');
-                    const basePath = lastSlashIndex >= 0 ? sanitized.slice(0, lastSlashIndex) : '';
-                    const fileName = lastSlashIndex >= 0 ? sanitized.slice(lastSlashIndex + 1) : sanitized;
-                    addFileNameCandidates(basePath, fileName);
+                    const localPath = buildLocalImagePath(rawImage);
+                    if (localPath) {
+                        pushUnique(localPath);
+                        if (!/\.[a-z0-9]+$/i.test(localPath)) {
+                            COMMON_IMAGE_EXTENSIONS.forEach(ext => pushUnique(`${localPath}${ext}`));
+                        }
+                    }
                 }
             }
 
-            const productNameVariants = generateFileNameVariants(product.name || '');
-            productNameVariants.forEach(variant => {
-                COMMON_IMAGE_EXTENSIONS.forEach(ext => {
-                    addCandidate(`${variant}${ext}`);
-                    addCandidate(`${variant}${ext.toUpperCase()}`);
-                });
-            });
+            const name = (product.name || '').trim();
+            if (name) {
+                const compact = name.replace(/\s+/g, '');
+                const lowerCompact = compact.toLowerCase();
+                const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                const slugCompact = slug.replace(/-/g, '');
 
-            if (candidates.length === 0) {
-                return [PLACEHOLDER_IMAGE];
+                [compact, lowerCompact, slugCompact, slug].forEach(candidate => {
+                    if (!candidate) {
+                        return;
+                    }
+                    COMMON_IMAGE_EXTENSIONS.forEach(ext => {
+                        const path = buildLocalImagePath(`${candidate}${ext}`);
+                        if (path) {
+                            pushUnique(path);
+                        }
+                    });
+                });
             }
 
-            return candidates;
+            if (!sources.includes(PLACEHOLDER_IMAGE)) {
+                sources.push(PLACEHOLDER_IMAGE);
+            }
+
+            return sources;
         }
 
-        function loadImageWithFallback(imageElement, targetCandidates) {
+        function loadImageWithFallback(imageElement, targetSources) {
             if (!imageElement) {
                 return;
             }
 
-            const sources = Array.isArray(targetCandidates) ? targetCandidates.filter(Boolean) : [targetCandidates].filter(Boolean);
+            const initialList = Array.isArray(targetSources) ? targetSources : [targetSources];
+            const uniqueSources = [];
 
-            if (sources.length === 0) {
-                imageElement.src = PLACEHOLDER_IMAGE;
-                return;
+            initialList.forEach(source => {
+                if (source && !uniqueSources.includes(source)) {
+                    uniqueSources.push(source);
+                }
+            });
+
+            if (!uniqueSources.includes(PLACEHOLDER_IMAGE)) {
+                uniqueSources.push(PLACEHOLDER_IMAGE);
             }
 
-            let resolved = false;
+            let currentIndex = 0;
 
-            const tryNext = (index) => {
-                if (resolved || index >= sources.length) {
-                    if (!resolved) {
-                        imageElement.src = PLACEHOLDER_IMAGE;
-                    }
-                    return;
-                }
+            imageElement.loading = 'lazy';
+            imageElement.decoding = 'async';
 
-                const candidate = sources[index];
-                if (!candidate) {
-                    tryNext(index + 1);
-                    return;
-                }
-
-                const cachedState = imageAvailabilityCache.get(candidate);
-                if (cachedState) {
-                    if (cachedState === 'available') {
-                        imageElement.src = candidate;
-                        resolved = true;
-                    } else {
-                        tryNext(index + 1);
-                    }
-                    return;
-                }
-
-                const tester = new Image();
-                tester.onload = () => {
-                    imageAvailabilityCache.set(candidate, 'available');
-                    imageElement.src = candidate;
-                    resolved = true;
-                };
-                tester.onerror = () => {
-                    imageAvailabilityCache.set(candidate, 'missing');
-                    tryNext(index + 1);
-                };
-                tester.src = candidate;
+            imageElement.onload = () => {
+                imageElement.onerror = null;
+                imageElement.onload = null;
             };
 
-            imageElement.src = PLACEHOLDER_IMAGE;
-            tryNext(0);
+            imageElement.onerror = () => {
+                currentIndex += 1;
+                if (currentIndex < uniqueSources.length) {
+                    imageElement.src = uniqueSources[currentIndex];
+                } else {
+                    imageElement.onerror = null;
+                    imageElement.onload = null;
+                }
+            };
+
+            imageElement.src = uniqueSources[currentIndex] || PLACEHOLDER_IMAGE;
         }
 
         // --- 3. TEMEL FONKSİYONLAR (Core Functions) ---
@@ -540,7 +512,7 @@
             }
 
             menuData[categoryKey].forEach(item => {
-                const imageCandidates = resolveProductImageCandidates(item);
+                const imageSources = resolveProductImageSources(item);
                 const basePrice = item.sizes?.[0]?.price ?? 0;
                 const basePriceLabel = Number.isFinite(basePrice) ? basePrice.toFixed(2) : '0.00';
                 const sizeLabel = (item.sizes || [])
@@ -551,7 +523,9 @@
                 const productCard = `
                     <button type="button" data-action="start-add" data-product-id="${item.id}" data-category="${categoryKey}" class="group bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-secondary/40 text-left">
                         <!-- Ürün Resmi -->
-                        <img src="${PLACEHOLDER_IMAGE}" data-image-src='${encodeURIComponent(JSON.stringify(imageCandidates))}' alt="${item.name}" class="w-full h-48 md:h-56 object-cover">
+                        <div class="w-full h-48 md:h-56 bg-white flex items-center justify-center overflow-hidden">
+                            <img src="${PLACEHOLDER_IMAGE}" data-image-sources='${encodeURIComponent(JSON.stringify(imageSources))}' alt="${item.name}" class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async">
+                        </div>
 
                         <div class="p-5 flex flex-col flex-grow">
                             <!-- Ürün Adı ve Fiyatı -->
@@ -572,9 +546,9 @@
                 grid.insertAdjacentHTML('beforeend', productCard);
 
                 const card = grid.lastElementChild;
-                const imageElement = card?.querySelector('img[data-image-src]');
+                const imageElement = card?.querySelector('img[data-image-sources]');
                 if (imageElement) {
-                    const targetAttr = imageElement.getAttribute('data-image-src');
+                    const targetAttr = imageElement.getAttribute('data-image-sources');
                     let targetSources;
                     try {
                         targetSources = JSON.parse(decodeURIComponent(targetAttr));
@@ -641,6 +615,9 @@
                 case 'close-size':
                     closeSizeModal();
                     break;
+                case 'close-quick-confirm':
+                    closeQuickConfirmModal();
+                    break;
                 case 'close-drink':
                     closeDrinkModal();
                     break;
@@ -649,6 +626,9 @@
                     break;
                 case 'confirm-size':
                     confirmSizeSelection();
+                    break;
+                case 'confirm-quick-add':
+                    finalizeAddToCart(false);
                     break;
                 case 'confirm-drink':
                     confirmDrinkSelection();
@@ -712,6 +692,22 @@
             currentSizeSelection = null;
             currentDrinkSelection = null;
 
+            if (product.sizes.length === 1) {
+                const size = product.sizes[0];
+                currentSizeSelection = {
+                    size: size.size,
+                    price: Number(size.price),
+                    weight: size.weight
+                };
+
+                if (DRINK_SELECTION_CATEGORIES.has(currentCategoryKey)) {
+                    openDrinkSelection();
+                } else {
+                    openQuickConfirmModal(product, currentSizeSelection);
+                }
+                return;
+            }
+
             populateSizeModal(product);
             toggleSizeModal(true);
         }
@@ -726,7 +722,7 @@
 
             product.sizes.forEach((size, index) => {
                 const label = document.createElement('label');
-                label.className = 'flex items-center justify-between w-full p-4 border border-gray-200 rounded-lg shadow-sm transition-colors cursor-pointer hover:border-secondary hover:bg-secondary/10';
+                label.className = 'flex items-center justify-between w-full p-4 border border-gray-200 rounded-lg shadow-sm transition-colors cursor-pointer hover:border-primary hover:bg-primary/5';
 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
@@ -811,14 +807,14 @@
 
             labels.forEach((label, index) => {
                 const checked = checkboxes[index]?.checked;
-                label.classList.toggle('border-secondary', checked);
-                label.classList.toggle('bg-secondary/10', checked);
-                label.classList.toggle('text-secondary', checked);
+                label.classList.toggle('border-primary', checked);
+                label.classList.toggle('bg-primary/10', checked);
+                label.classList.toggle('text-primary', checked);
                 const icon = label.querySelector('span:last-child');
                 if (icon) {
-                    icon.classList.toggle('bg-secondary', checked);
+                    icon.classList.toggle('bg-primary', checked);
                     icon.classList.toggle('text-white', checked);
-                    icon.classList.toggle('border-secondary', checked);
+                    icon.classList.toggle('border-primary', checked);
                 }
             });
         }
@@ -843,6 +839,39 @@
             toggleDrinkModal(true);
         }
 
+        function openQuickConfirmModal(product, sizeInfo) {
+            const modal = document.getElementById('quick-confirm-modal');
+            if (!modal) {
+                finalizeAddToCart(false);
+                return;
+            }
+
+            const nameEl = modal.querySelector('[data-quick-name]');
+            const sizeEl = modal.querySelector('[data-quick-size]');
+            const priceEl = modal.querySelector('[data-quick-price]');
+            const imageEl = modal.querySelector('[data-quick-image]');
+
+            if (nameEl) {
+                nameEl.innerText = product?.name || '';
+            }
+            if (sizeEl) {
+                const weightPart = sizeInfo?.weight ? ` • ${sizeInfo.weight}` : '';
+                sizeEl.innerText = sizeInfo ? `${sizeInfo.size}${weightPart}` : '';
+            }
+            if (priceEl) {
+                priceEl.innerText = sizeInfo ? `€${Number(sizeInfo.price).toFixed(2)}` : '€0.00';
+            }
+            if (imageEl) {
+                imageEl.alt = product?.name || '';
+                quickConfirmImageSources = resolveProductImageSources(product);
+                loadImageWithFallback(imageEl, quickConfirmImageSources);
+            } else {
+                quickConfirmImageSources = [];
+            }
+
+            toggleQuickConfirmModal(true);
+        }
+
         function populateDrinkOptions() {
             const optionsContainer = document.getElementById('drink-options');
             if (!optionsContainer) {
@@ -863,11 +892,11 @@
                 infoWrapper.className = 'flex items-center space-x-4';
 
                 const thumbnail = document.createElement('img');
-                const drinkImageCandidates = resolveProductImageCandidates(drink);
+                const drinkImageSources = resolveProductImageSources(drink);
                 thumbnail.src = PLACEHOLDER_IMAGE;
                 thumbnail.alt = drink.name;
-                thumbnail.className = 'w-14 h-14 rounded-lg object-cover flex-shrink-0';
-                loadImageWithFallback(thumbnail, drinkImageCandidates);
+                thumbnail.className = 'w-14 h-14 rounded-lg bg-white object-contain flex-shrink-0 p-1 shadow-inner';
+                loadImageWithFallback(thumbnail, drinkImageSources);
 
                 const textWrapper = document.createElement('div');
                 textWrapper.innerHTML = `
@@ -1036,6 +1065,7 @@
             }
 
             toggleSizeModal(false);
+            toggleQuickConfirmModal(false);
             toggleDrinkModal(false);
             showToast(toastMessage);
             animateCartIcon();
@@ -1116,6 +1146,24 @@
             if (drinkTotal) {
                 drinkTotal.innerText = '€0.00';
             }
+
+            const quickName = document.querySelector('[data-quick-name]');
+            const quickSize = document.querySelector('[data-quick-size]');
+            const quickPrice = document.querySelector('[data-quick-price]');
+            const quickImage = document.querySelector('[data-quick-image]');
+            if (quickName) {
+                quickName.innerText = '';
+            }
+            if (quickSize) {
+                quickSize.innerText = '';
+            }
+            if (quickPrice) {
+                quickPrice.innerText = '€0.00';
+            }
+            if (quickImage) {
+                quickImage.src = PLACEHOLDER_IMAGE;
+            }
+            quickConfirmImageSources = [];
         }
 
         // --- 5. SEPET YÖNETİMİ (Cart Management) ---
@@ -1142,7 +1190,7 @@
                     size: sizeInfo.size,
                     price: sizeInfo.price,
                     quantity: 1,
-                    imageCandidates: resolveProductImageCandidates(product)
+                    imageSources: resolveProductImageSources(product)
                 });
             }
             // Sepeti güncelle
@@ -1205,11 +1253,13 @@
                     total += item.price * item.quantity;
                     totalItems += item.quantity;
 
-                    const encodedCandidates = encodeURIComponent(JSON.stringify(item.imageCandidates || []));
+                    const encodedSources = encodeURIComponent(JSON.stringify(item.imageSources || []));
                     const cartItemHTML = `
                         <div class="flex items-center justify-between py-3 border-b last:border-b-0">
                             <div class="flex items-center space-x-3">
-                                <img src="${PLACEHOLDER_IMAGE}" data-image-src='${encodedCandidates}' alt="${item.name}" class="w-16 h-16 rounded-lg object-cover shadow-md">
+                                <div class="w-16 h-16 rounded-lg bg-white shadow-md flex items-center justify-center overflow-hidden">
+                                    <img src="${PLACEHOLDER_IMAGE}" data-image-sources='${encodedSources}' alt="${item.name}" class="max-h-full max-w-full object-contain" loading="lazy" decoding="async">
+                                </div>
                                 <div>
                                     <h4 class="font-bold text-gray-800">${item.name}</h4>
                                     <span class="text-sm text-gray-500">${item.size}</span>
@@ -1233,9 +1283,9 @@
                     cartItemsContainer.insertAdjacentHTML('beforeend', cartItemHTML);
 
                     const lastItemRow = cartItemsContainer.lastElementChild;
-                    const cartImage = lastItemRow?.querySelector('img[data-image-src]');
+                    const cartImage = lastItemRow?.querySelector('img[data-image-sources]');
                     if (cartImage) {
-                        const targetAttr = cartImage.getAttribute('data-image-src');
+                        const targetAttr = cartImage.getAttribute('data-image-sources');
                         let targetSources;
                         try {
                             targetSources = JSON.parse(decodeURIComponent(targetAttr));
@@ -1271,14 +1321,22 @@
                     const parsed = JSON.parse(storedCart);
                     cart = Array.isArray(parsed) ? parsed.map(item => {
                         const normalized = { ...item };
-                        if (!Array.isArray(normalized.imageCandidates) || normalized.imageCandidates.length === 0) {
-                            const fallbackProduct = {
-                                id: normalized.id,
-                                name: normalized.name,
-                                image: normalized.image
-                            };
-                            normalized.imageCandidates = resolveProductImageCandidates(fallbackProduct);
+                        if (Array.isArray(normalized.imageSources) && normalized.imageSources.length > 0) {
+                            return normalized;
                         }
+
+                        if (Array.isArray(normalized.imageCandidates) && normalized.imageCandidates.length > 0) {
+                            normalized.imageSources = normalized.imageCandidates;
+                            delete normalized.imageCandidates;
+                            return normalized;
+                        }
+
+                        const fallbackProduct = {
+                            id: normalized.id,
+                            name: normalized.name,
+                            image: normalized.image
+                        };
+                        normalized.imageSources = resolveProductImageSources(fallbackProduct);
                         return normalized;
                     }) : [];
                 } catch (error) {
@@ -1354,6 +1412,9 @@
         function toggleSizeModal(show) {
             toggleModal('size-modal', show);
         }
+        function toggleQuickConfirmModal(show) {
+            toggleModal('quick-confirm-modal', show);
+        }
         function toggleDrinkModal(show) {
             toggleModal('drink-modal', show);
         }
@@ -1363,6 +1424,10 @@
 
         function closeSizeModal() {
             toggleSizeModal(false);
+            resetAddFlow();
+        }
+        function closeQuickConfirmModal() {
+            toggleQuickConfirmModal(false);
             resetAddFlow();
         }
         function closeDrinkModal() {
@@ -1415,6 +1480,9 @@
                         case 'size-modal':
                             closeSizeModal();
                             break;
+                        case 'quick-confirm-modal':
+                            closeQuickConfirmModal();
+                            break;
                         case 'drink-modal':
                             closeDrinkModal();
                             break;
@@ -1434,19 +1502,26 @@
          */
         function showToast(message) {
             const toast = document.createElement('div');
-            toast.className = 'fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-xl z-[100] transform translate-y-16 opacity-0 transition-all duration-300';
-            toast.innerText = message;
+            toast.className = 'fixed bottom-4 right-4 z-[100] max-w-xs w-full sm:max-w-sm translate-y-8 opacity-0 transition-all duration-300';
+            toast.innerHTML = `
+                <div class="flex items-start space-x-3 rounded-xl border border-primary/20 bg-white p-4 shadow-2xl">
+                    <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                        <i class="fa-solid fa-check"></i>
+                    </span>
+                    <p class="text-sm font-medium text-gray-700 leading-snug">${message}</p>
+                </div>
+            `;
             document.body.appendChild(toast);
-            
+
             // Animasyonla göster
             setTimeout(() => {
-                toast.style.transform = 'translate-y(0)';
+                toast.style.transform = 'translateY(0)';
                 toast.style.opacity = '1';
             }, 100);
-            
+
             // 3 saniye sonra kaldır
             setTimeout(() => {
-                toast.style.transform = 'translate-y(16)';
+                toast.style.transform = 'translateY(16px)';
                 toast.style.opacity = '0';
                 setTimeout(() => {
                     document.body.removeChild(toast);
