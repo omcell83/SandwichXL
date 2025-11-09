@@ -1,19 +1,19 @@
-<!DOCTYPE html>␊
-<html lang="tr">␊
-<head>␊
-    <meta charset="UTF-8">␊
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">␊
-    <title>Sandwich XL - Dijital Menü</title>␊
-    ␊
-    <!-- Tailwind CSS CDN -->␊
-    <script src="https://cdn.tailwindcss.com"></script>␊
-    ␊
-    <!-- Google Fonts (Modern ve Canlı) -->␊
-    <link rel="preconnect" href="https://fonts.googleapis.com">␊
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>␊
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">␊
-    ␊
-    <!-- İkonlar için Font Awesome (Sepet vb.) -->␊
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandwich XL - Dijital Menü</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts (Modern ve Canlı) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- İkonlar için Font Awesome (Sepet vb.) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <script>
@@ -107,38 +107,38 @@
                 <button data-action="show-category" data-category="salads" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Salatalar</button>
                 <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Tatlılar</button>
                 <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">İçecekler</button>
-            </nav>␊
-            ␊
-            <!-- Sepet Butonu -->␊
+            </nav>
+            
+            <!-- Sepet Butonu -->
             <button data-action="open-cart" class="relative flex items-center justify-center p-3 bg-white text-primary rounded-full shadow-md hover:bg-gray-100 transition-colors">
-                <i class="fa-solid fa-basket-shopping text-xl"></i>␊
-                <!-- Sepet Ürün Sayacı -->␊
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>␊
-            </button>␊
-        </div>␊
-        ␊
-        <!-- Kategori Navigasyonu (Mobil) -->␊
-        <nav class="md:hidden bg-white text-primary p-2 overflow-x-auto">␊
-            <div class="flex space-x-2 whitespace-nowrap">␊
+                <i class="fa-solid fa-basket-shopping text-xl"></i>
+                <!-- Sepet Ürün Sayacı -->
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
+            </button>
+        </div>
+        
+        <!-- Kategori Navigasyonu (Mobil) -->
+        <nav class="md:hidden bg-white text-primary p-2 overflow-x-auto">
+            <div class="flex space-x-2 whitespace-nowrap">
                 <button data-action="show-category" data-category="sandwiches" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Sandviçler</button>
                 <button data-action="show-category" data-category="pasta" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Makarnalar</button>
                 <button data-action="show-category" data-category="salads" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Salatalar</button>
                 <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Tatlılar</button>
                 <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">İçecekler</button>
-            </div>␊
-        </nav>␊
-    </header>␊
-␊
-    <!-- 2. ANA İÇERİK / ÜRÜN GRİDİ -->␊
-    <main class="container mx-auto px-4 py-8">␊
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">␊
-            <!-- Ürün kartları JavaScript ile buraya eklenecek -->␊
-        </div>␊
-    </main>␊
-␊
-    <!-- 3. MODALLAR -->␊
-␊
-    <!-- 3.1. SEPET MODALI -->␊
+            </div>
+        </nav>
+    </header>
+
+    <!-- 2. ANA İÇERİK / ÜRÜN GRİDİ -->
+    <main class="container mx-auto px-4 py-8">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Ürün kartları JavaScript ile buraya eklenecek -->
+        </div>
+    </main>
+
+    <!-- 3. MODALLAR -->
+
+    <!-- 3.1. SEPET MODALI -->
     <div id="cart-modal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="cart-modal-title">
         <!-- Modal İçeriği -->
         <div class="modal-content bg-white w-full max-w-lg rounded-xl shadow-2xl relative flex flex-col max-h-[90vh]">
@@ -149,25 +149,25 @@
                     <i class="fa-solid fa-times text-2xl"></i>
                 </button>
             </div>
-            ␊
-            <!-- Sepet Ürünleri Listesi -->␊
-            <!-- !!! HATA DÜZELTMESİ: 'cart-empty-msg' 'cart-items' dışına alındı !!! -->␊
-            <div class="p-5 overflow-y-auto flex-grow">␊
-                <!-- Sepet boş mesajı (artık güvende) -->␊
-                <p id="cart-empty-msg" class="text-center text-gray-500">Sepetiniz şu an boş.</p>␊
-                ␊
-                <!-- Ürünler buraya eklenecek (ayrı bir div) -->␊
-                <div id="cart-items">␊
-                    <!-- Ürünler buraya eklenecek -->␊
-                </div>␊
-            </div>␊
-            ␊
-            <!-- Alt Toplam ve Buton -->␊
-            <div class="p-5 border-t bg-gray-50 rounded-b-xl">␊
-                <div class="flex justify-between items-center mb-4">␊
-                    <span class="text-lg font-semibold text-gray-700">Toplam:</span>␊
-                    <span id="cart-total" class="text-2xl font-bold text-primary">€0.00</span>␊
-                </div>␊
+            
+            <!-- Sepet Ürünleri Listesi -->
+            <!-- !!! HATA DÜZELTMESİ: 'cart-empty-msg' 'cart-items' dışına alındı !!! -->
+            <div class="p-5 overflow-y-auto flex-grow">
+                <!-- Sepet boş mesajı (artık güvende) -->
+                <p id="cart-empty-msg" class="text-center text-gray-500">Sepetiniz şu an boş.</p>
+                
+                <!-- Ürünler buraya eklenecek (ayrı bir div) -->
+                <div id="cart-items">
+                    <!-- Ürünler buraya eklenecek -->
+                </div>
+            </div>
+            
+            <!-- Alt Toplam ve Buton -->
+            <div class="p-5 border-t bg-gray-50 rounded-b-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold text-gray-700">Toplam:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-primary">€0.00</span>
+                </div>
                 <button id="confirm-order-btn" data-action="confirm-order" class="w-full p-4 bg-secondary text-white text-lg font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     Siparişi Onayla
                 </button>
@@ -271,45 +271,45 @@
         // PDF'ten ve varsayılanlardan oluşturulan menü
         const menuData = {
             'sandwiches': [
-                { id: 's1', name: 'CapreseKiss', description: 'Pesto, Tomatoes, Mozzarella, Arugula', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=CapreseKiss', sizes: [{ size: 'XL', price: 8, weight: '600gr' }] },
-                { id: 's2', name: 'TunaTurner', description: 'SXL Sauce, Tuna, Corn, Capers, Red Onion, Pickles, Green Olives, Lettuce, Lemon', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TunaTurner', sizes: [{ size: 'XL', price: 10, weight: '510gr' }] },
-                { id: 's3', name: 'PilePile', description: 'Chicken Breast, Yogurt Sauce, Pickles, Walnuts, Dried Dill', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=PilePile', sizes: [{ size: 'XL', price: 7, weight: '400gr' }] },
-                { id: 's4', name: 'AdriaticBond', description: 'SXL Sauce, Ajvar Sauce, Beef Kullen, Salami, Kobasica, Pickles, Tomato, Mozzarella, Green Olive, Lettuce', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=AdriaticBond', sizes: [{ size: 'XL', price: 13, weight: '500gr' }, { size: 'XXL', price: 16, weight: '640gr' }] },
-                { id: 's5', name: 'MeatMax', description: 'Tandoori Meat, Dry Beef Rump Steak, Prosciutto, Dried Tomatoes, Pickles, Red Onion, Eggplant, Zucchini, Potato', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=MeatMax', sizes: [{ size: 'XL', price: 18, weight: '570gr' }, { size: 'XXL', price: 21, weight: '670gr' }] },
-                { id: 's6', name: 'HolyCow!', description: 'SXL Sauce, Dry Beef Prosciutto, Rump Steak, Smoked Beef, Gouda, Mozzarella, Dried Tomatoes, Pickles, Walnuts, Arugula', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=HolyCow!', sizes: [{ size: 'XL', price: 15, weight: '550gr' }, { size: 'XXL', price: 18, weight: '640gr' }] },
-                { id: 's7', name: 'CrunchZilla', description: 'Fresh Crispy Chicken, SXL Sauce, Gouda, Lettuce, Pesto Sauce', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=CrunchZilla', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] },
-                { id: 's8', name: 'RoyalSmokeBurrata', description: 'Smoked Salmon, Smoked Beef, Truffle Ajoli, Light Crushed Walnuts, Baby Arugula, Fresh Burrata Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=RoyalSmokeBurrata', sizes: [{ size: 'XL', price: 39, weight: '320gr' }] },
-                { id: 's9', name: 'Tandoorium', description: 'Tandoori Meat, Cheddar Cheese, Barbecue Sauce, Cheddar Sauce', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Tandoorium', sizes: [{ size: 'XL', price: 15, weight: '400gr' }, { size: 'XXL', price: 18, weight: '500gr' }] },
-                { id: 's10', name: 'BalkanMorning', description: 'SXL Sauce, Ajvar Sauce, Egg, Gouda, Mozzarella, Tomato, Cucumber, Green Pepper, Red Pepper, Olive, Lettuce, Walnut', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=BalkanMorning', sizes: [{ size: 'XL', price: 9, weight: '470gr' }] },
-                { id: 's11', name: 'ChocoVita', description: 'Nutella, Pistachio, Pistachio Cream, Banana, Oreo, Honey', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=ChocoVita', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
-                { id: 's12', name: 'MortaLisa', description: 'Pesto Sauce, Mortadella, Olives, Pistachios, Mozzarella, Honey, Arugula', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=MortaLisa', sizes: [{ size: 'XL', price: 10, weight: '470gr' }, { size: 'XXL', price: 12, weight: '540gr' }] },
-                { id: 's13', name: 'VeggieLand', description: 'Ajvar Sauce, Zucchini, Eggplant, Potatoes, Carrots, Dried Tomatoes, Green Peppers, Kapia', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=VeggieLand', sizes: [{ size: 'XL', price: 8, weight: '450gr' }] },
-                { id: 's14', name: 'VeggieBoom', description: 'Sxl Vegan Meatball Mix, Ajvar Sauce, Green Pepper, Red Onion, Arugula, Basil Tomato Sauce', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=VeggieBoom', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] }
+                { id: 's1', name: 'CapreseKiss', description: 'Pesto, Tomatoes, Mozzarella, Arugula', image: 'CapreseKiss.png', sizes: [{ size: 'XL', price: 8, weight: '600gr' }] },
+                { id: 's2', name: 'TunaTurner', description: 'SXL Sauce, Tuna, Corn, Capers, Red Onion, Pickles, Green Olives, Lettuce, Lemon', image: 'TunaTurner.png', sizes: [{ size: 'XL', price: 10, weight: '510gr' }] },
+                { id: 's3', name: 'PilePile', description: 'Chicken Breast, Yogurt Sauce, Pickles, Walnuts, Dried Dill', image: 'PilePile.png', sizes: [{ size: 'XL', price: 7, weight: '400gr' }] },
+                { id: 's4', name: 'AdriaticBond', description: 'SXL Sauce, Ajvar Sauce, Beef Kullen, Salami, Kobasica, Pickles, Tomato, Mozzarella, Green Olive, Lettuce', image: 'AdriaticBond.png', sizes: [{ size: 'XL', price: 13, weight: '500gr' }, { size: 'XXL', price: 16, weight: '640gr' }] },
+                { id: 's5', name: 'MeatMax', description: 'Tandoori Meat, Dry Beef Rump Steak, Prosciutto, Dried Tomatoes, Pickles, Red Onion, Eggplant, Zucchini, Potato', image: 'MeatMax.png', sizes: [{ size: 'XL', price: 18, weight: '570gr' }, { size: 'XXL', price: 21, weight: '670gr' }] },
+                { id: 's6', name: 'HolyCow!', description: 'SXL Sauce, Dry Beef Prosciutto, Rump Steak, Smoked Beef, Gouda, Mozzarella, Dried Tomatoes, Pickles, Walnuts, Arugula', image: 'HolyCow.png', sizes: [{ size: 'XL', price: 15, weight: '550gr' }, { size: 'XXL', price: 18, weight: '640gr' }] },
+                { id: 's7', name: 'CrunchZilla', description: 'Fresh Crispy Chicken, SXL Sauce, Gouda, Lettuce, Pesto Sauce', image: 'CrunchZilla.png', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] },
+                { id: 's8', name: 'RoyalSmokeBurrata', description: 'Smoked Salmon, Smoked Beef, Truffle Ajoli, Light Crushed Walnuts, Baby Arugula, Fresh Burrata Cheese', image: 'RoyalSmokeBurrata.png', sizes: [{ size: 'XL', price: 39, weight: '320gr' }] },
+                { id: 's9', name: 'Tandoorium', description: 'Tandoori Meat, Cheddar Cheese, Barbecue Sauce, Cheddar Sauce', image: 'Tandoorium.png', sizes: [{ size: 'XL', price: 15, weight: '400gr' }, { size: 'XXL', price: 18, weight: '500gr' }] },
+                { id: 's10', name: 'BalkanMorning', description: 'SXL Sauce, Ajvar Sauce, Egg, Gouda, Mozzarella, Tomato, Cucumber, Green Pepper, Red Pepper, Olive, Lettuce, Walnut', image: 'BalkanMorning.png', sizes: [{ size: 'XL', price: 9, weight: '470gr' }] },
+                { id: 's11', name: 'ChocoVita', description: 'Nutella, Pistachio, Pistachio Cream, Banana, Oreo, Honey', image: 'ChocoVita.png', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
+                { id: 's12', name: 'MortaLisa', description: 'Pesto Sauce, Mortadella, Olives, Pistachios, Mozzarella, Honey, Arugula', image: 'MortaLisa.png', sizes: [{ size: 'XL', price: 10, weight: '470gr' }, { size: 'XXL', price: 12, weight: '540gr' }] },
+                { id: 's13', name: 'VeggieLand', description: 'Ajvar Sauce, Zucchini, Eggplant, Potatoes, Carrots, Dried Tomatoes, Green Peppers, Kapia', image: 'VeggieLand.png', sizes: [{ size: 'XL', price: 8, weight: '450gr' }] },
+                { id: 's14', name: 'VeggieBoom', description: 'Sxl Vegan Meatball Mix, Ajvar Sauce, Green Pepper, Red Onion, Arugula, Basil Tomato Sauce', image: 'VeggieBoom.png', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] }
             ],
             'pasta': [
-                { id: 'p1', name: 'PilePasta', description: 'Fusilli Pasta, Chicken Breast, Pesto Sauce, Parmesan Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=PilePasta', sizes: [{ size: 'XL', price: 9, weight: '400gr' }] },
-                { id: 'p2', name: 'BoomPasta', description: 'Fusilli Pasta, Basil Tomato Sauce, Vegan Boom Balls', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=BoomPasta', sizes: [{ size: 'XL', price: 11, weight: '430gr' }] },
-                { id: 'p3', name: 'TunaTwist', description: 'Fusilli Pasta, Tuna, Capers, Corn, Pickles, Green Olives', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TunaTwist', sizes: [{ size: 'XL', price: 10, weight: '480gr' }] },
-                { id: 'p4', name: 'TandooriTangle', description: 'Fusilli Pasta, Tandoori Meat, Cheddar Sauce, Parmesan Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TandooriTangle', sizes: [{ size: 'XL', price: 12, weight: '410gr' }] },
-                { id: 'p5', name: 'CrunchPasta', description: 'Fusilli Pasta, Crispy Chicken, Cheddar Sauce, Caesar Sauce, Parmesan Cheese', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=CrunchPasta', sizes: [{ size: 'XL', price: 12, weight: '420gr' }] },
-                { id: 'p6', name: 'Veganissimo', description: 'Fusilli Pasta, Tomato Sauce, Tomato, Red Peppers, Green Peppers, Green Olive, Thinly sliced Pickles, Sweet Corn', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Veganissimo', sizes: [{ size: 'XL', price: 9, weight: '420gr' }] }
+                { id: 'p1', name: 'PilePasta', description: 'Fusilli Pasta, Chicken Breast, Pesto Sauce, Parmesan Cheese', image: 'PilePasta.png', sizes: [{ size: 'XL', price: 9, weight: '400gr' }] },
+                { id: 'p2', name: 'BoomPasta', description: 'Fusilli Pasta, Basil Tomato Sauce, Vegan Boom Balls', image: 'BoomPasta.png', sizes: [{ size: 'XL', price: 11, weight: '430gr' }] },
+                { id: 'p3', name: 'TunaTwist', description: 'Fusilli Pasta, Tuna, Capers, Corn, Pickles, Green Olives', image: 'TunaTwist.png', sizes: [{ size: 'XL', price: 10, weight: '480gr' }] },
+                { id: 'p4', name: 'TandooriTangle', description: 'Fusilli Pasta, Tandoori Meat, Cheddar Sauce, Parmesan Cheese', image: 'TandooriTangle.png', sizes: [{ size: 'XL', price: 12, weight: '410gr' }] },
+                { id: 'p5', name: 'CrunchPasta', description: 'Fusilli Pasta, Crispy Chicken, Cheddar Sauce, Caesar Sauce, Parmesan Cheese', image: 'CrunchPasta.png', sizes: [{ size: 'XL', price: 12, weight: '420gr' }] },
+                { id: 'p6', name: 'Veganissimo', description: 'Fusilli Pasta, Tomato Sauce, Tomato, Red Peppers, Green Peppers, Green Olive, Thinly sliced Pickles, Sweet Corn', image: 'Veganissimo.png', sizes: [{ size: 'XL', price: 9, weight: '420gr' }] }
             ],
             'salads': [
-                { id: 'sa1', name: 'VegetableSalad', description: 'Tomato, Cucumber, Pickles, Green-Red Pepper, Red Onion, Corn, Olive, Lemon, Olive Oil, Lettuce, Arugula', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=VegetableSalad', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
-                { id: 'sa2', name: 'TunaSalad', description: 'Tuna, Capers, Corn, Pickles, Red Onion, Green Olives, Lettuce, Arugula, Green-Red Peppers', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=TunaSalad', sizes: [{ size: 'XL', price: 10, weight: '530gr' }] },
-                { id: 'sa3', name: 'CaesarSalad', description: 'Crispy Chicken, Caesar Sauce, Lettuce, Tomatoes, Arugula, Lemon', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=CaesarSalad', sizes: [{ size: 'XL', price: 10, weight: '470gr' }] }
+                { id: 'sa1', name: 'VegetableSalad', description: 'Tomato, Cucumber, Pickles, Green-Red Pepper, Red Onion, Corn, Olive, Lemon, Olive Oil, Lettuce, Arugula', image: 'VegetableSalad.png', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
+                { id: 'sa2', name: 'TunaSalad', description: 'Tuna, Capers, Corn, Pickles, Red Onion, Green Olives, Lettuce, Arugula, Green-Red Peppers', image: 'TunaSalad.png', sizes: [{ size: 'XL', price: 10, weight: '530gr' }] },
+                { id: 'sa3', name: 'CaesarSalad', description: 'Crispy Chicken, Caesar Sauce, Lettuce, Tomatoes, Arugula, Lemon', image: 'CaesarSalad.png', sizes: [{ size: 'XL', price: 10, weight: '470gr' }] }
             ],
             'desserts': [ // Kullanıcının isteği üzerine eklenen varsayılan kategori
-                { id: 'd1', name: 'Çikolatalı Sufle', description: 'Akışkan çikolatalı, sıcak ve taze sufle.', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Sufle', sizes: [{ size: 'Tek Boy', price: 6, weight: '200gr' }] },
-                { id: 'd2', name: 'Cheesecake', description: 'Limonlu veya Çilekli seçenekleriyle.', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Cheesecake', sizes: [{ size: 'Tek Boy', price: 5, weight: '250gr' }] },
-                { id: 'd3', name: 'Tiramisu', description: 'Geleneksel İtalyan tatlısı.', image: 'https://placehold.co/600x400/05594C/FFFFFF?text=Tiramisu', sizes: [{ size: 'Tek Boy', price: 7, weight: '220gr' }] }
+                { id: 'd1', name: 'Çikolatalı Sufle', description: 'Akışkan çikolatalı, sıcak ve taze sufle.', image: 'CikolatalSufle.png', sizes: [{ size: 'Tek Boy', price: 6, weight: '200gr' }] },
+                { id: 'd2', name: 'Cheesecake', description: 'Limonlu veya Çilekli seçenekleriyle.', image: 'Cheesecake.png', sizes: [{ size: 'Tek Boy', price: 5, weight: '250gr' }] },
+                { id: 'd3', name: 'Tiramisu', description: 'Geleneksel İtalyan tatlısı.', image: 'Tiramisu.png', sizes: [{ size: 'Tek Boy', price: 7, weight: '220gr' }] }
             ],
             'drinks': [ // İçecek seçimi için eklenen varsayılan kategori
-                { id: 'dr1', name: 'Kola', description: '330ml Kutu', image: 'https://placehold.co/600x400/EF7F1A/FFFFFF?text=Kola', sizes: [{ size: '330ml', price: 2.5, weight: '330ml' }] },
-                { id: 'dr2', name: 'Ayran', description: '300ml Kutu', image: 'https://placehold.co/600x400/EF7F1A/FFFFFF?text=Ayran', sizes: [{ size: '300ml', price: 2, weight: '300ml' }] },
-                { id: 'dr3', name: 'Su', description: '500ml Pet', image: 'https://placehold.co/600x400/EF7F1A/FFFFFF?text=Su', sizes: [{ size: '500ml', price: 1.5, weight: '500ml' }] },
-                { id: 'dr4', name: 'Portakal Suyu', description: 'Taze Sıkılmış', image: 'https://placehold.co/600x400/EF7F1A/FFFFFF?text=Portakal+Suyu', sizes: [{ size: '300ml', price: 4, weight: '300ml' }] },
-                { id: 'dr5', name: 'Kahve', description: 'Filtre Kahve', image: 'https://placehold.co/600x400/EF7F1A/FFFFFF?text=Kahve', sizes: [{ size: 'Orta Boy', price: 3.5, weight: '250ml' }] }
+                { id: 'dr1', name: 'Kola', description: '330ml Kutu', image: 'Kola.png', sizes: [{ size: '330ml', price: 2.5, weight: '330ml' }] },
+                { id: 'dr2', name: 'Ayran', description: '300ml Kutu', image: 'Ayran.png', sizes: [{ size: '300ml', price: 2, weight: '300ml' }] },
+                { id: 'dr3', name: 'Su', description: '500ml Pet', image: 'Su.png', sizes: [{ size: '500ml', price: 1.5, weight: '500ml' }] },
+                { id: 'dr4', name: 'Portakal Suyu', description: 'Taze Sıkılmış', image: 'PortakalSuyu.png', sizes: [{ size: '300ml', price: 4, weight: '300ml' }] },
+                { id: 'dr5', name: 'Kahve', description: 'Filtre Kahve', image: 'Kahve.png', sizes: [{ size: 'Orta Boy', price: 3.5, weight: '250ml' }] }
             ]
         };
 
@@ -321,23 +321,197 @@
         let currentDrinkSelection = null; // Seçilen içecek bilgisi
         const CART_STORAGE_KEY = 'sandwichXL_cart';
         const ORDER_COUNTER_KEY = 'sandwichXL_orderCounter';
-        const IMAGE_BASE_PATH = '/assets/images/menu';
+        const IMAGE_BASE_PATH = 'assets/images/menu';
+        const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok';
+        const imageAvailabilityCache = new Map();
+        const COMMON_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.avif'];
         const DRINK_SELECTION_CATEGORIES = new Set(['sandwiches', 'pasta']);
 
-        function normalizeFileName(name) {
-            if (!name) {
-                return 'placeholder';
+        function generateFileNameVariants(raw) {
+            if (!raw || typeof raw !== 'string') {
+                return [];
             }
 
-            return name
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-zA-Z0-9]/g, '') || 'placeholder';
+            const trimmed = raw.trim();
+            if (!trimmed) {
+                return [];
+            }
+
+            const bases = [trimmed, trimmed.normalize('NFD').replace(/[\u0300-\u036f]/g, '')];
+            const variants = new Set();
+
+            bases.forEach(base => {
+                const collapsed = base.replace(/\s+/g, ' ').trim();
+                if (!collapsed) {
+                    return;
+                }
+
+                const noSpaces = collapsed.replace(/\s+/g, '');
+                const hyphen = collapsed.replace(/\s+/g, '-');
+                const underscore = collapsed.replace(/\s+/g, '_');
+                const stripped = collapsed.replace(/[^A-Za-z0-9._-]/g, '');
+
+                [
+                    collapsed,
+                    collapsed.toLowerCase(),
+                    noSpaces,
+                    noSpaces.toLowerCase(),
+                    hyphen,
+                    hyphen.toLowerCase(),
+                    underscore,
+                    underscore.toLowerCase(),
+                    stripped,
+                    stripped.toLowerCase()
+                ].forEach(value => {
+                    if (value) {
+                        variants.add(value);
+                    }
+                });
+            });
+
+            return Array.from(variants);
         }
 
-        function getImagePathForProduct(name) {
-            const safeName = normalizeFileName(name);
-            return `${IMAGE_BASE_PATH}/${safeName}.png`;
+        function resolveProductImageCandidates(product) {
+            if (!product) {
+                return [PLACEHOLDER_IMAGE];
+            }
+
+            const candidates = [];
+            const seen = new Set();
+
+            function addCandidate(rawCandidate) {
+                if (!rawCandidate || typeof rawCandidate !== 'string') {
+                    return;
+                }
+
+                let candidate = rawCandidate.trim();
+                if (!candidate) {
+                    return;
+                }
+
+                if (/^(https?:)?\/\//i.test(candidate) || candidate.startsWith('data:')) {
+                    if (!seen.has(candidate)) {
+                        seen.add(candidate);
+                        candidates.push(candidate);
+                    }
+                    return;
+                }
+
+                candidate = candidate.replace(/^\/+/, '');
+                if (!candidate.startsWith(IMAGE_BASE_PATH)) {
+                    candidate = `${IMAGE_BASE_PATH}/${candidate}`;
+                }
+
+                if (!seen.has(candidate)) {
+                    seen.add(candidate);
+                    candidates.push(candidate);
+                }
+            }
+
+            function addFileNameCandidates(basePath, fileName) {
+                if (!fileName) {
+                    return;
+                }
+
+                const hasExtension = /\.[a-z0-9]+$/i.test(fileName);
+                if (hasExtension) {
+                    addCandidate(basePath ? `${basePath}/${fileName}` : fileName);
+                    return;
+                }
+
+                const nameVariants = generateFileNameVariants(fileName);
+                const directory = basePath ? `${basePath}/` : '';
+                nameVariants.forEach(variant => {
+                    COMMON_IMAGE_EXTENSIONS.forEach(ext => {
+                        addCandidate(`${directory}${variant}${ext}`);
+                        addCandidate(`${directory}${variant}${ext.toUpperCase()}`);
+                    });
+                });
+            }
+
+            const rawImage = typeof product.image === 'string' ? product.image.trim() : '';
+            if (rawImage) {
+                if (/^(https?:)?\/\//i.test(rawImage) || rawImage.startsWith('data:')) {
+                    addCandidate(rawImage);
+                } else {
+                    const sanitized = rawImage.replace(/^\/+/, '');
+                    const lastSlashIndex = sanitized.lastIndexOf('/');
+                    const basePath = lastSlashIndex >= 0 ? sanitized.slice(0, lastSlashIndex) : '';
+                    const fileName = lastSlashIndex >= 0 ? sanitized.slice(lastSlashIndex + 1) : sanitized;
+                    addFileNameCandidates(basePath, fileName);
+                }
+            }
+
+            const productNameVariants = generateFileNameVariants(product.name || '');
+            productNameVariants.forEach(variant => {
+                COMMON_IMAGE_EXTENSIONS.forEach(ext => {
+                    addCandidate(`${variant}${ext}`);
+                    addCandidate(`${variant}${ext.toUpperCase()}`);
+                });
+            });
+
+            if (candidates.length === 0) {
+                return [PLACEHOLDER_IMAGE];
+            }
+
+            return candidates;
+        }
+
+        function loadImageWithFallback(imageElement, targetCandidates) {
+            if (!imageElement) {
+                return;
+            }
+
+            const sources = Array.isArray(targetCandidates) ? targetCandidates.filter(Boolean) : [targetCandidates].filter(Boolean);
+
+            if (sources.length === 0) {
+                imageElement.src = PLACEHOLDER_IMAGE;
+                return;
+            }
+
+            let resolved = false;
+
+            const tryNext = (index) => {
+                if (resolved || index >= sources.length) {
+                    if (!resolved) {
+                        imageElement.src = PLACEHOLDER_IMAGE;
+                    }
+                    return;
+                }
+
+                const candidate = sources[index];
+                if (!candidate) {
+                    tryNext(index + 1);
+                    return;
+                }
+
+                const cachedState = imageAvailabilityCache.get(candidate);
+                if (cachedState) {
+                    if (cachedState === 'available') {
+                        imageElement.src = candidate;
+                        resolved = true;
+                    } else {
+                        tryNext(index + 1);
+                    }
+                    return;
+                }
+
+                const tester = new Image();
+                tester.onload = () => {
+                    imageAvailabilityCache.set(candidate, 'available');
+                    imageElement.src = candidate;
+                    resolved = true;
+                };
+                tester.onerror = () => {
+                    imageAvailabilityCache.set(candidate, 'missing');
+                    tryNext(index + 1);
+                };
+                tester.src = candidate;
+            };
+
+            imageElement.src = PLACEHOLDER_IMAGE;
+            tryNext(0);
         }
 
         // --- 3. TEMEL FONKSİYONLAR (Core Functions) ---
@@ -366,7 +540,7 @@
             }
 
             menuData[categoryKey].forEach(item => {
-                const imagePath = getImagePathForProduct(item.name);
+                const imageCandidates = resolveProductImageCandidates(item);
                 const basePrice = item.sizes?.[0]?.price ?? 0;
                 const basePriceLabel = Number.isFinite(basePrice) ? basePrice.toFixed(2) : '0.00';
                 const sizeLabel = (item.sizes || [])
@@ -377,7 +551,7 @@
                 const productCard = `
                     <button type="button" data-action="start-add" data-product-id="${item.id}" data-category="${categoryKey}" class="group bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-secondary/40 text-left">
                         <!-- Ürün Resmi -->
-                        <img src="${imagePath}" alt="${item.name}" class="w-full h-48 md:h-56 object-cover" onerror="this.src='https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok'">
+                        <img src="${PLACEHOLDER_IMAGE}" data-image-src='${encodeURIComponent(JSON.stringify(imageCandidates))}' alt="${item.name}" class="w-full h-48 md:h-56 object-cover">
 
                         <div class="p-5 flex flex-col flex-grow">
                             <!-- Ürün Adı ve Fiyatı -->
@@ -395,28 +569,41 @@
                         </div>
                     </button>
                 `;
-                grid.innerHTML += productCard;
-            });␊
-        }␊
-␊
-        /**␊
-         * Navigasyon butonlarında aktif kategoriyi işaretler␊
-         */␊
-        function updateActiveCategory(categoryKey) {␊
-            // Tüm nav-link'lerden 'active' sınıfını kaldır␊
-            document.querySelectorAll('.nav-link').forEach(link => {␊
-                link.classList.remove('active');␊
-            });␊
-            ␊
-            // İlgili kategori butonlarına 'active' sınıfını ekle␊
+                grid.insertAdjacentHTML('beforeend', productCard);
+
+                const card = grid.lastElementChild;
+                const imageElement = card?.querySelector('img[data-image-src]');
+                if (imageElement) {
+                    const targetAttr = imageElement.getAttribute('data-image-src');
+                    let targetSources;
+                    try {
+                        targetSources = JSON.parse(decodeURIComponent(targetAttr));
+                    } catch (error) {
+                        targetSources = targetAttr ? decodeURIComponent(targetAttr) : targetAttr;
+                    }
+                    loadImageWithFallback(imageElement, targetSources);
+                }
+            });
+        }
+
+        /**
+         * Navigasyon butonlarında aktif kategoriyi işaretler
+         */
+        function updateActiveCategory(categoryKey) {
+            // Tüm nav-link'lerden 'active' sınıfını kaldır
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // İlgili kategori butonlarına 'active' sınıfını ekle
             document.querySelectorAll(`.nav-link[data-category="${categoryKey}"]`).forEach(link => {
                 link.classList.add('active');
             });
         }
-␊
-        /**␊
-         * Kategori değiştirme fonksiyonu␊
-         */␊
+
+        /**
+         * Kategori değiştirme fonksiyonu
+         */
         function showCategory(categoryKey) {
             renderProducts(categoryKey);
             updateActiveCategory(categoryKey);
@@ -498,10 +685,10 @@
         }
 
         // --- 4. SEPETE EKLEME AKIŞI (Add to Cart Flow) ---
-␊
-        /**␊
-         * Akış Başlangıcı: Kullanıcı "Sepete Ekle" butonuna bastığında␊
-         */␊
+
+        /**
+         * Akış Başlangıcı: Kullanıcı "Sepete Ekle" butonuna bastığında
+         */
         function startAddToCartFlow(itemId, categoryKey) {
             const categoryItems = menuData[categoryKey];
             if (!categoryItems) {
@@ -676,12 +863,11 @@
                 infoWrapper.className = 'flex items-center space-x-4';
 
                 const thumbnail = document.createElement('img');
-                thumbnail.src = getImagePathForProduct(drink.name);
+                const drinkImageCandidates = resolveProductImageCandidates(drink);
+                thumbnail.src = PLACEHOLDER_IMAGE;
                 thumbnail.alt = drink.name;
                 thumbnail.className = 'w-14 h-14 rounded-lg object-cover flex-shrink-0';
-                thumbnail.onerror = function () {
-                    this.src = 'https://placehold.co/120x120/cccccc/FFFFFF?text=İçecek';
-                };
+                loadImageWithFallback(thumbnail, drinkImageCandidates);
 
                 const textWrapper = document.createElement('div');
                 textWrapper.innerHTML = `
@@ -956,7 +1142,7 @@
                     size: sizeInfo.size,
                     price: sizeInfo.price,
                     quantity: 1,
-                    image: getImagePathForProduct(product.name)
+                    imageCandidates: resolveProductImageCandidates(product)
                 });
             }
             // Sepeti güncelle
@@ -1019,10 +1205,11 @@
                     total += item.price * item.quantity;
                     totalItems += item.quantity;
 
+                    const encodedCandidates = encodeURIComponent(JSON.stringify(item.imageCandidates || []));
                     const cartItemHTML = `
                         <div class="flex items-center justify-between py-3 border-b last:border-b-0">
                             <div class="flex items-center space-x-3">
-                                <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover shadow-md" onerror="this.src='https://placehold.co/100x100/cccccc/FFFFFF?text=...'">
+                                <img src="${PLACEHOLDER_IMAGE}" data-image-src='${encodedCandidates}' alt="${item.name}" class="w-16 h-16 rounded-lg object-cover shadow-md">
                                 <div>
                                     <h4 class="font-bold text-gray-800">${item.name}</h4>
                                     <span class="text-sm text-gray-500">${item.size}</span>
@@ -1041,125 +1228,154 @@
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
-                        </div>␊
-                    `;␊
-                    cartItemsContainer.innerHTML += cartItemHTML;␊
-                });␊
-            }␊
-␊
-            cartTotalEl.innerText = `€${total.toFixed(2)}`;␊
-            cartCountEl.innerText = totalItems;␊
-␊
-            // Sepeti localStorage'e kaydet␊
-            saveCart();␊
-        }␊
-␊
-        /**␊
-         * Sepeti localStorage'e kaydeder␊
-         */␊
-        function saveCart() {␊
-            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));␊
-        }␊
-␊
-        /**␊
-         * Sepeti localStorage'den yükler␊
-         */␊
-        function loadCart() {␊
-            const storedCart = localStorage.getItem(CART_STORAGE_KEY);␊
-            if (storedCart) {␊
-                cart = JSON.parse(storedCart);␊
-            }␊
-            updateCart();␊
-        }␊
-␊
-        // --- 6. SİPARİŞ ONAYI VE NUMARA ÜRETME ---␊
-␊
-        /**␊
-         * Kullanıcı "Siparişi Onayla" butonuna bastığında␊
-         */␊
-        function confirmOrder() {␊
-            if (cart.length === 0) return;␊
-␊
-            const orderNumber = getNewOrderNumber();␊
-            document.getElementById('order-number').innerText = String(orderNumber).padStart(3, '0');␊
-            ␊
-            // Sepeti temizle␊
-            cart = [];␊
-            updateCart(); // Arayüzü ve localStorage'i günceller␊
-            ␊
-            // Modalları kapat/aç␊
-            toggleCartModal(false);␊
-            toggleSuccessModal(true);␊
-        }␊
-␊
-        /**␊
-         * Benzersiz, günlük sıfırlanan sipariş numarası üretir␊
-         */␊
-        function getNewOrderNumber() {␊
-            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD formatı␊
-            let orderCounter;␊
-␊
-            try {␊
-                orderCounter = JSON.parse(localStorage.getItem(ORDER_COUNTER_KEY));␊
-            } catch (e) {␊
-                orderCounter = null;␊
-            }␊
-␊
-            if (!orderCounter || orderCounter.date !== today) {␊
-                // Gün değişti veya ilk sipariş␊
-                // Yeni bir başlangıç numarası ata (101 ile 601 arası)␊
-                const startNumber = Math.floor(Math.random() * 501) + 101; ␊
-                orderCounter = {␊
-                    date: today,␊
-                    number: startNumber␊
-                };␊
-            } else {␊
-                // Aynı gün, numarayı artır␊
-                orderCounter.number++;␊
-            }␊
-␊
-            // Yeni sayacı kaydet␊
-            localStorage.setItem(ORDER_COUNTER_KEY, JSON.stringify(orderCounter));␊
-            ␊
-            // Sadece 3 haneli kısmı al (eğer 999'u aşarsa 1000 yerine 000 veya 001'e dönmesin, 1000 olsun)␊
-            // Kullanıcı 3 haneli istedi, 999'dan sonra 1000, 1001 diye devam etmesi daha mantıklı.␊
-            // Amaç gün içinde benzersiz olmasıysa, 3 haneye sadık kalmak için:␊
-            // return orderCounter.number % 1000; (Eğer 999'dan sonra 000'a dönmesi istenirse)␊
-            ␊
-            // Biz 3 haneli "en az" diyelim ve 101'den başlatalım␊
-            return orderCounter.number;␊
-        }␊
-␊
-        // --- 7. MODAL KONTROLLERİ VE YARDIMCI FONKSİYONLAR ---␊
-␊
-        function toggleCartModal(show) {␊
-            toggleModal('cart-modal', show);␊
-        }␊
-        function toggleSizeModal(show) {␊
-            toggleModal('size-modal', show);␊
-        }␊
-        function toggleDrinkModal(show) {␊
-            toggleModal('drink-modal', show);␊
-        }␊
-        function toggleSuccessModal(show) {␊
-            toggleModal('order-success-modal', show);␊
-        }␊
-␊
-        function closeSizeModal() {␊
-            toggleSizeModal(false);␊
-            resetAddFlow();␊
-        }␊
-        function closeDrinkModal() {␊
-            toggleDrinkModal(false);␊
-            resetAddFlow();␊
-        }␊
-        function closeSuccessModal() {␊
-            toggleSuccessModal(false);␊
-        }␊
-␊
-        /**␊
-         * Genel modal açma/kapatma fonksiyonu␊
-         */␊
+                        </div>
+                    `;
+                    cartItemsContainer.insertAdjacentHTML('beforeend', cartItemHTML);
+
+                    const lastItemRow = cartItemsContainer.lastElementChild;
+                    const cartImage = lastItemRow?.querySelector('img[data-image-src]');
+                    if (cartImage) {
+                        const targetAttr = cartImage.getAttribute('data-image-src');
+                        let targetSources;
+                        try {
+                            targetSources = JSON.parse(decodeURIComponent(targetAttr));
+                        } catch (error) {
+                            targetSources = targetAttr ? decodeURIComponent(targetAttr) : targetAttr;
+                        }
+                        loadImageWithFallback(cartImage, targetSources);
+                    }
+                });
+            }
+
+            cartTotalEl.innerText = `€${total.toFixed(2)}`;
+            cartCountEl.innerText = totalItems;
+
+            // Sepeti localStorage'e kaydet
+            saveCart();
+        }
+
+        /**
+         * Sepeti localStorage'e kaydeder
+         */
+        function saveCart() {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        }
+
+        /**
+         * Sepeti localStorage'den yükler
+         */
+        function loadCart() {
+            const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+            if (storedCart) {
+                try {
+                    const parsed = JSON.parse(storedCart);
+                    cart = Array.isArray(parsed) ? parsed.map(item => {
+                        const normalized = { ...item };
+                        if (!Array.isArray(normalized.imageCandidates) || normalized.imageCandidates.length === 0) {
+                            const fallbackProduct = {
+                                id: normalized.id,
+                                name: normalized.name,
+                                image: normalized.image
+                            };
+                            normalized.imageCandidates = resolveProductImageCandidates(fallbackProduct);
+                        }
+                        return normalized;
+                    }) : [];
+                } catch (error) {
+                    cart = [];
+                }
+            }
+            updateCart();
+        }
+
+        // --- 6. SİPARİŞ ONAYI VE NUMARA ÜRETME ---
+
+        /**
+         * Kullanıcı "Siparişi Onayla" butonuna bastığında
+         */
+        function confirmOrder() {
+            if (cart.length === 0) return;
+
+            const orderNumber = getNewOrderNumber();
+            document.getElementById('order-number').innerText = String(orderNumber).padStart(3, '0');
+            
+            // Sepeti temizle
+            cart = [];
+            updateCart(); // Arayüzü ve localStorage'i günceller
+            
+            // Modalları kapat/aç
+            toggleCartModal(false);
+            toggleSuccessModal(true);
+        }
+
+        /**
+         * Benzersiz, günlük sıfırlanan sipariş numarası üretir
+         */
+        function getNewOrderNumber() {
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD formatı
+            let orderCounter;
+
+            try {
+                orderCounter = JSON.parse(localStorage.getItem(ORDER_COUNTER_KEY));
+            } catch (e) {
+                orderCounter = null;
+            }
+
+            if (!orderCounter || orderCounter.date !== today) {
+                // Gün değişti veya ilk sipariş
+                // Yeni bir başlangıç numarası ata (101 ile 601 arası)
+                const startNumber = Math.floor(Math.random() * 501) + 101; 
+                orderCounter = {
+                    date: today,
+                    number: startNumber
+                };
+            } else {
+                // Aynı gün, numarayı artır
+                orderCounter.number++;
+            }
+
+            // Yeni sayacı kaydet
+            localStorage.setItem(ORDER_COUNTER_KEY, JSON.stringify(orderCounter));
+            
+            // Sadece 3 haneli kısmı al (eğer 999'u aşarsa 1000 yerine 000 veya 001'e dönmesin, 1000 olsun)
+            // Kullanıcı 3 haneli istedi, 999'dan sonra 1000, 1001 diye devam etmesi daha mantıklı.
+            // Amaç gün içinde benzersiz olmasıysa, 3 haneye sadık kalmak için:
+            // return orderCounter.number % 1000; (Eğer 999'dan sonra 000'a dönmesi istenirse)
+            
+            // Biz 3 haneli "en az" diyelim ve 101'den başlatalım
+            return orderCounter.number;
+        }
+
+        // --- 7. MODAL KONTROLLERİ VE YARDIMCI FONKSİYONLAR ---
+
+        function toggleCartModal(show) {
+            toggleModal('cart-modal', show);
+        }
+        function toggleSizeModal(show) {
+            toggleModal('size-modal', show);
+        }
+        function toggleDrinkModal(show) {
+            toggleModal('drink-modal', show);
+        }
+        function toggleSuccessModal(show) {
+            toggleModal('order-success-modal', show);
+        }
+
+        function closeSizeModal() {
+            toggleSizeModal(false);
+            resetAddFlow();
+        }
+        function closeDrinkModal() {
+            toggleDrinkModal(false);
+            resetAddFlow();
+        }
+        function closeSuccessModal() {
+            toggleSuccessModal(false);
+        }
+
+        /**
+         * Genel modal açma/kapatma fonksiyonu
+         */
         function toggleModal(modalId, show) {
             const modal = document.getElementById(modalId);
             if (!modal) {
@@ -1181,10 +1397,10 @@
             const anyModalVisible = Array.from(document.querySelectorAll('.modal')).some(modal => !modal.classList.contains('hidden'));
             document.body.classList.toggle('overflow-hidden', anyModalVisible);
         }
-        ␊
-        /**␊
-         * Modalların dışına tıklandığında kapatma (Sepet hariç)␊
-         */␊
+        
+        /**
+         * Modalların dışına tıklandığında kapatma (Sepet hariç)
+         */
         function attachModalListeners() {
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', (e) => {
@@ -1212,32 +1428,32 @@
                 });
             });
         }
-        ␊
-        /**␊
-         * Kullanıcıya geçici bildirim gösterir (Toast)␊
-         */␊
-        function showToast(message) {␊
-            const toast = document.createElement('div');␊
-            toast.className = 'fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-xl z-[100] transform translate-y-16 opacity-0 transition-all duration-300';␊
-            toast.innerText = message;␊
-            document.body.appendChild(toast);␊
-            ␊
-            // Animasyonla göster␊
-            setTimeout(() => {␊
-                toast.style.transform = 'translate-y(0)';␊
-                toast.style.opacity = '1';␊
-            }, 100);␊
-            ␊
-            // 3 saniye sonra kaldır␊
-            setTimeout(() => {␊
-                toast.style.transform = 'translate-y(16)';␊
-                toast.style.opacity = '0';␊
-                setTimeout(() => {␊
-                    document.body.removeChild(toast);␊
-                }, 300);␊
-            }, 3000);␊
-        }␊
-␊
-    </script>␊
-</body>␊
+        
+        /**
+         * Kullanıcıya geçici bildirim gösterir (Toast)
+         */
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-primary text-white p-4 rounded-lg shadow-xl z-[100] transform translate-y-16 opacity-0 transition-all duration-300';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            
+            // Animasyonla göster
+            setTimeout(() => {
+                toast.style.transform = 'translate-y(0)';
+                toast.style.opacity = '1';
+            }, 100);
+            
+            // 3 saniye sonra kaldır
+            setTimeout(() => {
+                toast.style.transform = 'translate-y(16)';
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+    </script>
+</body>
 </html>
