@@ -2148,7 +2148,11 @@
             lastSubmittedOrderNote = noteValue;
             pendingOrderNote = '';
 
-            const orderNumber = getNewOrderNumber();
+            const orderNumberInfo = getNewOrderNumber();
+            const orderNumber = orderNumberInfo.number;
+            const orderCounterDate = orderNumberInfo.date;
+            const issuedAt = new Date();
+            const orderId = `${orderCounterDate.replace(/-/g, '')}-${String(orderNumber).padStart(3, '0')}`;
             document.getElementById('order-number').innerText = String(orderNumber).padStart(3, '0');
 
             if (noteInput) {
@@ -2167,22 +2171,28 @@
 
             if (orderStore && typeof orderStore.addOrder === 'function') {
                 const language = (navigator.language || navigator.userLanguage || 'tr').toString();
-                const baseId = typeof orderStore.generateOrderId === 'function'
-                    ? orderStore.generateOrderId()
-                    : `SX-${new Date().toISOString().split('T')[0].replace(/-/g, '')}`;
-                cart.forEach((item, index) => {
-                    const totalValue = Number((item.price * item.quantity).toFixed(2));
-                    const payload = {
-                        OrderID: cart.length > 1 ? `${baseId}-${index + 1}` : baseId,
+                const items = cart.map((item) => {
+                    const lineTotal = Number((item.price * item.quantity).toFixed(2));
+                    return {
                         ProductID: item.id,
                         ProductName: item.name,
                         Quantity: item.quantity,
-                        Total: totalValue,
-                        Language: language,
-                        AddOn: item.isAddOn ? 'Tamamlayıcı' : '',
-                        Note: index === 0 ? noteValue : ''
+                        UnitPrice: item.price,
+                        Total: lineTotal,
+                        Size: item.size,
+                        AddOn: item.isAddOn ? 'Tamamlayıcı' : ''
                     };
-                    orderStore.addOrder(payload);
+                });
+                const totalValue = items.reduce((sum, entry) => sum + (Number(entry.Total) || 0), 0);
+                orderStore.addOrder({
+                    OrderID: orderId,
+                    OrderNumber: orderNumber,
+                    CounterDate: orderCounterDate,
+                    Date: issuedAt.toISOString(),
+                    Language: language,
+                    Items: items,
+                    Total: Number(totalValue.toFixed(2)),
+                    Note: noteValue
                 });
             }
 
@@ -2230,9 +2240,9 @@
             // Kullanıcı 3 haneli istedi, 999'dan sonra 1000, 1001 diye devam etmesi daha mantıklı.
             // Amaç gün içinde benzersiz olmasıysa, 3 haneye sadık kalmak için:
             // return orderCounter.number % 1000; (Eğer 999'dan sonra 000'a dönmesi istenirse)
-            
+
             // Biz 3 haneli "en az" diyelim ve 101'den başlatalım
-            return orderCounter.number;
+            return { number: orderCounter.number, date: today };
         }
 
         // --- 7. MODAL KONTROLLERİ VE YARDIMCI FONKSİYONLAR ---
