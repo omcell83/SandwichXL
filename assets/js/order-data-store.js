@@ -6,9 +6,9 @@
     const ORDER_EVENT = 'sandwichXL:ordersChanged';
 
     const listeners = new Set();
-    let downloadUrls = { orders: null, stats: null };
-    let state = { active: [], completed: [] };
+    let state = { active: [], archive: [] };
     let stats = [];
+    let downloadUrls = { orders: null, stats: null };
     let initPromise = null;
 
     const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(CHANNEL_NAME) : null;
@@ -23,7 +23,27 @@
 
     function normaliseStatus(value, fallback = 'Active') {
         const raw = (value || fallback || '').toString().toLowerCase();
-        return raw === 'completed' ? 'Completed' : 'Active';
+        if (raw === 'completed') {
+            return 'Completed';
+        }
+        if (raw === 'cancelled' || raw === 'canceled') {
+            return 'Cancelled';
+        }
+        return 'Active';
+    }
+
+    function toISODateTime(value) {
+        if (!value) {
+            return new Date().toISOString();
+        }
+        if (value instanceof Date) {
+            return value.toISOString();
+        }
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) {
+            return new Date().toISOString();
+        }
+        return parsed.toISOString();
     }
 
     function formatDate(value) {
@@ -33,11 +53,14 @@
         if (value instanceof Date) {
             return value.toISOString().split('T')[0];
         }
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) {
+        if (typeof value === 'string' && value.includes('T')) {
+            return value.split('T')[0];
+        }
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) {
             return new Date().toISOString().split('T')[0];
         }
-        return date.toISOString().split('T')[0];
+        return parsed.toISOString().split('T')[0];
     }
 
     function resolveLanguage(value) {
@@ -60,37 +83,109 @@
             'fr-fr': { code: 'fr', label: 'Français' },
             'français': { code: 'fr', label: 'Français' }
         };
-        return map[raw] || { code: raw.slice(0, 2) || 'other', label: value }; 
+        return map[raw] || { code: raw.slice(0, 2) || 'other', label: value };
     }
 
-    function normaliseOrder(order, fallbackStatus) {
+    function composeOrderId(counterDate, number) {
+        const datePart = formatDate(counterDate).replace(/-/g, '');
+        return `${datePart}-${String(number).padStart(3, '0')}`;
+    }
+
+    function extractOrderNumber(orderId) {
+        if (!orderId) {
+            return null;
+        }
+        const match = orderId.toString().match(/(\d{3,})$/);
+        if (!match) {
+            return null;
+        }
+        return Number(match[1]);
+    }
+
+    function normaliseItem(item) {
+        if (!item || typeof item !== 'object') {
+            return null;
+        }
+        const quantityRaw = Number(item.Quantity ?? item.quantity ?? 0);
+        const quantity = Number.isFinite(quantityRaw) && quantityRaw > 0 ? quantityRaw : 1;
+        const unitPriceRaw = Number(item.UnitPrice ?? item.unitPrice ?? item.price ?? 0);
+        const unitPrice = Number.isFinite(unitPriceRaw) ? Number(unitPriceRaw.toFixed(2)) : 0;
+        const totalRaw = Number(item.Total ?? item.total ?? unitPrice * quantity);
+        const total = Number.isFinite(totalRaw) ? Number(totalRaw.toFixed(2)) : Number((unitPrice * quantity).toFixed(2));
+        return {
+            id: item.ProductID || item.productId || item.id || '',
+            name: item.ProductName || item.productName || item.name || '',
+            quantity,
+            unitPrice,
+            total,
+            size: item.Size || item.size || '',
+            isAddOn: Boolean(item.AddOn || item.addOn || item.isAddOn)
+        };
+    }
+
+    function normaliseOrder(order, fallbackStatus, options = {}) {
         if (!order || typeof order !== 'object') {
             return null;
         }
+        const allowGenerate = options.allowGenerate !== false;
         const langInfo = resolveLanguage(order.Language || order.language);
-        const quantity = Number(order.Quantity ?? order.quantity ?? 0) || 0;
-        const total = Number(order.Total ?? order.total ?? 0) || 0;
+        const createdAt = toISODateTime(order.CreatedAt || order.createdAt || order.Date || order.date);
+        let counterDate = formatDate(order.CounterDate || order.counterDate || createdAt);
+        let orderId = order.OrderID || order.orderId || '';
+        let orderNumber = Number(order.OrderNumber ?? order.orderNumber);
+        if (!Number.isFinite(orderNumber)) {
+            orderNumber = extractOrderNumber(orderId);
+        }
+        if (!orderId) {
+            if (!allowGenerate) {
+                return null;
+            }
+            const sequence = nextSequential(counterDate);
+            orderId = sequence.id;
+            orderNumber = sequence.number;
+            counterDate = sequence.date;
+        }
+        if (!Number.isFinite(orderNumber)) {
+            orderNumber = extractOrderNumber(orderId);
+        }
+
+        const rawItems = Array.isArray(order.Items) ? order.Items : Array.isArray(order.items) ? order.items : [];
+        const items = rawItems.map(normaliseItem).filter(Boolean);
+        const totalFromItems = items.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+        const totalRaw = Number(order.Total ?? order.total ?? totalFromItems);
+        const total = Number.isFinite(totalRaw) ? Number(totalRaw.toFixed(2)) : Number(totalFromItems.toFixed(2));
+        const status = normaliseStatus(order.Status || order.status, fallbackStatus);
+        const note = (order.Note ?? order.note ?? '').toString().trim();
 
         return {
-            OrderID: order.OrderID || order.orderId || generateOrderId(),
-            Date: formatDate(order.Date || order.date),
-            Status: normaliseStatus(order.Status || order.status, fallbackStatus),
-            ProductID: order.ProductID || order.productId || '',
-            ProductName: order.ProductName || order.productName || '',
-            Quantity: quantity,
-            Total: Number(total.toFixed ? total : Number(total.toFixed(2))) || total,
+            OrderID: orderId,
+            OrderNumber: Number.isFinite(orderNumber) ? orderNumber : null,
+            CounterDate: counterDate,
+            Date: formatDate(order.Date || order.date || counterDate),
+            CreatedAt: createdAt,
+            Status: status,
             Language: langInfo.label,
             LanguageCode: langInfo.code,
-            AddOn: order.AddOn || order.addOn || '',
-            Note: order.Note || order.note || ''
+            Total: total,
+            Items: items,
+            Note: note,
+            HasAddOn: items.some((item) => item.isAddOn)
         };
     }
 
     function normaliseState(raw) {
-        const source = raw && typeof raw === 'object' ? raw : {};
-        const active = Array.isArray(source.active) ? source.active.map((item) => normaliseOrder(item, 'Active')).filter(Boolean) : [];
-        const completed = Array.isArray(source.completed) ? source.completed.map((item) => normaliseOrder(item, 'Completed')).filter(Boolean) : [];
-        return { active, completed };
+        if (!raw || typeof raw !== 'object') {
+            return { active: [], archive: [] };
+        }
+        const activeSource = raw.active || raw.Active || [];
+        const archiveSource = raw.archive || raw.history || raw.completed || [];
+        const active = Array.isArray(activeSource)
+            ? activeSource.map((item) => normaliseOrder(item, 'Active', { allowGenerate: false })).filter(Boolean)
+            : [];
+        const archive = Array.isArray(archiveSource)
+            ? archiveSource.map((item) => normaliseOrder(item, 'Completed', { allowGenerate: false })).filter(Boolean)
+            : [];
+        return { active, archive };
     }
 
     function normaliseStat(item) {
@@ -99,15 +194,15 @@
         }
         const langInfo = resolveLanguage(item.Language || item.language);
         const ordersCount = Number(item.Orders ?? item.orders ?? 0) || 0;
-        const itemsPerPerson = Number(item.ItemsPerPerson ?? item.itemsPerPerson ?? 0) || 0;
-        const averageValue = Number(item.AverageOrderValue ?? item.averageOrderValue ?? 0) || 0;
+        const totalValue = Number(item.TotalValue ?? item.totalValue ?? 0) || 0;
+        const averageValue = Number(item.AverageOrderValue ?? item.averageOrderValue ?? (ordersCount > 0 ? totalValue / ordersCount : 0));
         const complementaryRate = Number(item.ComplementaryRate ?? item.complementaryRate ?? 0) || 0;
         return {
             Language: langInfo.label,
             LanguageCode: langInfo.code,
             Orders: ordersCount,
-            ItemsPerPerson: Number(itemsPerPerson.toFixed ? itemsPerPerson : Number(itemsPerPerson.toFixed(1))) || itemsPerPerson,
-            AverageOrderValue: Number(averageValue.toFixed ? averageValue : Number(averageValue.toFixed(2))) || averageValue,
+            TotalValue: Number(totalValue.toFixed ? totalValue.toFixed(2) : totalValue),
+            AverageOrderValue: Number(averageValue.toFixed ? averageValue.toFixed(2) : averageValue),
             ComplementaryRate: Math.round(complementaryRate)
         };
     }
@@ -137,19 +232,22 @@
     }
 
     function getAllOrders() {
-        return [...state.active, ...state.completed];
+        return [...state.active, ...state.archive];
     }
 
-    function generateOrderId() {
-        const dateStamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
-        const existing = new Set(getAllOrders().map((order) => order.OrderID));
-        let counter = existing.size + 1;
-        let candidate = `SX-${dateStamp}-${String(counter).padStart(3, '0')}`;
-        while (existing.has(candidate)) {
-            counter += 1;
-            candidate = `SX-${dateStamp}-${String(counter).padStart(3, '0')}`;
-        }
-        return candidate;
+    function nextSequential(counterDate) {
+        const date = formatDate(counterDate);
+        const existing = getAllOrders().filter((order) => order.CounterDate === date);
+        const highest = existing.reduce((max, order) => {
+            const num = Number(order.OrderNumber);
+            return Number.isFinite(num) && num > max ? num : max;
+        }, 0);
+        const nextNumber = highest + 1;
+        return { id: composeOrderId(date, nextNumber), number: nextNumber, date };
+    }
+
+    function generateOrderId(counterDate) {
+        return nextSequential(counterDate).id;
     }
 
     function recomputeStats() {
@@ -162,7 +260,6 @@
                     Language: order.Language,
                     LanguageCode: key,
                     Orders: 0,
-                    Items: 0,
                     TotalValue: 0,
                     WithAddOn: 0
                 });
@@ -170,30 +267,82 @@
             const bucket = aggregates.get(key);
             bucket.Language = order.Language;
             bucket.Orders += 1;
-            bucket.Items += Number(order.Quantity) || 0;
             bucket.TotalValue += Number(order.Total) || 0;
-            if (order.AddOn && order.AddOn.toString().trim().length > 0) {
+            if (order.HasAddOn) {
                 bucket.WithAddOn += 1;
             }
         });
 
-        const nextStats = Array.from(aggregates.values()).map((bucket) => {
-            const itemsPerPerson = bucket.Orders > 0 ? bucket.Items / bucket.Orders : 0;
+        stats = Array.from(aggregates.values()).map((bucket) => {
             const averageValue = bucket.Orders > 0 ? bucket.TotalValue / bucket.Orders : 0;
             const complementaryRate = bucket.Orders > 0 ? Math.round((bucket.WithAddOn / bucket.Orders) * 100) : 0;
             return {
                 Language: bucket.Language,
                 LanguageCode: bucket.LanguageCode,
                 Orders: bucket.Orders,
-                ItemsPerPerson: Number(itemsPerPerson.toFixed(1)),
+                TotalValue: Number(bucket.TotalValue.toFixed(2)),
                 AverageOrderValue: Number(averageValue.toFixed(2)),
                 ComplementaryRate: complementaryRate
             };
         });
 
-        stats = nextStats;
         persistToStorage(STATS_KEY, stats);
         return stats;
+    }
+
+    function createOrdersWorkbook() {
+        if (!global.XLSX) {
+            return null;
+        }
+        const workbook = global.XLSX.utils.book_new();
+        const summaryRows = getAllOrders().map((order) => ({
+            OrderID: order.OrderID,
+            OrderNumber: order.OrderNumber,
+            CounterDate: order.CounterDate,
+            Date: order.Date,
+            Status: order.Status,
+            Language: order.Language,
+            Total: order.Total,
+            Note: order.Note,
+            HasAddOn: order.HasAddOn ? 'Evet' : 'Hayır'
+        }));
+        const itemsRows = [];
+        getAllOrders().forEach((order) => {
+            (order.Items || []).forEach((item, index) => {
+                itemsRows.push({
+                    OrderID: order.OrderID,
+                    Line: index + 1,
+                    ProductID: item.id,
+                    ProductName: item.name,
+                    Size: item.size,
+                    Quantity: item.quantity,
+                    UnitPrice: item.unitPrice,
+                    LineTotal: item.total,
+                    AddOn: item.isAddOn ? 'Evet' : 'Hayır'
+                });
+            });
+        });
+        const summarySheet = global.XLSX.utils.json_to_sheet(summaryRows);
+        const itemsSheet = global.XLSX.utils.json_to_sheet(itemsRows);
+        global.XLSX.utils.book_append_sheet(workbook, summarySheet, 'Orders');
+        global.XLSX.utils.book_append_sheet(workbook, itemsSheet, 'Items');
+        return workbook;
+    }
+
+    function createStatsWorkbook() {
+        if (!global.XLSX) {
+            return null;
+        }
+        const workbook = global.XLSX.utils.book_new();
+        const statsSheet = global.XLSX.utils.json_to_sheet(stats.map((item) => ({
+            Language: item.Language,
+            Orders: item.Orders,
+            TotalValue: item.TotalValue,
+            AverageOrderValue: item.AverageOrderValue,
+            ComplementaryRate: item.ComplementaryRate
+        })));
+        global.XLSX.utils.book_append_sheet(workbook, statsSheet, 'Stats');
+        return workbook;
     }
 
     function updateDownloadUrls() {
@@ -207,36 +356,21 @@
             global.URL.revokeObjectURL(downloadUrls.stats);
         }
 
-        const ordersSheetData = getAllOrders().map((order) => ({
-            OrderID: order.OrderID,
-            Date: order.Date,
-            Status: order.Status,
-            ProductID: order.ProductID,
-            ProductName: order.ProductName,
-            Quantity: order.Quantity,
-            Total: order.Total,
-            Language: order.Language,
-            AddOn: order.AddOn,
-            Note: order.Note
-        }));
-        const ordersSheet = global.XLSX.utils.json_to_sheet(ordersSheetData);
-        const ordersBook = global.XLSX.utils.book_new();
-        global.XLSX.utils.book_append_sheet(ordersBook, ordersSheet, 'Orders');
-        const ordersArray = global.XLSX.write(ordersBook, { bookType: 'xlsx', type: 'array' });
-        downloadUrls.orders = global.URL.createObjectURL(new Blob([ordersArray], { type: DOWNLOAD_MIME }));
+        const ordersBook = createOrdersWorkbook();
+        if (ordersBook) {
+            const ordersArray = global.XLSX.write(ordersBook, { bookType: 'xlsx', type: 'array' });
+            downloadUrls.orders = global.URL.createObjectURL(new Blob([ordersArray], { type: DOWNLOAD_MIME }));
+        } else {
+            downloadUrls.orders = null;
+        }
 
-        const statsSheetData = stats.map((item) => ({
-            Language: item.Language,
-            Orders: item.Orders,
-            ItemsPerPerson: item.ItemsPerPerson,
-            AverageOrderValue: item.AverageOrderValue,
-            ComplementaryRate: item.ComplementaryRate
-        }));
-        const statsSheet = global.XLSX.utils.json_to_sheet(statsSheetData);
-        const statsBook = global.XLSX.utils.book_new();
-        global.XLSX.utils.book_append_sheet(statsBook, statsSheet, 'Stats');
-        const statsArray = global.XLSX.write(statsBook, { bookType: 'xlsx', type: 'array' });
-        downloadUrls.stats = global.URL.createObjectURL(new Blob([statsArray], { type: DOWNLOAD_MIME }));
+        const statsBook = createStatsWorkbook();
+        if (statsBook) {
+            const statsArray = global.XLSX.write(statsBook, { bookType: 'xlsx', type: 'array' });
+            downloadUrls.stats = global.URL.createObjectURL(new Blob([statsArray], { type: DOWNLOAD_MIME }));
+        } else {
+            downloadUrls.stats = null;
+        }
     }
 
     function broadcast() {
@@ -277,12 +411,13 @@
         if (!snapshot || typeof snapshot !== 'object') {
             return;
         }
-        const nextState = snapshot.orders ? snapshot.orders : snapshot;
-        state = normaliseState(nextState);
+        const nextOrders = snapshot.orders ? snapshot.orders : snapshot;
+        const nextState = normaliseState(nextOrders);
+        state = nextState;
         stats = normaliseStats(snapshot.stats || stats);
         persistState(false);
-        persistStats(false);
         recomputeStats();
+        persistStats(false);
         updateDownloadUrls();
         if (!options.silent) {
             broadcast();
@@ -291,31 +426,70 @@
 
     async function readInitialOrders() {
         if (!global.XLSX) {
-            return { active: [], completed: [] };
+            return { active: [], archive: [] };
         }
         try {
             const response = await fetch('data/orders.xlsx');
             const arrayBuffer = await response.arrayBuffer();
             const workbook = global.XLSX.read(arrayBuffer, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const rows = global.XLSX.utils.sheet_to_json(sheet, { defval: '' });
-            const initial = { active: [], completed: [] };
-            rows.forEach((row) => {
-                const normalised = normaliseOrder(row, row.Status);
+            const sheetNames = workbook.SheetNames || [];
+            let summaryRows = [];
+            let itemRows = [];
+            if (sheetNames.includes('Orders')) {
+                summaryRows = global.XLSX.utils.sheet_to_json(workbook.Sheets['Orders'], { defval: '' });
+            } else if (sheetNames.length > 0) {
+                summaryRows = global.XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]], { defval: '' });
+            }
+            if (sheetNames.includes('Items')) {
+                itemRows = global.XLSX.utils.sheet_to_json(workbook.Sheets['Items'], { defval: '' });
+            }
+            const mapped = new Map();
+            const active = [];
+            const archive = [];
+            summaryRows.forEach((row) => {
+                const normalised = normaliseOrder(row, row.Status, { allowGenerate: false });
                 if (!normalised) {
                     return;
                 }
-                if (normalised.Status === 'Completed') {
-                    initial.completed.push(normalised);
+                normalised.Items = [];
+                mapped.set(normalised.OrderID, normalised);
+                if (normalised.Status === 'Active') {
+                    active.push(normalised);
                 } else {
-                    initial.active.push(normalised);
+                    archive.push(normalised);
                 }
             });
-            return initial;
+            itemRows.forEach((row) => {
+                const orderId = row.OrderID || row.orderId;
+                const target = mapped.get(orderId);
+                if (!target) {
+                    return;
+                }
+                const item = normaliseItem(row);
+                if (!item) {
+                    return;
+                }
+                target.Items.push(item);
+                if (item.isAddOn) {
+                    target.HasAddOn = true;
+                }
+            });
+            active.forEach((order) => {
+                if (!order.Total || order.Total <= 0) {
+                    const sum = order.Items.reduce((acc, item) => acc + (Number(item.total) || 0), 0);
+                    order.Total = Number(sum.toFixed(2));
+                }
+            });
+            archive.forEach((order) => {
+                if (!order.Total || order.Total <= 0) {
+                    const sum = order.Items.reduce((acc, item) => acc + (Number(item.total) || 0), 0);
+                    order.Total = Number(sum.toFixed(2));
+                }
+            });
+            return { active, archive };
         } catch (error) {
             console.warn('Varsayılan sipariş dosyası yüklenemedi.', error);
-            return { active: [], completed: [] };
+            return { active: [], archive: [] };
         }
     }
 
@@ -370,13 +544,21 @@
 
     function getSnapshot() {
         return {
-            orders: safeClone(state),
+            orders: {
+                active: safeClone(state.active),
+                history: safeClone(state.archive),
+                completed: safeClone(state.archive)
+            },
             stats: safeClone(stats)
         };
     }
 
     function getOrders() {
-        return safeClone(state);
+        return {
+            active: safeClone(state.active),
+            history: safeClone(state.archive),
+            completed: safeClone(state.archive)
+        };
     }
 
     function getStats() {
@@ -391,12 +573,12 @@
     }
 
     function addOrder(order) {
-        const normalised = normaliseOrder(order, 'Active');
+        const normalised = normaliseOrder(order, 'Active', { allowGenerate: true });
         if (!normalised) {
             return null;
         }
-        if (!order.OrderID && !order.orderId) {
-            normalised.OrderID = generateOrderId();
+        if ((!order.OrderID && !order.orderId) && Number.isFinite(normalised.OrderNumber)) {
+            normalised.OrderID = composeOrderId(normalised.CounterDate, normalised.OrderNumber);
         }
         state.active.unshift(normalised);
         persistState(false);
@@ -421,7 +603,7 @@
             return true;
         });
         if (!target) {
-            state.completed = state.completed.filter((order) => {
+            state.archive = state.archive.filter((order) => {
                 if (order.OrderID === orderId) {
                     target = order;
                     return false;
@@ -433,10 +615,10 @@
             return null;
         }
         target.Status = formatted;
-        if (formatted === 'Completed') {
-            state.completed.unshift(target);
-        } else {
+        if (formatted === 'Active') {
             state.active.unshift(target);
+        } else {
+            state.archive.unshift(target);
         }
         persistState(false);
         recomputeStats();
@@ -450,6 +632,10 @@
         return updateOrderStatus(orderId, 'Completed');
     }
 
+    function cancelOrder(orderId) {
+        return updateOrderStatus(orderId, 'Cancelled');
+    }
+
     function removeOrder(orderId) {
         if (!orderId) return null;
         let removed = null;
@@ -461,7 +647,7 @@
             return true;
         });
         if (!removed) {
-            state.completed = state.completed.filter((order) => {
+            state.archive = state.archive.filter((order) => {
                 if (order.OrderID === orderId) {
                     removed = order;
                     return false;
@@ -530,6 +716,7 @@
         addOrder,
         updateOrderStatus,
         completeOrder,
+        cancelOrder,
         removeOrder,
         subscribe,
         generateOrderId
