@@ -163,15 +163,21 @@
                 </div>
             </div>
             
-            <!-- Alt Toplam ve Buton -->
-            <div class="p-5 border-t bg-gray-50 rounded-b-xl">
-                <div class="flex justify-between items-center mb-4">
+            <!-- Alt Toplam, Not Alanı ve Buton -->
+            <div class="p-5 border-t bg-gray-50 rounded-b-xl space-y-4">
+                <div>
+                    <label for="order-note" class="block text-sm font-semibold text-gray-600 mb-2">Sipariş Notu</label>
+                    <textarea id="order-note" class="w-full min-h-[90px] resize-y rounded-lg border border-gray-200 p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary/60 focus:border-secondary/60" placeholder="Özel isteklerinizi buraya yazabilirsiniz."></textarea>
+                </div>
+                <div class="flex justify-between items-center">
                     <span class="text-lg font-semibold text-gray-700">Toplam:</span>
                     <span id="cart-total" class="text-2xl font-bold text-primary">€0.00</span>
                 </div>
-                <button id="confirm-order-btn" data-action="confirm-order" class="w-full p-4 bg-secondary text-white text-lg font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Siparişi Onayla
-                </button>
+                <div class="flex justify-end">
+                    <button id="confirm-order-btn" data-action="confirm-order" class="w-full sm:w-auto sm:min-w-[180px] px-6 py-3 bg-secondary text-white text-lg font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Siparişi Onayla
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -192,19 +198,25 @@
                 </div>
             </div>
             <div class="p-5 border-t bg-gray-50 rounded-b-xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">Seçili Boyut</p>
-                        <p id="size-selection-label" class="text-base font-semibold text-gray-800">Henüz seçilmedi</p>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Seçili Boyut</p>
+                            <p id="size-selection-label" class="text-base font-semibold text-gray-800">Henüz seçilmedi</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-500">Boyut Fiyatı</p>
+                            <p id="size-selection-total" class="text-lg font-bold text-primary">€0.00</p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500">Boyut Fiyatı</p>
-                        <p id="size-selection-total" class="text-2xl font-bold text-secondary">€0.00</p>
+                    <div class="flex items-center justify-between border-t pt-3">
+                        <span class="text-lg font-semibold text-gray-700">Toplam</span>
+                        <span id="size-selection-grand-total" class="text-2xl font-bold text-secondary">€0.00</span>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
                     <button data-action="close-size" class="w-full p-3 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300 transition-colors">Vazgeç</button>
-                    <button id="confirm-size-btn" data-action="confirm-size" class="w-full p-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>Seçimi Onayla</button>
+                    <button id="confirm-size-btn" data-action="confirm-size" class="w-full sm:w-auto sm:min-w-[160px] px-6 py-3 bg-secondary text-white text-base font-bold rounded-lg shadow-md hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>Seçimi Onayla</button>
                 </div>
             </div>
         </div>
@@ -301,6 +313,7 @@
                     ---
                 </span>
             </div>
+            <p id="order-note-preview" class="mt-4 text-sm text-gray-600 hidden"></p>
             <button data-action="close-success" class="w-full mt-8 p-4 bg-primary text-white text-lg font-bold rounded-lg shadow-md hover:bg-primary/90 transition-colors">
                 Kapat
             </button>
@@ -314,43 +327,43 @@
         const menuData = {
             'sandwiches': [
                 { id: 's1', name: 'CapreseKiss', description: 'Pesto, Tomatoes, Mozzarella, Arugula', image: 'CapreseKiss.png', sizes: [{ size: 'XL', price: 8, weight: '600gr' }] },
-                { id: 's2', name: 'TunaTurner', description: 'SXL Sauce, Tuna, Corn, Capers, Red Onion, Pickles, Green Olives, Lettuce, Lemon', image: 'TunaTurner.png', sizes: [{ size: 'XL', price: 10, weight: '510gr' }] },
+                { id: 's2', name: 'TunaTurner', description: 'SXL Sauce, Tuna, Corn, Capers, Red Onion, Pickles, Green Olives, Lettuce, Lemon', image: 'TunaTurner.png', isPopular: true, sizes: [{ size: 'XL', price: 10, weight: '510gr' }] },
                 { id: 's3', name: 'PilePile', description: 'Chicken Breast, Yogurt Sauce, Pickles, Walnuts, Dried Dill', image: 'PilePile.png', sizes: [{ size: 'XL', price: 7, weight: '400gr' }] },
                 { id: 's4', name: 'AdriaticBond', description: 'SXL Sauce, Ajvar Sauce, Beef Kullen, Salami, Kobasica, Pickles, Tomato, Mozzarella, Green Olive, Lettuce', image: 'AdriaticBond.png', sizes: [{ size: 'XL', price: 13, weight: '500gr' }, { size: 'XXL', price: 16, weight: '640gr' }] },
-                { id: 's5', name: 'MeatMax', description: 'Tandoori Meat, Dry Beef Rump Steak, Prosciutto, Dried Tomatoes, Pickles, Red Onion, Eggplant, Zucchini, Potato', image: 'meatmax.png', sizes: [{ size: 'XL', price: 18, weight: '570gr' }, { size: 'XXL', price: 21, weight: '670gr' }] },
+                { id: 's5', name: 'MeatMax', description: 'Tandoori Meat, Dry Beef Rump Steak, Prosciutto, Dried Tomatoes, Pickles, Red Onion, Eggplant, Zucchini, Potato', image: 'MeatMax.png', isPopular: true, sizes: [{ size: 'XL', price: 18, weight: '570gr' }, { size: 'XXL', price: 21, weight: '670gr' }] },
                 { id: 's6', name: 'HolyCow!', description: 'SXL Sauce, Dry Beef Prosciutto, Rump Steak, Smoked Beef, Gouda, Mozzarella, Dried Tomatoes, Pickles, Walnuts, Arugula', image: 'HolyCow.png', sizes: [{ size: 'XL', price: 15, weight: '550gr' }, { size: 'XXL', price: 18, weight: '640gr' }] },
-                { id: 's7', name: 'CrunchZilla', description: 'Fresh Crispy Chicken, SXL Sauce, Gouda, Lettuce, Pesto Sauce', image: 'CrunchZilla.png', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] },
-                { id: 's8', name: 'RoyalSmokeBurrata', description: 'Smoked Salmon, Smoked Beef, Truffle Ajoli, Light Crushed Walnuts, Baby Arugula, Fresh Burrata Cheese', image: 'RoyalSmokeBurrata.png', sizes: [{ size: 'XL', price: 39, weight: '320gr' }] },
+                { id: 's7', name: 'CrunchZilla', description: 'Fresh Crispy Chicken, SXL Sauce, Gouda, Lettuce, Pesto Sauce', image: 'CrunchZilla.png', isPopular: true, sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] },
+                { id: 's8', name: 'RoyalSmokeBurrata', description: 'Smoked Salmon, Smoked Beef, Truffle Ajoli, Light Crushed Walnuts, Baby Arugula, Fresh Burrata Cheese', image: 'RoyalSmokeBurrata.png', isPopular: true, sizes: [{ size: 'XL', price: 39, weight: '320gr' }] },
                 { id: 's9', name: 'Tandoorium', description: 'Tandoori Meat, Cheddar Cheese, Barbecue Sauce, Cheddar Sauce', image: 'Tandoorium.png', sizes: [{ size: 'XL', price: 15, weight: '400gr' }, { size: 'XXL', price: 18, weight: '500gr' }] },
-                { id: 's10', name: 'BalkanMorning', description: 'SXL Sauce, Ajvar Sauce, Egg, Gouda, Mozzarella, Tomato, Cucumber, Green Pepper, Red Pepper, Olive, Lettuce, Walnut', image: 'balkanmorning3.png', sizes: [{ size: 'XL', price: 9, weight: '470gr' }] },
+                { id: 's10', name: 'BalkanMorning', description: 'SXL Sauce, Ajvar Sauce, Egg, Gouda, Mozzarella, Tomato, Cucumber, Green Pepper, Red Pepper, Olive, Lettuce, Walnut', image: 'BalkanMorning.png', sizes: [{ size: 'XL', price: 9, weight: '470gr' }] },
                 { id: 's11', name: 'ChocoVita', description: 'Nutella, Pistachio, Pistachio Cream, Banana, Oreo, Honey', image: 'ChocoVita.png', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
                 { id: 's12', name: 'MortaLisa', description: 'Pesto Sauce, Mortadella, Olives, Pistachios, Mozzarella, Honey, Arugula', image: 'MortaLisa.png', sizes: [{ size: 'XL', price: 10, weight: '470gr' }, { size: 'XXL', price: 12, weight: '540gr' }] },
                 { id: 's13', name: 'VeggieLand', description: 'Ajvar Sauce, Zucchini, Eggplant, Potatoes, Carrots, Dried Tomatoes, Green Peppers, Kapia', image: 'VeggieLand.png', sizes: [{ size: 'XL', price: 8, weight: '450gr' }] },
                 { id: 's14', name: 'VeggieBoom', description: 'Sxl Vegan Meatball Mix, Ajvar Sauce, Green Pepper, Red Onion, Arugula, Basil Tomato Sauce', image: 'VeggieBoom.png', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] }
             ],
             'pasta': [
-                { id: 'p1', name: 'PilePasta', description: 'Fusilli Pasta, Chicken Breast, Pesto Sauce, Parmesan Cheese', image: 'PilePasta.png', sizes: [{ size: 'XL', price: 9, weight: '400gr' }] },
+                { id: 'p1', name: 'PilePasta', description: 'Fusilli Pasta, Chicken Breast, Pesto Sauce, Parmesan Cheese', image: 'PilePasta.png', isPopular: true, sizes: [{ size: 'XL', price: 9, weight: '400gr' }] },
                 { id: 'p2', name: 'BoomPasta', description: 'Fusilli Pasta, Basil Tomato Sauce, Vegan Boom Balls', image: 'BoomPasta.png', sizes: [{ size: 'XL', price: 11, weight: '430gr' }] },
                 { id: 'p3', name: 'TunaTwist', description: 'Fusilli Pasta, Tuna, Capers, Corn, Pickles, Green Olives', image: 'TunaTwist.png', sizes: [{ size: 'XL', price: 10, weight: '480gr' }] },
-                { id: 'p4', name: 'TandooriTangle', description: 'Fusilli Pasta, Tandoori Meat, Cheddar Sauce, Parmesan Cheese', image: 'TandooriTangle.png', sizes: [{ size: 'XL', price: 12, weight: '410gr' }] },
+                { id: 'p4', name: 'TandooriTangle', description: 'Fusilli Pasta, Tandoori Meat, Cheddar Sauce, Parmesan Cheese', image: 'TandooriTangle.png', isPopular: true, sizes: [{ size: 'XL', price: 12, weight: '410gr' }] },
                 { id: 'p5', name: 'CrunchPasta', description: 'Fusilli Pasta, Crispy Chicken, Cheddar Sauce, Caesar Sauce, Parmesan Cheese', image: 'CrunchPasta.png', sizes: [{ size: 'XL', price: 12, weight: '420gr' }] },
                 { id: 'p6', name: 'Veganissimo', description: 'Fusilli Pasta, Tomato Sauce, Tomato, Red Peppers, Green Peppers, Green Olive, Thinly sliced Pickles, Sweet Corn', image: 'Veganissimo.png', sizes: [{ size: 'XL', price: 9, weight: '420gr' }] }
             ],
             'salads': [
                 { id: 'sa1', name: 'VegetableSalad', description: 'Tomato, Cucumber, Pickles, Green-Red Pepper, Red Onion, Corn, Olive, Lemon, Olive Oil, Lettuce, Arugula', image: 'VegetableSalad.png', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
-                { id: 'sa2', name: 'TunaSalad', description: 'Tuna, Capers, Corn, Pickles, Red Onion, Green Olives, Lettuce, Arugula, Green-Red Peppers', image: 'TunaSalad.png', sizes: [{ size: 'XL', price: 10, weight: '530gr' }] },
+                { id: 'sa2', name: 'TunaSalad', description: 'Tuna, Capers, Corn, Pickles, Red Onion, Green Olives, Lettuce, Arugula, Green-Red Peppers', image: 'TunaSalad.png', isPopular: true, sizes: [{ size: 'XL', price: 10, weight: '530gr' }] },
                 { id: 'sa3', name: 'CaesarSalad', description: 'Crispy Chicken, Caesar Sauce, Lettuce, Tomatoes, Arugula, Lemon', image: 'CaesarSalad.png', sizes: [{ size: 'XL', price: 10, weight: '470gr' }] }
             ],
             'desserts': [ // Kullanıcının isteği üzerine eklenen varsayılan kategori
                 { id: 'd1', name: 'Çikolatalı Sufle', description: 'Akışkan çikolatalı, sıcak ve taze sufle.', image: 'CikolatalSufle.png', sizes: [{ size: 'Tek Boy', price: 6, weight: '200gr' }] },
-                { id: 'd2', name: 'Cheesecake', description: 'Limonlu veya Çilekli seçenekleriyle.', image: 'Cheesecake.png', sizes: [{ size: 'Tek Boy', price: 5, weight: '250gr' }] },
+                { id: 'd2', name: 'Cheesecake', description: 'Limonlu veya Çilekli seçenekleriyle.', image: 'Cheesecake.png', isPopular: true, sizes: [{ size: 'Tek Boy', price: 5, weight: '250gr' }] },
                 { id: 'd3', name: 'Tiramisu', description: 'Geleneksel İtalyan tatlısı.', image: 'Tiramisu.png', sizes: [{ size: 'Tek Boy', price: 7, weight: '220gr' }] }
             ],
             'drinks': [ // İçecek seçimi için eklenen varsayılan kategori
-                { id: 'dr1', name: 'Kola', description: '330ml Kutu', image: 'Kola.png', sizes: [{ size: '330ml', price: 2.5, weight: '330ml' }] },
+                { id: 'dr1', name: 'Kola', description: '330ml Kutu', image: 'Kola.png', isPopular: true, sizes: [{ size: '330ml', price: 2.5, weight: '330ml' }] },
                 { id: 'dr2', name: 'Ayran', description: '300ml Kutu', image: 'Ayran.png', sizes: [{ size: '300ml', price: 2, weight: '300ml' }] },
                 { id: 'dr3', name: 'Su', description: '500ml Pet', image: 'Su.png', sizes: [{ size: '500ml', price: 1.5, weight: '500ml' }] },
-                { id: 'dr4', name: 'Portakal Suyu', description: 'Taze Sıkılmış', image: 'PortakalSuyu.png', sizes: [{ size: '300ml', price: 4, weight: '300ml' }] },
+                { id: 'dr4', name: 'Portakal Suyu', description: 'Taze Sıkılmış', image: 'PortakalSuyu.png', isPopular: true, sizes: [{ size: '300ml', price: 4, weight: '300ml' }] },
                 { id: 'dr5', name: 'Kahve', description: 'Filtre Kahve', image: 'Kahve.png', sizes: [{ size: 'Orta Boy', price: 3.5, weight: '250ml' }] }
             ]
         };
@@ -362,12 +375,28 @@
         let currentSizeSelection = null; // Geçici boyut seçimi
         let currentDrinkSelection = null; // Seçilen içecek bilgisi
         let quickConfirmImageSources = [];
+        let pendingOrderNote = '';
+        let lastSubmittedOrderNote = '';
         const CART_STORAGE_KEY = 'sandwichXL_cart';
         const ORDER_COUNTER_KEY = 'sandwichXL_orderCounter';
         const IMAGE_BASE_PATH = 'assets/images/menu';
         const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok';
         const COMMON_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
         const DRINK_SELECTION_CATEGORIES = new Set(['sandwiches', 'pasta']);
+        const productImageCache = new Map();
+        const imagePreferenceCache = new Map();
+        const ALLERGEN_RULES = [
+            { label: 'Gluten', keywords: ['bread', 'buns', 'pasta', 'fusilli', 'flour', 'oreo', 'tortilla'] },
+            { label: 'Süt Ürünleri', keywords: ['cheese', 'mozzarella', 'gouda', 'burrata', 'parmesan', 'yogurt', 'cream', 'milk', 'butter', 'nutella'] },
+            { label: 'Kuruyemiş', keywords: ['walnut', 'walnuts', 'pistachio', 'pistachios', 'nuts', 'hazelnut'] },
+            { label: 'Balık', keywords: ['tuna', 'salmon', 'anchovy', 'fish', 'seafood'] },
+            { label: 'Yumurta', keywords: ['egg'] },
+            { label: 'Soya', keywords: ['soy'] },
+            { label: 'Susam', keywords: ['sesame'] },
+            { label: 'Bal', keywords: ['honey'] },
+            { label: 'Kakao', keywords: ['chocolate', 'cocoa'] }
+        ];
+        const LAST_ORDER_NOTE_KEY = 'sandwichXL_lastOrderNote';
 
         function buildLocalImagePath(fileName) {
             if (!fileName || typeof fileName !== 'string') {
@@ -393,6 +422,11 @@
         function resolveProductImageSources(product) {
             if (!product) {
                 return [PLACEHOLDER_IMAGE];
+            }
+
+            const cacheKey = product.id ? `id:${product.id}` : (product.name ? `name:${product.name.toLowerCase()}` : null);
+            if (cacheKey && productImageCache.has(cacheKey)) {
+                return [...productImageCache.get(cacheKey)];
             }
 
             const sources = [];
@@ -442,10 +476,27 @@
                 sources.push(PLACEHOLDER_IMAGE);
             }
 
-            return sources;
+            const finalSources = sources.length > 0 ? sources : [PLACEHOLDER_IMAGE];
+
+            if (cacheKey) {
+                productImageCache.set(cacheKey, finalSources);
+                return [...finalSources];
+            }
+
+            return finalSources;
         }
 
-        function loadImageWithFallback(imageElement, targetSources) {
+        function buildImageCacheKey(sourceList) {
+            if (!sourceList) {
+                return '';
+            }
+            if (Array.isArray(sourceList)) {
+                return sourceList.filter(Boolean).join('|');
+            }
+            return String(sourceList);
+        }
+
+        function loadImageWithFallback(imageElement, targetSources, cacheKey) {
             if (!imageElement) {
                 return;
             }
@@ -463,40 +514,220 @@
                 uniqueSources.push(PLACEHOLDER_IMAGE);
             }
 
+            const resolvedKey = cacheKey || buildImageCacheKey(uniqueSources);
+            const cachedPreference = resolvedKey ? imagePreferenceCache.get(resolvedKey) : null;
+
             let currentIndex = 0;
 
             imageElement.loading = 'lazy';
             imageElement.decoding = 'async';
 
+            if (cachedPreference) {
+                imageElement.src = cachedPreference;
+                return;
+            }
+
+            const applyNextSource = () => {
+                imageElement.src = uniqueSources[currentIndex] || PLACEHOLDER_IMAGE;
+            };
+
             imageElement.onload = () => {
+                if (resolvedKey) {
+                    imagePreferenceCache.set(resolvedKey, imageElement.src);
+                }
                 imageElement.onerror = null;
                 imageElement.onload = null;
             };
 
             imageElement.onerror = () => {
+                if (resolvedKey && imagePreferenceCache.get(resolvedKey) === imageElement.src) {
+                    imagePreferenceCache.delete(resolvedKey);
+                }
                 currentIndex += 1;
                 if (currentIndex < uniqueSources.length) {
-                    imageElement.src = uniqueSources[currentIndex];
+                    applyNextSource();
                 } else {
                     imageElement.onerror = null;
                     imageElement.onload = null;
                 }
             };
 
-            imageElement.src = uniqueSources[currentIndex] || PLACEHOLDER_IMAGE;
+            applyNextSource();
         }
 
         // --- 3. TEMEL FONKSİYONLAR (Core Functions) ---
+
+        function formatCurrency(value) {
+            const numeric = Number(value);
+            if (!Number.isFinite(numeric)) {
+                return '€0.00';
+            }
+            return `€${numeric.toFixed(2)}`;
+        }
+
+        function deriveAllergensFromDescription(product) {
+            const haystack = `${product?.name || ''} ${product?.description || ''}`.toLowerCase();
+            const detected = new Set();
+
+            ALLERGEN_RULES.forEach(rule => {
+                if (rule.keywords.some(keyword => haystack.includes(keyword))) {
+                    detected.add(rule.label);
+                }
+            });
+
+            return Array.from(detected);
+        }
+
+        function deriveNutritionNote(product) {
+            const text = `${product?.description || ''}`.toLowerCase();
+            if (/vegan|veggie|vegetable|salad/.test(text) && !/(chicken|meat|beef|tuna|salmon|prosciutto|kobasica)/.test(text)) {
+                return 'Sebze ağırlıklı ve lif oranı yüksek bir seçenek.';
+            }
+            if (/(tuna|salmon|fish|seafood)/.test(text)) {
+                return 'Omega-3 yağ asitleri açısından zengin deniz ürünleri içerir.';
+            }
+            if (/(chicken|meat|beef|steak|prosciutto|kobasica)/.test(text)) {
+                return 'Protein oranı yüksek, doyurucu bir lezzet sunar.';
+            }
+            if (/(cheese|mozzarella|gouda|burrata|parmesan|cream|yogurt)/.test(text)) {
+                return 'Kremamsı dokusu ve kalsiyum kaynağı süt ürünleriyle öne çıkar.';
+            }
+            if (/(nutella|chocolate|cocoa|tiramisu|cheesecake|dessert)/.test(text)) {
+                return 'Tatlı ihtiyacını karşılayan enerjisi yüksek bir seçenek.';
+            }
+            return 'Dengeli içerikleriyle keyifli bir seçimdir.';
+        }
+
+        function enrichMenuData() {
+            Object.keys(menuData).forEach(categoryKey => {
+                const items = menuData[categoryKey];
+                if (!Array.isArray(items)) {
+                    return;
+                }
+                items.forEach(item => {
+                    item.allergens = deriveAllergensFromDescription(item);
+                    item.nutritionNote = deriveNutritionNote(item);
+                });
+            });
+        }
+
+        function buildProductCardElement(item, categoryKey, options = {}) {
+            const { isPopular = false } = options;
+            const basePrice = Number(item.sizes?.[0]?.price ?? 0);
+            const basePriceLabel = formatCurrency(basePrice);
+            const sizeLabel = (item.sizes || [])
+                .map(size => size.size)
+                .filter(Boolean)
+                .join(' • ');
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.action = 'start-add';
+            button.dataset.productId = item.id;
+            button.dataset.category = categoryKey;
+            button.setAttribute('aria-label', `${item.name} detaylarını aç`);
+            button.className = 'group bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-secondary/40 text-left';
+            if (isPopular) {
+                button.classList.add('ring-2', 'ring-secondary/50', 'shadow-xl');
+            }
+
+            const imageWrapper = document.createElement('div');
+            imageWrapper.className = 'relative w-full h-48 md:h-56 bg-white flex items-center justify-center overflow-hidden';
+
+            const productImage = document.createElement('img');
+            productImage.alt = item.name;
+            productImage.className = 'max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105';
+            const imageSources = resolveProductImageSources(item);
+            const imageKey = buildImageCacheKey(imageSources);
+            loadImageWithFallback(productImage, imageSources, imageKey);
+            imageWrapper.appendChild(productImage);
+
+            if (isPopular) {
+                const badge = document.createElement('span');
+                badge.className = 'absolute left-3 top-3 rounded-full bg-secondary text-white text-xs font-semibold px-3 py-1 shadow-md';
+                badge.textContent = 'Popüler';
+                imageWrapper.appendChild(badge);
+            }
+
+            const body = document.createElement('div');
+            body.className = 'p-5 flex flex-col flex-grow';
+
+            const header = document.createElement('div');
+            header.className = 'flex justify-between items-start mb-2';
+
+            const title = document.createElement('h3');
+            title.className = 'text-xl font-bold text-primary';
+            title.textContent = item.name;
+
+            const priceEl = document.createElement('span');
+            priceEl.className = 'text-xl font-bold text-secondary';
+            priceEl.textContent = basePriceLabel;
+
+            header.append(title, priceEl);
+            body.appendChild(header);
+
+            const description = document.createElement('p');
+            description.className = 'text-gray-600 text-sm mb-3';
+            description.textContent = item.description || '';
+            body.appendChild(description);
+
+            if (item.nutritionNote) {
+                const nutrition = document.createElement('p');
+                nutrition.className = 'text-xs text-amber-600 font-medium mb-2';
+                nutrition.textContent = item.nutritionNote;
+                body.appendChild(nutrition);
+            }
+
+            const allergenWrapper = document.createElement('div');
+            allergenWrapper.className = 'mt-1 flex flex-wrap items-center gap-2';
+            const allergenLabel = document.createElement('span');
+            allergenLabel.className = 'text-xs font-semibold text-gray-500 uppercase tracking-wide';
+            allergenLabel.textContent = 'Allerjenler:';
+            allergenWrapper.appendChild(allergenLabel);
+
+            if (Array.isArray(item.allergens) && item.allergens.length > 0) {
+                item.allergens.forEach(allergen => {
+                    const chip = document.createElement('span');
+                    chip.className = 'text-xs px-2 py-1 rounded-full bg-rose-100 text-rose-700 font-semibold';
+                    chip.textContent = allergen;
+                    allergenWrapper.appendChild(chip);
+                });
+            } else {
+                const chip = document.createElement('span');
+                chip.className = 'text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold';
+                chip.textContent = 'Belirgin alerjen yok';
+                allergenWrapper.appendChild(chip);
+            }
+
+            body.appendChild(allergenWrapper);
+
+            const footer = document.createElement('div');
+            footer.className = 'mt-auto flex items-center justify-between text-xs uppercase tracking-wide text-gray-500';
+            const sizeSpan = document.createElement('span');
+            sizeSpan.textContent = sizeLabel || 'Standart';
+            const ctaSpan = document.createElement('span');
+            ctaSpan.className = 'text-primary font-semibold group-hover:text-secondary transition-colors';
+            ctaSpan.textContent = 'Detayları Aç';
+            footer.append(sizeSpan, ctaSpan);
+            body.appendChild(footer);
+
+            button.append(imageWrapper, body);
+            return button;
+        }
 
         /**
          * Sayfa yüklendiğinde menüyü ve sepeti başlatır
          */
         document.addEventListener('DOMContentLoaded', () => {
+            enrichMenuData();
+            loadPersistedOrderNote();
             initializeEventDelegation();
             loadCart();
             renderProducts('sandwiches'); // Ana sayfa sandviçler
             updateActiveCategory('sandwiches');
             attachModalListeners();
+            setupOrderNoteListener();
+            updateSuccessNote(lastSubmittedOrderNote);
         });
         
         /**
@@ -504,60 +735,89 @@
          */
         function renderProducts(categoryKey) {
             const grid = document.getElementById('product-grid');
-            grid.innerHTML = ''; // Grid'i temizle
+            if (!grid) {
+                return;
+            }
 
-            if (!menuData[categoryKey] || menuData[categoryKey].length === 0) {
+            grid.innerHTML = '';
+
+            const items = menuData[categoryKey];
+            if (!Array.isArray(items) || items.length === 0) {
                 grid.innerHTML = '<p class="text-gray-500">Bu kategoride ürün bulunamadı.</p>';
                 return;
             }
 
-            menuData[categoryKey].forEach(item => {
-                const imageSources = resolveProductImageSources(item);
-                const basePrice = item.sizes?.[0]?.price ?? 0;
-                const basePriceLabel = Number.isFinite(basePrice) ? basePrice.toFixed(2) : '0.00';
-                const sizeLabel = (item.sizes || [])
-                    .map(size => size.size)
-                    .filter(Boolean)
-                    .join(' • ');
+            const fragment = document.createDocumentFragment();
+            const popularItems = items.filter(item => item.isPopular);
+            const regularItems = items.filter(item => !item.isPopular);
 
-                const productCard = `
-                    <button type="button" data-action="start-add" data-product-id="${item.id}" data-category="${categoryKey}" class="group bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-secondary/40 text-left">
-                        <!-- Ürün Resmi -->
-                        <div class="w-full h-48 md:h-56 bg-white flex items-center justify-center overflow-hidden">
-                            <img src="${PLACEHOLDER_IMAGE}" data-image-sources='${encodeURIComponent(JSON.stringify(imageSources))}' alt="${item.name}" class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async">
-                        </div>
+            if (popularItems.length > 0) {
+                const section = document.createElement('section');
+                section.className = 'col-span-full space-y-4';
 
-                        <div class="p-5 flex flex-col flex-grow">
-                            <!-- Ürün Adı ve Fiyatı -->
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-bold text-primary">${item.name}</h3>
-                                <span class="text-xl font-bold text-secondary">€${basePriceLabel}</span>
-                            </div>
-                            <!-- Ürün Açıklaması -->
-                            <p class="text-gray-600 text-sm mb-4 flex-grow">${item.description}</p>
+                const headingRow = document.createElement('div');
+                headingRow.className = 'flex items-center justify-between';
+                const heading = document.createElement('h2');
+                heading.className = 'text-2xl font-bold text-primary';
+                heading.textContent = 'Popüler';
+                const subHeading = document.createElement('span');
+                subHeading.className = 'text-sm text-gray-500';
+                subHeading.textContent = 'Misafirlerimizin favori seçimleri';
+                headingRow.append(heading, subHeading);
+                section.appendChild(headingRow);
 
-                            <div class="mt-auto flex items-center justify-between text-xs uppercase tracking-wide text-gray-500">
-                                <span>${sizeLabel || 'Standart'}</span>
-                                <span class="text-primary font-semibold group-hover:text-secondary transition-colors">Detayları Aç</span>
-                            </div>
-                        </div>
-                    </button>
-                `;
-                grid.insertAdjacentHTML('beforeend', productCard);
+                const popularGrid = document.createElement('div');
+                popularGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+                popularItems.forEach(item => {
+                    popularGrid.appendChild(buildProductCardElement(item, categoryKey, { isPopular: true }));
+                });
+                section.appendChild(popularGrid);
+                fragment.appendChild(section);
+            }
 
-                const card = grid.lastElementChild;
-                const imageElement = card?.querySelector('img[data-image-sources]');
-                if (imageElement) {
-                    const targetAttr = imageElement.getAttribute('data-image-sources');
-                    let targetSources;
-                    try {
-                        targetSources = JSON.parse(decodeURIComponent(targetAttr));
-                    } catch (error) {
-                        targetSources = targetAttr ? decodeURIComponent(targetAttr) : targetAttr;
-                    }
-                    loadImageWithFallback(imageElement, targetSources);
-                }
+            regularItems.forEach(item => {
+                fragment.appendChild(buildProductCardElement(item, categoryKey));
             });
+
+            grid.appendChild(fragment);
+        }
+
+        function loadPersistedOrderNote() {
+            try {
+                const stored = localStorage.getItem(LAST_ORDER_NOTE_KEY);
+                if (typeof stored === 'string') {
+                    pendingOrderNote = '';
+                    lastSubmittedOrderNote = stored;
+                }
+            } catch (error) {
+                pendingOrderNote = '';
+                lastSubmittedOrderNote = '';
+            }
+        }
+
+        function setupOrderNoteListener() {
+            const noteInput = document.getElementById('order-note');
+            if (!noteInput) {
+                return;
+            }
+            noteInput.value = pendingOrderNote;
+            noteInput.addEventListener('input', (event) => {
+                pendingOrderNote = event.target.value;
+            });
+        }
+
+        function updateSuccessNote(noteValue) {
+            const notePreview = document.getElementById('order-note-preview');
+            if (!notePreview) {
+                return;
+            }
+            if (noteValue) {
+                notePreview.textContent = `Notunuz: ${noteValue}`;
+                notePreview.classList.remove('hidden');
+            } else {
+                notePreview.textContent = '';
+                notePreview.classList.add('hidden');
+            }
         }
 
         /**
@@ -731,18 +991,28 @@
 
                 const infoWrapper = document.createElement('div');
                 infoWrapper.className = 'flex flex-col text-left';
-                infoWrapper.innerHTML = `
-                    <span class="text-base font-semibold text-gray-800">${size.size}${size.weight ? ` (${size.weight})` : ''}</span>
-                    <span class="text-sm text-gray-500">€${Number(size.price).toFixed(2)}</span>
-                `;
+                const sizeName = document.createElement('span');
+                sizeName.className = 'text-base font-semibold text-gray-800';
+                sizeName.textContent = size.size || '';
+                infoWrapper.appendChild(sizeName);
 
-                const icon = document.createElement('span');
-                icon.className = 'ml-4 flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 text-gray-400 transition-colors';
-                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                if (size.weight) {
+                    const weightLine = document.createElement('span');
+                    weightLine.className = 'text-xs text-gray-500';
+                    weightLine.textContent = size.weight;
+                    infoWrapper.appendChild(weightLine);
+                }
+
+                const priceWrapper = document.createElement('div');
+                priceWrapper.className = 'text-right';
+                priceWrapper.innerHTML = `
+                    <span class="text-sm text-gray-500 block">Fiyat</span>
+                    <span class="text-lg font-bold text-secondary">${formatCurrency(Number(size.price))}</span>
+                `;
 
                 label.appendChild(checkbox);
                 label.appendChild(infoWrapper);
-                label.appendChild(icon);
+                label.appendChild(priceWrapper);
 
                 checkbox.addEventListener('change', () => handleSizeCheckboxChange(index));
                 optionsContainer.appendChild(label);
@@ -808,14 +1078,7 @@
             labels.forEach((label, index) => {
                 const checked = checkboxes[index]?.checked;
                 label.classList.toggle('border-primary', checked);
-                label.classList.toggle('bg-primary/10', checked);
-                label.classList.toggle('text-primary', checked);
-                const icon = label.querySelector('span:last-child');
-                if (icon) {
-                    icon.classList.toggle('bg-primary', checked);
-                    icon.classList.toggle('text-white', checked);
-                    icon.classList.toggle('border-primary', checked);
-                }
+                label.classList.toggle('bg-primary/5', checked);
             });
         }
 
@@ -864,7 +1127,7 @@
             if (imageEl) {
                 imageEl.alt = product?.name || '';
                 quickConfirmImageSources = resolveProductImageSources(product);
-                loadImageWithFallback(imageEl, quickConfirmImageSources);
+                loadImageWithFallback(imageEl, quickConfirmImageSources, buildImageCacheKey(quickConfirmImageSources));
             } else {
                 quickConfirmImageSources = [];
             }
@@ -893,10 +1156,9 @@
 
                 const thumbnail = document.createElement('img');
                 const drinkImageSources = resolveProductImageSources(drink);
-                thumbnail.src = PLACEHOLDER_IMAGE;
                 thumbnail.alt = drink.name;
                 thumbnail.className = 'w-14 h-14 rounded-lg bg-white object-contain flex-shrink-0 p-1 shadow-inner';
-                loadImageWithFallback(thumbnail, drinkImageSources);
+                loadImageWithFallback(thumbnail, drinkImageSources, buildImageCacheKey(drinkImageSources));
 
                 const textWrapper = document.createElement('div');
                 textWrapper.innerHTML = `
@@ -997,6 +1259,7 @@
         function updateSizeSummary() {
             const labelEl = document.getElementById('size-selection-label');
             const totalEl = document.getElementById('size-selection-total');
+            const grandTotalEl = document.getElementById('size-selection-grand-total');
 
             if (!labelEl || !totalEl) {
                 return;
@@ -1005,10 +1268,17 @@
             if (currentSizeSelection) {
                 const weightPart = currentSizeSelection.weight ? ` (${currentSizeSelection.weight})` : '';
                 labelEl.innerText = `${currentSizeSelection.size}${weightPart}`;
-                totalEl.innerText = `€${Number(currentSizeSelection.price).toFixed(2)}`;
+                const formatted = formatCurrency(Number(currentSizeSelection.price));
+                totalEl.innerText = formatted;
+                if (grandTotalEl) {
+                    grandTotalEl.innerText = formatted;
+                }
             } else {
                 labelEl.innerText = 'Henüz seçilmedi';
                 totalEl.innerText = '€0.00';
+                if (grandTotalEl) {
+                    grandTotalEl.innerText = '€0.00';
+                }
             }
         }
 
@@ -1029,7 +1299,7 @@
             }
 
             if (sizePriceEl) {
-                sizePriceEl.innerText = `€${sizePrice.toFixed(2)}`;
+                sizePriceEl.innerText = formatCurrency(sizePrice);
             }
 
             if (drinkLabelEl) {
@@ -1037,11 +1307,11 @@
             }
 
             if (drinkPriceEl) {
-                drinkPriceEl.innerText = `€${drinkPrice.toFixed(2)}`;
+                drinkPriceEl.innerText = formatCurrency(drinkPrice);
             }
 
             if (totalEl) {
-                totalEl.innerText = `€${(sizePrice + drinkPrice).toFixed(2)}`;
+                totalEl.innerText = formatCurrency(sizePrice + drinkPrice);
             }
         }
 
@@ -1124,6 +1394,10 @@
             }
             if (sizeTotalEl) {
                 sizeTotalEl.innerText = '€0.00';
+            }
+            const sizeGrandTotalEl = document.getElementById('size-selection-grand-total');
+            if (sizeGrandTotalEl) {
+                sizeGrandTotalEl.innerText = '€0.00';
             }
 
             const drinkSizeLabel = document.getElementById('drink-size-label');
@@ -1292,12 +1566,12 @@
                         } catch (error) {
                             targetSources = targetAttr ? decodeURIComponent(targetAttr) : targetAttr;
                         }
-                        loadImageWithFallback(cartImage, targetSources);
+                        loadImageWithFallback(cartImage, targetSources, buildImageCacheKey(targetSources));
                     }
                 });
             }
 
-            cartTotalEl.innerText = `€${total.toFixed(2)}`;
+            cartTotalEl.innerText = formatCurrency(total);
             cartCountEl.innerText = totalItems;
 
             // Sepeti localStorage'e kaydet
@@ -1354,13 +1628,34 @@
         function confirmOrder() {
             if (cart.length === 0) return;
 
+            const noteInput = document.getElementById('order-note');
+            const noteValue = noteInput ? noteInput.value.trim() : '';
+            lastSubmittedOrderNote = noteValue;
+            pendingOrderNote = '';
+
             const orderNumber = getNewOrderNumber();
             document.getElementById('order-number').innerText = String(orderNumber).padStart(3, '0');
-            
+
+            if (noteInput) {
+                noteInput.value = '';
+            }
+
+            try {
+                if (noteValue) {
+                    localStorage.setItem(LAST_ORDER_NOTE_KEY, noteValue);
+                } else {
+                    localStorage.removeItem(LAST_ORDER_NOTE_KEY);
+                }
+            } catch (error) {
+                // localStorage erişimi başarısız olursa sessizce devam et
+            }
+
+            updateSuccessNote(noteValue);
+
             // Sepeti temizle
             cart = [];
             updateCart(); // Arayüzü ve localStorage'i günceller
-            
+
             // Modalları kapat/aç
             toggleCartModal(false);
             toggleSuccessModal(true);
@@ -1408,6 +1703,15 @@
 
         function toggleCartModal(show) {
             toggleModal('cart-modal', show);
+            const noteInput = document.getElementById('order-note');
+            if (!noteInput) {
+                return;
+            }
+            if (show) {
+                noteInput.value = pendingOrderNote;
+            } else {
+                pendingOrderNote = noteInput.value;
+            }
         }
         function toggleSizeModal(show) {
             toggleModal('size-modal', show);
@@ -1532,6 +1836,3 @@
     </script>
 </body>
 </html>
-
-
-
