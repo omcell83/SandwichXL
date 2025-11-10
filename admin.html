@@ -1,1470 +1,1470 @@
-+<!DOCTYPE html>
-+<html lang="tr">
-+<head>
-+    <meta charset="UTF-8">
-+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-+    <title>Sandwich XL - Admin Paneli</title>
-+    <script src="https://cdn.tailwindcss.com"></script>
-+    <script>
-+        tailwind.config = {
-+            theme: {
-+                extend: {
-+                    colors: {
-+                        primary: '#05594C',
-+                        secondary: '#EF7F1A',
-+                        accent: '#F2B705'
-+                    },
-+                    fontFamily: {
-+                        sans: ['Poppins', 'sans-serif']
-+                    }
-+                }
-+            }
-+        };
-+    </script>
-+    <link rel="preconnect" href="https://fonts.googleapis.com">
-+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-+    <script src="assets/js/default-menu-data.js"></script>
-+    <script src="assets/js/menu-data-store.js"></script>
-+    <script src="assets/js/category-meta-store.js"></script>
-+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-+    <script src="assets/js/order-data-store.js"></script>
-+    <style>
-+        body {
-+            font-family: 'Poppins', sans-serif;
-+            background: linear-gradient(180deg, rgba(5, 89, 76, 0.08) 0%, #ffffff 65%);
-+        }
-+        ::-webkit-scrollbar {
-+            width: 10px;
-+        }
-+        ::-webkit-scrollbar-thumb {
-+            background: rgba(5, 89, 76, 0.6);
-+            border-radius: 999px;
-+        }
-+        ::-webkit-scrollbar-thumb:hover {
-+            background: rgba(5, 89, 76, 0.8);
-+        }
-+        .card-shadow {
-+            box-shadow: 0 30px 60px -35px rgba(15, 23, 42, 0.35);
-+        }
-+        .drag-over-top {
-+            box-shadow: inset 0 3px 0 0 rgba(239, 127, 26, 0.5);
-+        }
-+        .drag-over-bottom {
-+            box-shadow: inset 0 -3px 0 0 rgba(239, 127, 26, 0.5);
-+        }
-+        .modal-backdrop {
-+            backdrop-filter: blur(6px);
-+        }
-+    </style>
-+</head>
-+<body class="min-h-screen text-slate-900">
-+    <header class="bg-primary text-white shadow-lg">
-+        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-6">
-+            <div class="flex items-center gap-4">
-+                <img src="logo/logoo.png" alt="Sandwich XL" class="h-12 w-auto rounded-lg bg-white/10 p-2">
-+                <div>
-+                    <h1 class="text-2xl font-bold tracking-tight">Sandwich XL Admin Paneli</h1>
-+                    <p class="text-white/70 text-sm">Menü, sipariş ve istatistikleri gerçek zamanlı yönetin.</p>
-+                </div>
-+            </div>
-+            <div class="flex flex-wrap items-center gap-3">
-+                <a id="orders-download" href="#" download="orders.xlsx" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-xl text-sm font-semibold">
-+                    <i class="fa-solid fa-file-excel"></i>
-+                    Sipariş Exceli
-+                </a>
-+                <a id="stats-download" href="#" download="user_stats.xlsx" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-xl text-sm font-semibold">
-+                    <i class="fa-solid fa-chart-line"></i>
-+                    İstatistik Exceli
-+                </a>
-+                <a href="index.html" class="flex items-center gap-2 bg-white text-primary font-semibold px-4 py-2 rounded-xl shadow hover:bg-slate-50 transition-colors">
-+                    <i class="fa-solid fa-rotate-left"></i>
-+                    Menüye Dön
-+                </a>
-+            </div>
-+        </div>
-+    </header>
-+
-+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-10">
-+        <section class="bg-white/95 rounded-3xl card-shadow border border-primary/10 p-6">
-+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-+                <div>
-+                    <h2 class="text-2xl font-bold text-primary">Aktif Siparişler &amp; Geçmiş</h2>
-+                    <p class="text-slate-500 text-sm">Yeni siparişler otomatik gelir, tamamladıkça veya iptal ettikçe güncellenir.</p>
-+                </div>
-+                <div class="text-xs text-slate-400">Kaynak: OrderDataStore</div>
-+            </div>
-+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-+                <div class="bg-primary/5 rounded-2xl border border-primary/20 p-5 flex flex-col">
-+                    <div class="flex items-center justify-between mb-4">
-+                        <h3 class="text-xl font-semibold text-primary">Aktif Siparişler</h3>
-+                        <span class="text-sm text-slate-500" id="active-order-count">0 sipariş</span>
-+                    </div>
-+                    <div id="active-orders" class="flex-1 overflow-y-auto pr-1 space-y-4" aria-live="polite"></div>
-+                </div>
-+                <div class="bg-primary/5 rounded-2xl border border-primary/20 p-5 flex flex-col">
-+                    <div class="flex items-center justify-between mb-4">
-+                        <h3 class="text-xl font-semibold text-primary">Sipariş Geçmişi</h3>
-+                        <span class="text-sm text-slate-500" id="history-count">0 kayıt</span>
-+                    </div>
-+                    <div class="overflow-x-auto">
-+                        <table class="min-w-full text-sm divide-y divide-slate-200">
-+                            <thead class="bg-white/80 text-slate-500 uppercase tracking-wide text-xs">
-+                                <tr>
-+                                    <th class="px-3 py-2 text-left">Sipariş</th>
-+                                    <th class="px-3 py-2 text-left">Durum</th>
-+                                    <th class="px-3 py-2 text-left">Tarih</th>
-+                                    <th class="px-3 py-2 text-left">Tutar</th>
-+                                    <th class="px-3 py-2 text-left">Dil</th>
-+                                    <th class="px-3 py-2 text-left">Not</th>
-+                                </tr>
-+                            </thead>
-+                            <tbody id="order-history-body" class="divide-y divide-slate-200"></tbody>
-+                        </table>
-+                    </div>
-+                </div>
-+            </div>
-+        </section>
-+
-+        <section class="bg-white/95 rounded-3xl card-shadow border border-primary/10 p-6">
-+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-+                <div>
-+                    <h2 class="text-2xl font-bold text-primary">Kullanıcı İstatistikleri</h2>
-+                    <p class="text-slate-500 text-sm">Sepet bazlı performans, ortalama sipariş tutarı ve tamamlayıcı ürün oranı.</p>
-+                </div>
-+                <div class="text-xs text-slate-400">Kaynak: user_stats.xlsx</div>
-+            </div>
-+            <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"></div>
-+        </section>
-+
-+        <section class="bg-white/95 rounded-3xl card-shadow border border-primary/10 p-6">
-+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-+                <div>
-+                    <h2 class="text-2xl font-bold text-primary">Menü Yönetimi</h2>
-+                    <p class="text-slate-500 text-sm">Kategorileri düzenleyin, ürünleri sürükleyerek sıralayın ve detayları güncelleyin.</p>
-+                </div>
-+                <div class="flex flex-wrap items-center gap-3">
-+                    <button id="add-product" class="flex items-center gap-2 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors">
-+                        <i class="fa-solid fa-plus"></i>
-+                        Yeni Ürün
-+                    </button>
-+                    <button id="reset-menu" class="flex items-center gap-2 bg-slate-100 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors">
-+                        <i class="fa-solid fa-arrow-rotate-left"></i>
-+                        Varsayılanları Yükle
-+                    </button>
-+                </div>
-+            </div>
-+            <div class="grid grid-cols-1 xl:grid-cols-[340px,1fr] gap-6">
-+                <div class="space-y-6">
-+                    <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5">
-+                        <div class="flex items-center justify-between mb-4">
-+                            <h3 class="text-lg font-semibold text-primary">Kategoriler</h3>
-+                            <span class="text-xs text-slate-500">Sürükle-bırak ile sıralayın</span>
-+                        </div>
-+                        <ul id="category-list" class="space-y-3"></ul>
-+                        <form id="category-form" class="mt-4 space-y-3">
-+                            <div>
-+                                <label for="new-category-name" class="text-sm font-semibold text-slate-600">Yeni Kategori Adı</label>
-+                                <input id="new-category-name" type="text" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Örn: Çorbalar">
-+                                <p class="text-xs text-slate-400 mt-1">Slug otomatik oluşturulur, boş bırakmayın.</p>
-+                            </div>
-+                            <button id="create-category" type="submit" class="w-full flex items-center justify-center gap-2 bg-secondary text-white font-semibold px-4 py-2 rounded-xl hover:bg-secondary/90 transition-colors">
-+                                <i class="fa-solid fa-folder-plus"></i>
-+                                Kategori Ekle
-+                            </button>
-+                            <p id="category-feedback" class="text-xs font-semibold"></p>
-+                        </form>
-+                    </div>
-+                    <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5">
-+                        <h3 class="text-lg font-semibold text-primary mb-3">Kategori Özeti</h3>
-+                        <select id="category-select" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none"></select>
-+                        <p class="text-xs text-slate-500 mt-2">Kategori seçimi, tabloda hangi ürünlerin düzenleneceğini belirler.</p>
-+                    </div>
-+                </div>
-+                <div class="space-y-6">
-+                    <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5">
-+                        <div class="flex items-center justify-between mb-4">
-+                            <div>
-+                                <h3 class="text-lg font-semibold text-primary" id="product-table-title">Ürünler</h3>
-+                                <p class="text-xs text-slate-500" id="product-count"></p>
-+                            </div>
-+                        </div>
-+                        <div class="overflow-x-auto rounded-xl border border-slate-100">
-+                            <table class="min-w-full divide-y divide-slate-100 text-sm" id="product-table">
-+                                <thead class="bg-white/80 text-slate-500 uppercase tracking-wide text-xs">
-+                                    <tr>
-+                                        <th class="px-4 py-3 text-left">Ürün</th>
-+                                        <th class="px-4 py-3 text-left">Başlangıç Fiyatı</th>
-+                                        <th class="px-4 py-3 text-left">Satış</th>
-+                                        <th class="px-4 py-3 text-left">Popüler</th>
-+                                        <th class="px-4 py-3 text-right">İşlem</th>
-+                                    </tr>
-+                                </thead>
-+                                <tbody id="product-table-body" class="divide-y divide-slate-100"></tbody>
-+                            </table>
-+                        </div>
-+                    </div>
-+                </div>
-+            </div>
-+        </section>
-+    </main>
-+
-+    <footer class="py-6 text-center text-xs text-slate-500">
-+        Admin paneli açık kaldığı sürece index.html ile gerçek zamanlı senkronizasyon sağlanır.
-+    </footer>
-+
-+    <div id="product-modal" class="fixed inset-0 z-50 hidden">
-+        <div class="absolute inset-0 bg-slate-900/70 modal-backdrop" data-action="close-product-modal"></div>
-+        <div class="relative max-w-3xl mx-auto mt-16 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
-+            <form id="product-form" class="flex flex-col max-h-[85vh]">
-+                <div class="px-6 py-4 bg-primary text-white flex items-center justify-between">
-+                    <div>
-+                        <h3 class="text-xl font-semibold" id="product-modal-title">Ürün Oluştur</h3>
-+                        <p class="text-sm text-white/70">Tüm alanlar müşteri tarafında birebir gösterilir.</p>
-+                    </div>
-+                    <button type="button" class="text-white/80 hover:text-white" data-action="close-product-modal">
-+                        <i class="fa-solid fa-xmark text-xl"></i>
-+                    </button>
-+                </div>
-+                <div class="px-6 py-5 space-y-5 overflow-y-auto">
-+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-+                        <div>
-+                            <label for="modal-product-name" class="text-sm font-semibold text-slate-600">Ürün Adı</label>
-+                            <input type="text" id="modal-product-name" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" required>
-+                        </div>
-+                        <div>
-+                            <label for="modal-product-image" class="text-sm font-semibold text-slate-600">Görsel Dosya Adı</label>
-+                            <input type="text" id="modal-product-image" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Örn: CapreseKiss.png">
-+                            <p class="text-xs text-slate-400 mt-1">/assets/images/menu/ klasöründeki dosya adı ile eşleşmelidir.</p>
-+                        </div>
-+                    </div>
-+                    <div>
-+                        <label for="modal-product-description" class="text-sm font-semibold text-slate-600">Ürün Açıklaması</label>
-+                        <textarea id="modal-product-description" rows="3" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="İçerik, soslar, servis önerisi"></textarea>
-+                    </div>
-+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-+                        <div>
-+                            <label for="modal-product-allergens" class="text-sm font-semibold text-slate-600">Alerjen Bilgisi</label>
-+                            <input type="text" id="modal-product-allergens" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Gluten, Süt, Kuruyemiş">
-+                            <p class="text-xs text-slate-400 mt-1">Virgülle ayırarak birden fazla alerjen ekleyebilirsiniz.</p>
-+                        </div>
-+                        <div class="flex items-end">
-+                            <label class="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 w-full">
-+                                <input type="checkbox" id="modal-product-popular" class="rounded border-primary text-primary focus:ring-primary">
-+                                <span class="text-sm font-semibold text-primary">Popüler olarak göster</span>
-+                            </label>
-+                        </div>
-+                    </div>
-+                    <div>
-+                        <label for="modal-product-nutrition" class="text-sm font-semibold text-slate-600">Besin &amp; Alerjen Notu</label>
-+                        <textarea id="modal-product-nutrition" rows="2" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Örn: 850 kcal • Gluten ve Süt içerir"></textarea>
-+                        <p class="text-xs text-slate-400 mt-1">Bu bilgi ürün kartlarında müşteriye gösterilir.</p>
-+                    </div>
-+                    <div>
-+                        <div class="flex items-center justify-between mb-3">
-+                            <h4 class="text-sm font-semibold text-slate-600">Boyut &amp; Fiyat Bilgileri</h4>
-+                            <button type="button" id="add-size-row" class="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-lg hover:bg-primary/20 transition-colors">
-+                                <i class="fa-solid fa-plus"></i>
-+                                Boyut Ekle
-+                            </button>
-+                        </div>
-+                        <div id="modal-size-list" class="space-y-3"></div>
-+                        <p class="text-xs text-slate-400 mt-2">Boyut için XL veya XXL seçebilir, özel boyut gerekiyorsa 3-4 karakterlik değeri girin.</p>
-+                    </div>
-+                </div>
-+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-+                    <p id="product-form-feedback" class="text-sm font-semibold"></p>
-+                    <div class="flex flex-wrap items-center gap-3">
-+                        <button type="button" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors" data-action="close-product-modal">Vazgeç</button>
-+                        <button type="button" id="delete-product" class="px-4 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors hidden">Ürünü Sil</button>
-+                        <button type="submit" class="px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors">Kaydet</button>
-+                    </div>
-+                </div>
-+            </form>
-+        </div>
-+    </div>
-+
-+    <script>
-+        (function () {
-+            const menuStore = window.MenuDataStore;
-+            const categoryStore = window.CategoryMetaStore;
-+            const orderStore = window.OrderDataStore;
-+
-+            const state = {
-+                menu: menuStore ? menuStore.loadMenuData() : {},
-+                categoryMeta: categoryStore ? categoryStore.ensureSynced(menuStore ? menuStore.loadMenuData() : {}) : { order: [], labels: {} },
-+                currentCategory: null,
-+                orders: { active: [], history: [] },
-+                stats: [],
-+                productSales: new Map(),
-+                fulfillment: new Map(),
-+                ordersSignature: '',
-+                statsSignature: '',
-+                editingProductId: null,
-+                editingCategory: null
-+            };
-+
-+            const elements = {
-+                ordersDownloadLink: document.getElementById('orders-download'),
-+                statsDownloadLink: document.getElementById('stats-download'),
-+                activeOrders: document.getElementById('active-orders'),
-+                activeOrderCount: document.getElementById('active-order-count'),
-+                historyBody: document.getElementById('order-history-body'),
-+                historyCount: document.getElementById('history-count'),
-+                statsGrid: document.getElementById('stats-grid'),
-+                categoryList: document.getElementById('category-list'),
-+                categoryForm: document.getElementById('category-form'),
-+                categoryNameInput: document.getElementById('new-category-name'),
-+                categoryFeedback: document.getElementById('category-feedback'),
-+                categorySelect: document.getElementById('category-select'),
-+                addProductButton: document.getElementById('add-product'),
-+                resetMenuButton: document.getElementById('reset-menu'),
-+                productTableBody: document.getElementById('product-table-body'),
-+                productTableTitle: document.getElementById('product-table-title'),
-+                productCount: document.getElementById('product-count'),
-+                productModal: document.getElementById('product-modal'),
-+                productForm: document.getElementById('product-form'),
-+                productModalTitle: document.getElementById('product-modal-title'),
-+                productNameInput: document.getElementById('modal-product-name'),
-+                productDescriptionInput: document.getElementById('modal-product-description'),
-+                productImageInput: document.getElementById('modal-product-image'),
-+                productAllergensInput: document.getElementById('modal-product-allergens'),
-+                productNutritionInput: document.getElementById('modal-product-nutrition'),
-+                productPopularInput: document.getElementById('modal-product-popular'),
-+                sizeList: document.getElementById('modal-size-list'),
-+                addSizeButton: document.getElementById('add-size-row'),
-+                deleteProductButton: document.getElementById('delete-product'),
-+                productFormFeedback: document.getElementById('product-form-feedback'),
-+                modalCloseControls: document.querySelectorAll('[data-action="close-product-modal"]')
-+            };
-+
-+            let draggingProductId = null;
-+            let draggingCategoryId = null;
-+
-+            function safeClone(value) {
-+                try {
-+                    return typeof structuredClone === 'function' ? structuredClone(value) : JSON.parse(JSON.stringify(value));
-+                } catch (error) {
-+                    return JSON.parse(JSON.stringify(value));
-+                }
-+            }
-+
-+            function init() {
-+                state.categoryMeta = categoryStore ? categoryStore.ensureSynced(state.menu) : state.categoryMeta;
-+                state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || null;
-+                bindEvents();
-+                renderAll();
-+                subscribeStores();
-+                if (menuStore) {
-+                    menuStore.setAdminMode(true);
-+                }
-+                if (orderStore) {
-+                    orderStore.init().then((snapshot) => {
-+                        applyOrderSnapshot(snapshot);
-+                        renderOrders();
-+                        renderStats();
-+                        updateDownloadLinks();
-+                    }).catch((error) => {
-+                        console.warn('Sipariş deposu başlatılamadı.', error);
-+                    });
-+                }
-+                window.addEventListener('beforeunload', () => {
-+                    if (menuStore) {
-+                        menuStore.setAdminMode(false);
-+                    }
-+                });
-+            }
-+
-+            function subscribeStores() {
-+                if (menuStore) {
-+                    menuStore.subscribe((nextMenu) => {
-+                        state.menu = nextMenu;
-+                        state.categoryMeta = categoryStore ? categoryStore.ensureSynced(state.menu) : state.categoryMeta;
-+                        if (!state.categoryMeta.order.includes(state.currentCategory)) {
-+                            state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || null;
-+                        }
-+                        renderCategoryControls();
-+                        renderProductTable();
-+                    });
-+                }
-+                if (categoryStore) {
-+                    categoryStore.subscribe((meta) => {
-+                        state.categoryMeta = meta;
-+                        if (!state.categoryMeta.order.includes(state.currentCategory)) {
-+                            state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || state.currentCategory;
-+                        }
-+                        renderCategoryControls();
-+                        renderProductTable();
-+                    });
-+                }
-+                if (orderStore) {
-+                    orderStore.subscribe((snapshot) => {
-+                        applyOrderSnapshot(snapshot);
-+                        renderOrders();
-+                        renderStats();
-+                        updateDownloadLinks();
-+                    });
-+                }
-+            }
-+
-+            function applyOrderSnapshot(snapshot) {
-+                if (!snapshot || typeof snapshot !== 'object') {
-+                    return;
-+                }
-+                const orders = snapshot.orders || { active: [], history: [] };
-+                const active = Array.isArray(orders.active) ? orders.active : [];
-+                const historySource = orders.history || orders.completed || [];
-+                const history = Array.isArray(historySource) ? historySource : [];
-+                const ordersPayload = { active, history };
-+                const statsPayload = Array.isArray(snapshot.stats) ? snapshot.stats : [];
-+                const ordersSignature = JSON.stringify(ordersPayload);
-+                const statsSignature = JSON.stringify(statsPayload);
-+                if (ordersSignature === state.ordersSignature && statsSignature === state.statsSignature) {
-+                    return;
-+                }
-+                state.orders = ordersPayload;
-+                state.stats = statsPayload;
-+                state.ordersSignature = ordersSignature;
-+                state.statsSignature = statsSignature;
-+                computeProductSales();
-+                pruneFulfillmentState();
-+            }
-+
-+            function computeProductSales() {
-+                const map = new Map();
-+                const allOrders = [...state.orders.active, ...state.orders.history];
-+                allOrders.forEach((order) => {
-+                    (order.Items || []).forEach((item) => {
-+                        const id = item.id || item.ProductID || item.productId;
-+                        const quantity = Number(item.quantity ?? item.Quantity ?? 0);
-+                        if (!id || !Number.isFinite(quantity)) {
-+                            return;
-+                        }
-+                        map.set(id, (map.get(id) || 0) + quantity);
-+                    });
-+                });
-+                state.productSales = map;
-+            }
-+
-+            function pruneFulfillmentState() {
-+                const activeIds = new Set(state.orders.active.map((order) => formatOrderId(order)));
-+                Array.from(state.fulfillment.keys()).forEach((orderId) => {
-+                    if (!activeIds.has(orderId)) {
-+                        state.fulfillment.delete(orderId);
-+                    }
-+                });
-+            }
-+            function bindEvents() {
-+                elements.addProductButton.addEventListener('click', () => {
-+                    if (!state.currentCategory) {
-+                        showFormFeedback('Önce bir kategori oluşturun.', 'error');
-+                        return;
-+                    }
-+                    openProductModal(null, state.currentCategory);
-+                });
-+
-+                elements.resetMenuButton.addEventListener('click', () => {
-+                    if (!menuStore) return;
-+                    const confirmed = confirm('Menüyü varsayılan değerlere döndürmek istediğinize emin misiniz?');
-+                    if (!confirmed) return;
-+                    state.menu = menuStore.resetMenuData();
-+                    state.categoryMeta = categoryStore ? categoryStore.ensureSynced(state.menu) : state.categoryMeta;
-+                    state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || state.currentCategory;
-+                    renderAll();
-+                    showCategoryFeedback('Menü varsayılanlara döndürüldü.', 'success');
-+                });
-+
-+                elements.categoryForm.addEventListener('submit', handleCategoryCreate);
-+                elements.categorySelect.addEventListener('change', (event) => {
-+                    state.currentCategory = event.target.value;
-+                    renderCategoryControls();
-+                    renderProductTable();
-+                });
-+
-+                elements.categoryList.addEventListener('input', handleCategoryLabelChange);
-+                elements.categoryList.addEventListener('click', handleCategoryClick);
-+                elements.categoryList.addEventListener('dragstart', handleCategoryDragStart);
-+                elements.categoryList.addEventListener('dragover', handleCategoryDragOver);
-+                elements.categoryList.addEventListener('dragleave', handleCategoryDragLeave);
-+                elements.categoryList.addEventListener('drop', handleCategoryDrop);
-+                elements.categoryList.addEventListener('dragend', handleCategoryDragEnd);
-+
-+                elements.productTableBody.addEventListener('click', handleProductTableClick);
-+                elements.productTableBody.addEventListener('dragstart', handleProductDragStart);
-+                elements.productTableBody.addEventListener('dragover', handleProductDragOver);
-+                elements.productTableBody.addEventListener('dragleave', handleProductDragLeave);
-+                elements.productTableBody.addEventListener('drop', handleProductDrop);
-+                elements.productTableBody.addEventListener('dragend', handleProductDragEnd);
-+
-+                elements.activeOrders.addEventListener('change', handleOrderItemToggle);
-+                elements.activeOrders.addEventListener('click', handleOrderActionClick);
-+
-+                elements.addSizeButton.addEventListener('click', () => {
-+                    const row = createSizeRow();
-+                    elements.sizeList.appendChild(row);
-+                    updateSizeRowRemoveButtons();
-+                });
-+
-+                elements.productForm.addEventListener('submit', handleProductSave);
-+                elements.deleteProductButton.addEventListener('click', handleProductDelete);
-+                elements.modalCloseControls.forEach((control) => control.addEventListener('click', closeProductModal));
-+                elements.productModal.addEventListener('click', (event) => {
-+                    if (event.target === elements.productModal) {
-+                        closeProductModal();
-+                    }
-+                });
-+            }
-+
-+            function renderAll() {
-+                renderCategoryControls();
-+                renderProductTable();
-+                renderOrders();
-+                renderStats();
-+                updateDownloadLinks();
-+            }
-+
-+            function renderCategoryControls() {
-+                const order = Array.isArray(state.categoryMeta.order) ? state.categoryMeta.order : [];
-+                const labels = state.categoryMeta.labels || {};
-+                elements.categoryList.innerHTML = '';
-+                const fragment = document.createDocumentFragment();
-+                order.forEach((key, index) => {
-+                    const label = labels[key] || key;
-+                    const item = document.createElement('li');
-+                    item.className = `bg-white border border-slate-200 rounded-2xl px-4 py-3 flex items-center gap-3 transition ${state.currentCategory === key ? 'ring-2 ring-primary/40 shadow-sm' : ''}`;
-+                    item.draggable = true;
-+                    item.dataset.categoryId = key;
-+                    item.dataset.index = index;
-+
-+                    const grip = document.createElement('span');
-+                    grip.className = 'text-slate-400 cursor-grab';
-+                    grip.innerHTML = '<i class="fa-solid fa-grip-lines"></i>';
-+                    grip.dataset.role = 'category-grip';
-+
-+                    const content = document.createElement('div');
-+                    content.className = 'flex-1';
-+                    const input = document.createElement('input');
-+                    input.type = 'text';
-+                    input.value = label;
-+                    input.dataset.categoryLabel = key;
-+                    input.className = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
-+                    const slug = document.createElement('p');
-+                    slug.className = 'text-xs text-slate-400 mt-1';
-+                    slug.textContent = key;
-+                    content.append(input, slug);
-+
-+                    const selectButton = document.createElement('button');
-+                    selectButton.type = 'button';
-+                    selectButton.dataset.action = 'select-category';
-+                    selectButton.dataset.categoryId = key;
-+                    selectButton.className = `px-3 py-1.5 rounded-lg text-xs font-semibold ${state.currentCategory === key ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
-+                    selectButton.textContent = state.currentCategory === key ? 'Seçili' : 'Seç';
-+
-+                    item.append(grip, content, selectButton);
-+                    fragment.appendChild(item);
-+                });
-+                elements.categoryList.appendChild(fragment);
-+
-+                elements.categorySelect.innerHTML = '';
-+                order.forEach((key) => {
-+                    const option = document.createElement('option');
-+                    option.value = key;
-+                    option.textContent = labels[key] || key;
-+                    if (key === state.currentCategory) {
-+                        option.selected = true;
-+                    }
-+                    elements.categorySelect.appendChild(option);
-+                });
-+            }
-+            function renderProductTable() {
-+                const categoryKey = state.currentCategory;
-+                if (!categoryKey) {
-+                    elements.productTableBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-sm text-slate-500">Henüz kategori bulunmuyor.</td></tr>';
-+                    elements.productTableTitle.textContent = 'Ürünler';
-+                    elements.productCount.textContent = '';
-+                    return;
-+                }
-+                const label = state.categoryMeta.labels[categoryKey] || categoryKey;
-+                const items = Array.isArray(state.menu[categoryKey]) ? state.menu[categoryKey] : [];
-+                elements.productTableTitle.textContent = `${label}`;
-+                elements.productCount.textContent = `${items.length} ürün`;
-+                elements.productTableBody.innerHTML = '';
-+                if (items.length === 0) {
-+                    elements.productTableBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-sm text-slate-500">Bu kategoride ürün bulunmuyor.</td></tr>';
-+                    return;
-+                }
-+                const fragment = document.createDocumentFragment();
-+                items.forEach((item, index) => {
-+                    const row = document.createElement('tr');
-+                    row.dataset.productId = item.id;
-+                    row.dataset.index = index;
-+                    row.draggable = true;
-+                    row.className = 'bg-white hover:bg-primary/5 transition-colors';
-+
-+                    const infoCell = document.createElement('td');
-+                    infoCell.className = 'px-4 py-3 align-top';
-+                    const infoWrapper = document.createElement('div');
-+                    infoWrapper.className = 'flex items-start gap-3';
-+                    const grip = document.createElement('span');
-+                    grip.className = 'text-slate-400 cursor-grab mt-1';
-+                    grip.dataset.role = 'product-grip';
-+                    grip.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
-+                    const texts = document.createElement('div');
-+                    const title = document.createElement('p');
-+                    title.className = 'font-semibold text-slate-900';
-+                    title.textContent = item.name || 'İsimsiz Ürün';
-+                    const description = document.createElement('p');
-+                    description.className = 'text-xs text-slate-500 mt-1';
-+                    description.textContent = item.description || 'Açıklama eklenmedi.';
-+                    texts.append(title, description);
-+                    infoWrapper.append(grip, texts);
-+                    infoCell.appendChild(infoWrapper);
-+
-+                    const priceCell = document.createElement('td');
-+                    priceCell.className = 'px-4 py-3 align-top text-slate-600';
-+                    const basePrice = getBasePrice(item);
-+                    priceCell.textContent = formatCurrency(basePrice);
-+
-+                    const salesCell = document.createElement('td');
-+                    salesCell.className = 'px-4 py-3 align-top text-slate-600';
-+                    const sales = state.productSales.get(item.id) || 0;
-+                    salesCell.textContent = sales > 0 ? `${sales} adet` : '-';
-+
-+                    const popularCell = document.createElement('td');
-+                    popularCell.className = 'px-4 py-3 align-top';
-+                    if (item.isPopular) {
-+                        popularCell.innerHTML = '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/10 text-secondary text-xs font-semibold"><i class="fa-solid fa-star"></i> Popüler</span>';
-+                    } else {
-+                        popularCell.innerHTML = '<span class="text-xs text-slate-400">-</span>';
-+                    }
-+
-+                    const actionCell = document.createElement('td');
-+                    actionCell.className = 'px-4 py-3 align-top text-right';
-+                    const editButton = document.createElement('button');
-+                    editButton.type = 'button';
-+                    editButton.dataset.action = 'edit-product';
-+                    editButton.dataset.productId = item.id;
-+                    editButton.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-primary/90';
-+                    editButton.innerHTML = '<i class="fa-solid fa-pen"></i> Düzenle';
-+                    actionCell.appendChild(editButton);
-+
-+                    row.append(infoCell, priceCell, salesCell, popularCell, actionCell);
-+                    fragment.appendChild(row);
-+                });
-+                elements.productTableBody.appendChild(fragment);
-+            }
-+
-+            function renderOrders() {
-+                const active = Array.isArray(state.orders.active) ? state.orders.active : [];
-+                const history = Array.isArray(state.orders.history) ? state.orders.history : [];
-+
-+                elements.activeOrders.innerHTML = '';
-+                if (active.length === 0) {
-+                    const empty = document.createElement('div');
-+                    empty.className = 'px-4 py-6 text-sm text-primary bg-white/80 border border-primary/20 rounded-2xl text-center';
-+                    empty.textContent = 'Aktif sipariş bulunmuyor.';
-+                    elements.activeOrders.appendChild(empty);
-+                } else {
-+                    const fragment = document.createDocumentFragment();
-+                    active.forEach((order) => {
-+                        fragment.appendChild(createOrderCard(order));
-+                    });
-+                    elements.activeOrders.appendChild(fragment);
-+                    active.forEach((order) => updateOrderActionState(formatOrderId(order)));
-+                }
-+                elements.activeOrderCount.textContent = `${active.length} sipariş`;
-+
-+                elements.historyBody.innerHTML = '';
-+                if (history.length === 0) {
-+                    const row = document.createElement('tr');
-+                    row.innerHTML = '<td colspan="6" class="px-3 py-6 text-sm text-slate-500">Henüz geçmiş sipariş bulunmuyor.</td>';
-+                    elements.historyBody.appendChild(row);
-+                } else {
-+                    const fragment = document.createDocumentFragment();
-+                    history.forEach((order) => {
-+                        const row = document.createElement('tr');
-+                        row.className = 'bg-white hover:bg-primary/5 transition-colors';
-+                        const statusBadge = order.Status === 'Cancelled'
-+                            ? '<span class="inline-flex items-center px-2 py-1 rounded-lg bg-rose-100 text-rose-600 text-xs font-semibold">İptal</span>'
-+                            : '<span class="inline-flex items-center px-2 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-semibold">Tamamlandı</span>';
-+                        row.innerHTML = `
-+                            <td class="px-3 py-2 font-semibold text-slate-700">${order.OrderID || '-'}</td>
-+                            <td class="px-3 py-2">${statusBadge}</td>
-+                            <td class="px-3 py-2 text-slate-600">${formatDateText(order.CreatedAt || order.Date)}</td>
-+                            <td class="px-3 py-2 text-slate-700 font-semibold">${formatCurrency(order.Total)}</td>
-+                            <td class="px-3 py-2 text-slate-500">${order.Language || '-'}</td>
-+                            <td class="px-3 py-2 text-slate-500">${order.Note ? escapeHtml(order.Note) : '-'}</td>
-+                        `;
-+                        fragment.appendChild(row);
-+                    });
-+                    elements.historyBody.appendChild(fragment);
-+                }
-+                elements.historyCount.textContent = `${history.length} kayıt`;
-+            }
-+
-+            function createOrderCard(order) {
-+                const card = document.createElement('div');
-+                const orderId = formatOrderId(order);
-+                const customerNumber = formatOrderNumber(order && order.OrderNumber);
-+                const noteText = getOrderNote(order);
-+                card.className = 'bg-white/95 border border-primary/20 rounded-2xl p-4 shadow-sm';
-+                card.dataset.orderId = orderId;
-+                const header = document.createElement('div');
-+                header.className = 'flex flex-wrap items-start justify-between gap-3';
-+                const left = document.createElement('div');
-+                left.innerHTML = `
-+                    <p class="text-xs font-semibold text-secondary uppercase tracking-wide">Sipariş ID</p>
-+                    <p class="text-lg font-bold text-primary leading-tight">${escapeHtml(orderId || '-')}</p>
-+                    <p class="text-xs text-secondary font-semibold mt-1">Müşteri No: ${customerNumber}</p>
-+                    <p class="text-xs text-slate-500 mt-2">Alındı: ${formatDateTimeText(order.CreatedAt || order.Date)}</p>
-+                `;
-+                const right = document.createElement('div');
-+                right.className = 'text-right';
-+                right.innerHTML = `
-+                    <p class="text-lg font-bold text-secondary">${formatCurrency(order.Total)}</p>
-+                    <p class="text-xs text-slate-500">Dil: ${order.Language || '-'}</p>
-+                `;
-+                header.append(left, right);
-+                card.appendChild(header);
-+
-+                if (noteText) {
-+                    const note = document.createElement('div');
-+                    note.className = 'mt-3 rounded-xl border border-secondary/30 bg-secondary/10 px-3 py-2';
-+                    note.innerHTML = `
-+                        <p class="text-xs font-semibold text-secondary uppercase tracking-wide">Sipariş Notu</p>
-+                        <p class="text-sm text-primary mt-1 leading-snug">${escapeHtml(noteText)}</p>
-+                    `;
-+                    card.appendChild(note);
-+                }
-+
-+                const list = document.createElement('ul');
-+                list.className = 'mt-4 space-y-3';
-+                const items = Array.isArray(order.Items) ? order.Items : [];
-+                const completionSet = getFulfillmentSet(orderId, items.length);
-+                items.forEach((item, index) => {
-+                    const li = document.createElement('li');
-+                    li.className = 'border border-primary/20 bg-white rounded-xl px-3 py-2 flex items-start gap-3';
-+                    const checkbox = document.createElement('input');
-+                    checkbox.type = 'checkbox';
-+                    checkbox.className = 'mt-1 rounded border-slate-300 text-primary focus:ring-primary';
-+                    checkbox.dataset.orderId = orderId;
-+                    checkbox.dataset.itemIndex = index;
-+                    checkbox.checked = completionSet.has(index);
-+                    checkbox.setAttribute('data-order-item', '');
-+                    const content = document.createElement('div');
-+                    content.className = 'flex-1 text-sm text-slate-600';
-+                    const name = item.name || item.ProductName || 'Ürün';
-+                    const size = item.size || item.Size ? `<span class="text-xs text-slate-400">${item.size || item.Size}</span>` : '';
-+                    content.innerHTML = `
-+                        <div class="flex items-center justify-between gap-3">
-+                            <span class="font-semibold text-slate-700">${escapeHtml(name)}</span>
-+                            <span class="text-sm font-semibold text-slate-700">${formatCurrency(item.total ?? item.Total)}</span>
-+                        </div>
-+                        <div class="flex items-center justify-between text-xs text-slate-500 mt-1">
-+                            <span>${item.quantity ?? item.Quantity} adet ${size}</span>
-+                            <span>${item.isAddOn || (item.AddOn && item.AddOn !== '') ? 'Tamamlayıcı' : ''}</span>
-+                        </div>
-+                    `;
-+                    li.append(checkbox, content);
-+                    list.appendChild(li);
-+                });
-+                card.appendChild(list);
-+
-+                const actions = document.createElement('div');
-+                actions.className = 'mt-4 flex flex-wrap items-center justify-end gap-3';
-+                const cancelButton = document.createElement('button');
-+                cancelButton.type = 'button';
-+                cancelButton.dataset.action = 'cancel-order';
-+                cancelButton.dataset.orderId = orderId;
-+                cancelButton.className = 'px-4 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-semibold transition-colors shadow-sm';
-+                cancelButton.textContent = 'İptal Et';
-+                const completeButton = document.createElement('button');
-+                completeButton.type = 'button';
-+                completeButton.dataset.action = 'complete-order';
-+                completeButton.dataset.orderId = orderId;
-+                completeButton.className = 'px-5 py-2 rounded-xl bg-primary text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 shadow';
-+                completeButton.textContent = 'Tamamlandı';
-+                completeButton.disabled = completionSet.size !== items.length || items.length === 0;
-+                actions.append(cancelButton, completeButton);
-+                card.appendChild(actions);
-+
-+                return card;
-+            }
-+
-+            function renderStats() {
-+                elements.statsGrid.innerHTML = '';
-+                if (!Array.isArray(state.stats) || state.stats.length === 0) {
-+                    elements.statsGrid.innerHTML = '<div class="col-span-full text-sm text-slate-500">İstatistik verisi bulunamadı.</div>';
-+                    return;
-+                }
-+                const fragment = document.createDocumentFragment();
-+                state.stats.forEach((item) => {
-+                    const card = document.createElement('div');
-+                    card.className = 'rounded-2xl border border-primary/15 bg-white/95 p-4 flex flex-col gap-3 shadow-sm';
-+                    card.innerHTML = `
-+                        <div class="text-xs uppercase text-secondary font-semibold tracking-wide">${item.Language}</div>
-+                        <div class="flex items-baseline gap-2">
-+                            <span class="text-3xl font-bold text-primary">${item.Orders}</span>
-+                            <span class="text-sm text-slate-500">sepet</span>
-+                        </div>
-+                        <div class="grid grid-cols-2 gap-3 text-xs text-slate-600">
-+                            <div class="rounded-xl bg-primary/5 border border-primary/15 px-3 py-2">
-+                                <p class="font-semibold text-primary">Toplam</p>
-+                                <p class="text-sm text-slate-700">${formatCurrency(item.TotalValue)}</p>
-+                            </div>
-+                            <div class="rounded-xl bg-secondary/10 border border-secondary/20 px-3 py-2">
-+                                <p class="font-semibold text-secondary">Ortalama</p>
-+                                <p class="text-sm text-slate-700">${formatCurrency(item.AverageOrderValue)}</p>
-+                            </div>
-+                            <div class="col-span-2 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-2">
-+                                <p class="font-semibold text-emerald-700">Tamamlayıcı Ürün Oranı</p>
-+                                <p class="text-sm text-emerald-600">%${item.ComplementaryRate}</p>
-+                            </div>
-+                        </div>
-+                    `;
-+                    fragment.appendChild(card);
-+                });
-+                elements.statsGrid.appendChild(fragment);
-+            }
-+
-+            function updateDownloadLinks() {
-+                if (!orderStore) return;
-+                const ordersUrl = orderStore.getDownloadUrl();
-+                const statsUrl = orderStore.getDownloadUrl('stats');
-+                if (ordersUrl) {
-+                    elements.ordersDownloadLink.href = ordersUrl;
-+                    const stamp = new Date().toISOString().split('T')[0];
-+                    elements.ordersDownloadLink.download = `orders-${stamp}.xlsx`;
-+                }
-+                if (statsUrl) {
-+                    elements.statsDownloadLink.href = statsUrl;
-+                    const stamp = new Date().toISOString().split('T')[0];
-+                    elements.statsDownloadLink.download = `user-stats-${stamp}.xlsx`;
-+                }
-+            }
-+            function handleCategoryCreate(event) {
-+                event.preventDefault();
-+                const name = (elements.categoryNameInput.value || '').trim();
-+                if (!name) {
-+                    showCategoryFeedback('Kategori adı boş olamaz.', 'error');
-+                    return;
-+                }
-+                const existingKeys = state.categoryMeta.order || [];
-+                const slug = typeof categoryStore.generateKey === 'function'
-+                    ? categoryStore.generateKey(name, existingKeys)
-+                    : slugify(name, existingKeys);
-+                if (!slug) {
-+                    showCategoryFeedback('Kategori anahtarı oluşturulamadı.', 'error');
-+                    return;
-+                }
-+                if (state.menu[slug]) {
-+                    showCategoryFeedback('Bu kategori zaten mevcut.', 'error');
-+                    return;
-+                }
-+                const updatedMenu = safeClone(state.menu);
-+                updatedMenu[slug] = [];
-+                state.menu = menuStore ? menuStore.saveMenuData(updatedMenu) : updatedMenu;
-+                const nextMeta = {
-+                    order: [...(state.categoryMeta.order || []), slug],
-+                    labels: Object.assign({}, state.categoryMeta.labels, { [slug]: name })
-+                };
-+                state.categoryMeta = categoryStore ? categoryStore.saveMeta(nextMeta, state.menu) : nextMeta;
-+                state.currentCategory = slug;
-+                elements.categoryNameInput.value = '';
-+                showCategoryFeedback('Yeni kategori eklendi.', 'success');
-+                renderCategoryControls();
-+                renderProductTable();
-+            }
-+
-+            function handleCategoryLabelChange(event) {
-+                const input = event.target.closest('input[data-category-label]');
-+                if (!input) return;
-+                const key = input.dataset.categoryLabel;
-+                const value = input.value.trim();
-+                state.categoryMeta.labels[key] = value || key;
-+                if (categoryStore) {
-+                    state.categoryMeta = categoryStore.saveMeta(state.categoryMeta, state.menu);
-+                }
-+                renderCategoryControls();
-+            }
-+
-+            function handleCategoryClick(event) {
-+                const button = event.target.closest('[data-action="select-category"]');
-+                if (!button) return;
-+                state.currentCategory = button.dataset.categoryId;
-+                renderCategoryControls();
-+                renderProductTable();
-+            }
-+
-+            function handleCategoryDragStart(event) {
-+                const item = event.target.closest('[data-category-id]');
-+                if (!item) return;
-+                draggingCategoryId = item.dataset.categoryId;
-+                item.classList.add('opacity-60');
-+                event.dataTransfer.effectAllowed = 'move';
-+            }
-+
-+            function handleCategoryDragOver(event) {
-+                event.preventDefault();
-+                const item = event.target.closest('[data-category-id]');
-+                if (!item || item.dataset.categoryId === draggingCategoryId) {
-+                    return;
-+                }
-+                const rect = item.getBoundingClientRect();
-+                const position = event.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
-+                item.classList.toggle('drag-over-top', position === 'top');
-+                item.classList.toggle('drag-over-bottom', position === 'bottom');
-+                item.dataset.dropPosition = position;
-+            }
-+
-+            function handleCategoryDragLeave(event) {
-+                const item = event.target.closest('[data-category-id]');
-+                if (!item) return;
-+                item.classList.remove('drag-over-top', 'drag-over-bottom');
-+                delete item.dataset.dropPosition;
-+            }
-+
-+            function handleCategoryDrop(event) {
-+                event.preventDefault();
-+                const item = event.target.closest('[data-category-id]');
-+                if (!item || !draggingCategoryId) return;
-+                const fromIndex = state.categoryMeta.order.indexOf(draggingCategoryId);
-+                let toIndex = Number(item.dataset.index);
-+                if (item.dataset.dropPosition === 'bottom') {
-+                    toIndex += 1;
-+                }
-+                reorderCategories(fromIndex, toIndex);
-+                item.classList.remove('drag-over-top', 'drag-over-bottom');
-+                delete item.dataset.dropPosition;
-+            }
-+
-+            function handleCategoryDragEnd(event) {
-+                const item = event.target.closest('[data-category-id]');
-+                if (item) {
-+                    item.classList.remove('opacity-60', 'drag-over-top', 'drag-over-bottom');
-+                    delete item.dataset.dropPosition;
-+                }
-+                draggingCategoryId = null;
-+            }
-+
-+            function reorderCategories(fromIndex, toIndex) {
-+                const order = Array.isArray(state.categoryMeta.order) ? state.categoryMeta.order.slice() : [];
-+                if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
-+                    return;
-+                }
-+                if (toIndex > order.length) {
-+                    toIndex = order.length;
-+                }
-+                const [moved] = order.splice(fromIndex, 1);
-+                order.splice(toIndex > fromIndex ? toIndex - 1 : toIndex, 0, moved);
-+                const nextMeta = {
-+                    order,
-+                    labels: state.categoryMeta.labels
-+                };
-+                state.categoryMeta = categoryStore ? categoryStore.saveMeta(nextMeta, state.menu) : nextMeta;
-+                renderCategoryControls();
-+            }
-+            function handleProductTableClick(event) {
-+                const button = event.target.closest('[data-action]');
-+                if (!button) return;
-+                if (button.dataset.action === 'edit-product') {
-+                    const productId = button.dataset.productId;
-+                    const product = findProductById(state.currentCategory, productId);
-+                    if (product) {
-+                        openProductModal(product, state.currentCategory);
-+                    }
-+                }
-+            }
-+
-+            function handleProductDragStart(event) {
-+                const row = event.target.closest('tr[data-product-id]');
-+                if (!row) return;
-+                draggingProductId = row.dataset.productId;
-+                row.classList.add('opacity-60');
-+                event.dataTransfer.effectAllowed = 'move';
-+            }
-+
-+            function handleProductDragOver(event) {
-+                event.preventDefault();
-+                const row = event.target.closest('tr[data-product-id]');
-+                if (!row || row.dataset.productId === draggingProductId) {
-+                    return;
-+                }
-+                const rect = row.getBoundingClientRect();
-+                const position = event.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
-+                row.classList.toggle('drag-over-top', position === 'top');
-+                row.classList.toggle('drag-over-bottom', position === 'bottom');
-+                row.dataset.dropPosition = position;
-+            }
-+
-+            function handleProductDragLeave(event) {
-+                const row = event.target.closest('tr[data-product-id]');
-+                if (!row) return;
-+                row.classList.remove('drag-over-top', 'drag-over-bottom');
-+                delete row.dataset.dropPosition;
-+            }
-+
-+            function handleProductDrop(event) {
-+                event.preventDefault();
-+                const row = event.target.closest('tr[data-product-id]');
-+                if (!row || !draggingProductId) return;
-+                const items = Array.isArray(state.menu[state.currentCategory]) ? state.menu[state.currentCategory] : [];
-+                const fromIndex = items.findIndex((item) => item.id === draggingProductId);
-+                let toIndex = Number(row.dataset.index);
-+                if (row.dataset.dropPosition === 'bottom') {
-+                    toIndex += 1;
-+                }
-+                reorderProducts(fromIndex, toIndex);
-+                row.classList.remove('drag-over-top', 'drag-over-bottom');
-+                delete row.dataset.dropPosition;
-+            }
-+
-+            function handleProductDragEnd(event) {
-+                const row = event.target.closest('tr[data-product-id]');
-+                if (row) {
-+                    row.classList.remove('opacity-60', 'drag-over-top', 'drag-over-bottom');
-+                    delete row.dataset.dropPosition;
-+                }
-+                draggingProductId = null;
-+            }
-+
-+            function reorderProducts(fromIndex, toIndex) {
-+                const items = Array.isArray(state.menu[state.currentCategory]) ? state.menu[state.currentCategory].slice() : [];
-+                if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
-+                    return;
-+                }
-+                if (toIndex > items.length) {
-+                    toIndex = items.length;
-+                }
-+                const [moved] = items.splice(fromIndex, 1);
-+                items.splice(toIndex > fromIndex ? toIndex - 1 : toIndex, 0, moved);
-+                const updatedMenu = safeClone(state.menu);
-+                updatedMenu[state.currentCategory] = items;
-+                state.menu = menuStore ? menuStore.saveMenuData(updatedMenu) : updatedMenu;
-+                renderProductTable();
-+            }
-+
-+            function handleOrderItemToggle(event) {
-+                const checkbox = event.target.closest('[data-order-item]');
-+                if (!checkbox) return;
-+                const orderId = checkbox.dataset.orderId;
-+                const itemIndex = Number(checkbox.dataset.itemIndex);
-+                const set = getFulfillmentSet(orderId);
-+                if (checkbox.checked) {
-+                    set.add(itemIndex);
-+                } else {
-+                    set.delete(itemIndex);
-+                }
-+                updateOrderActionState(orderId);
-+            }
-+
-+            function handleOrderActionClick(event) {
-+                const button = event.target.closest('[data-action]');
-+                if (!button || !orderStore) return;
-+                const orderId = button.dataset.orderId;
-+                if (button.dataset.action === 'complete-order') {
-+                    const set = getFulfillmentSet(orderId);
-+                    const order = state.orders.active.find((item) => formatOrderId(item) === orderId);
-+                    const itemCount = Array.isArray(order && order.Items) ? order.Items.length : 0;
-+                    if (set.size !== itemCount) {
-+                        alert('Tüm ürünleri hazırlamadan siparişi tamamlayamazsınız.');
-+                        return;
-+                    }
-+                    orderStore.completeOrder(orderId);
-+                    state.fulfillment.delete(orderId);
-+                }
-+                if (button.dataset.action === 'cancel-order') {
-+                    const confirmed = confirm('Siparişi iptal etmek istediğinize emin misiniz?');
-+                    if (!confirmed) return;
-+                    orderStore.cancelOrder(orderId);
-+                    state.fulfillment.delete(orderId);
-+                }
-+            }
-+            function handleProductSave(event) {
-+                event.preventDefault();
-+                if (!state.editingCategory) {
-+                    showFormFeedback('Kategori bulunamadı.', 'error');
-+                    return;
-+                }
-+                try {
-+                    const sizes = collectSizesFromForm();
-+                    const allergensRaw = (elements.productAllergensInput.value || '')
-+                        .split(',')
-+                        .map((item) => item.trim())
-+                        .filter(Boolean);
-+                    const payload = {
-+                        id: state.editingProductId || `${state.editingCategory}-${Date.now()}`,
-+                        name: elements.productNameInput.value.trim() || 'İsimsiz Ürün',
-+                        description: elements.productDescriptionInput.value.trim(),
-+                        image: elements.productImageInput.value.trim(),
-+                        sizes,
-+                        isPopular: elements.productPopularInput.checked,
-+                        allergens: allergensRaw
-+                    };
-+                    if (payload.allergens.length === 0) {
-+                        delete payload.allergens;
-+                    }
-+                    const nutritionValue = elements.productNutritionInput.value.trim();
-+                    if (nutritionValue) {
-+                        payload.nutritionNote = nutritionValue;
-+                    } else {
-+                        delete payload.nutritionNote;
-+                    }
-+                    const updatedMenu = safeClone(state.menu);
-+                    const categoryItems = Array.isArray(updatedMenu[state.editingCategory]) ? updatedMenu[state.editingCategory] : [];
-+                    const existingIndex = categoryItems.findIndex((item) => item.id === payload.id);
-+                    if (existingIndex >= 0) {
-+                        categoryItems[existingIndex] = Object.assign({}, categoryItems[existingIndex], payload);
-+                    } else {
-+                        categoryItems.push(payload);
-+                        state.editingProductId = payload.id;
-+                    }
-+                    updatedMenu[state.editingCategory] = categoryItems;
-+                    state.menu = menuStore ? menuStore.saveMenuData(updatedMenu) : updatedMenu;
-+                    showFormFeedback('Değişiklikler kaydedildi ve index.html güncellendi.', 'success');
-+                    elements.deleteProductButton.classList.remove('hidden');
-+                    renderProductTable();
-+                } catch (error) {
-+                    showFormFeedback(error.message || 'Kaydetme işlemi başarısız oldu.', 'error');
-+                }
-+            }
-+
-+            function handleProductDelete() {
-+                if (!menuStore || !state.editingProductId || !state.editingCategory) {
-+                    return;
-+                }
-+                const confirmed = confirm('Bu ürünü silmek istediğinize emin misiniz?');
-+                if (!confirmed) return;
-+                const updatedMenu = safeClone(state.menu);
-+                const categoryItems = Array.isArray(updatedMenu[state.editingCategory]) ? updatedMenu[state.editingCategory] : [];
-+                const filtered = categoryItems.filter((item) => item.id !== state.editingProductId);
-+                updatedMenu[state.editingCategory] = filtered;
-+                state.menu = menuStore.saveMenuData(updatedMenu);
-+                closeProductModal();
-+                renderProductTable();
-+            }
-+
-+            function openProductModal(product, categoryKey) {
-+                state.editingCategory = categoryKey;
-+                state.editingProductId = product ? product.id : null;
-+                elements.productModalTitle.textContent = product ? `${product.name} düzenle` : 'Yeni Ürün Oluştur';
-+                elements.productNameInput.value = product ? (product.name || '') : '';
-+                elements.productDescriptionInput.value = product ? (product.description || '') : '';
-+                elements.productImageInput.value = product ? (product.image || '') : '';
-+                elements.productPopularInput.checked = Boolean(product && product.isPopular);
-+                elements.productAllergensInput.value = Array.isArray(product && product.allergens) ? product.allergens.join(', ') : '';
-+                elements.productNutritionInput.value = product && product.nutritionNote ? product.nutritionNote : '';
-+                elements.sizeList.innerHTML = '';
-+                const sizes = Array.isArray(product && product.sizes) && product.sizes.length > 0 ? product.sizes : [{ size: 'XL', price: 0, weight: '' }];
-+                sizes.forEach((size) => {
-+                    elements.sizeList.appendChild(createSizeRow(size));
-+                });
-+                updateSizeRowRemoveButtons();
-+                elements.productFormFeedback.textContent = '';
-+                if (product) {
-+                    elements.deleteProductButton.classList.remove('hidden');
-+                } else {
-+                    elements.deleteProductButton.classList.add('hidden');
-+                }
-+                elements.productModal.classList.remove('hidden');
-+                document.body.classList.add('overflow-hidden');
-+            }
-+
-+            function closeProductModal() {
-+                elements.productModal.classList.add('hidden');
-+                document.body.classList.remove('overflow-hidden');
-+                elements.productForm.reset();
-+                elements.productNutritionInput.value = '';
-+                elements.sizeList.innerHTML = '';
-+                state.editingProductId = null;
-+                state.editingCategory = null;
-+                elements.productFormFeedback.textContent = '';
-+            }
-+
-+            function createSizeRow(initial = {}) {
-+                const row = document.createElement('div');
-+                row.className = 'size-row grid grid-cols-1 md:grid-cols-[140px,120px,120px,auto] items-end gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3';
-+                row.dataset.sizeRow = '';
-+
-+                const sizeWrapper = document.createElement('div');
-+                const sizeLabel = document.createElement('label');
-+                sizeLabel.className = 'text-xs font-semibold text-slate-500 block';
-+                sizeLabel.textContent = 'Boyut';
-+                const sizeSelect = document.createElement('select');
-+                sizeSelect.className = 'mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
-+                sizeSelect.dataset.field = 'size';
-+                sizeSelect.innerHTML = `
-+                    <option value="XL">XL</option>
-+                    <option value="XXL">XXL</option>
-+                    <option value="custom">Özel</option>
-+                `;
-+                const customInput = document.createElement('input');
-+                customInput.type = 'text';
-+                customInput.maxLength = 4;
-+                customInput.placeholder = 'Örn: SM';
-+                customInput.dataset.field = 'custom-size';
-+                customInput.className = 'mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none hidden';
-+                sizeWrapper.append(sizeLabel, sizeSelect, customInput);
-+
-+                const weightWrapper = document.createElement('div');
-+                const weightLabel = document.createElement('label');
-+                weightLabel.className = 'text-xs font-semibold text-slate-500 block';
-+                weightLabel.textContent = 'Gram (GR)';
-+                const weightInput = document.createElement('input');
-+                weightInput.type = 'text';
-+                weightInput.maxLength = 4;
-+                weightInput.dataset.field = 'weight';
-+                weightInput.placeholder = 'Örn: 320';
-+                weightInput.className = 'mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
-+                weightWrapper.append(weightLabel, weightInput);
-+
-+                const priceWrapper = document.createElement('div');
-+                const priceLabel = document.createElement('label');
-+                priceLabel.className = 'text-xs font-semibold text-slate-500 block';
-+                priceLabel.textContent = 'Fiyat (€)';
-+                const priceInput = document.createElement('input');
-+                priceInput.type = 'number';
-+                priceInput.dataset.field = 'price';
-+                priceInput.className = 'mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
-+                priceInput.placeholder = '0.00';
-+                priceInput.min = '0';
-+                priceInput.step = '0.01';
-+                priceWrapper.append(priceLabel, priceInput);
-+
-+                const removeButton = document.createElement('button');
-+                removeButton.type = 'button';
-+                removeButton.dataset.action = 'remove-size';
-+                removeButton.className = 'text-xs font-semibold text-rose-600 hover:text-rose-700';
-+                removeButton.textContent = 'Sil';
-+                removeButton.addEventListener('click', () => {
-+                    row.remove();
-+                    updateSizeRowRemoveButtons();
-+                });
-+
-+                sizeSelect.addEventListener('change', () => {
-+                    const isCustom = sizeSelect.value === 'custom';
-+                    customInput.classList.toggle('hidden', !isCustom);
-+                    if (!isCustom) {
-+                        customInput.value = '';
-+                    }
-+                });
-+
-+                const normalizedSize = (initial.size || '').trim();
-+                if (normalizedSize === 'XL' || normalizedSize === 'XXL') {
-+                    sizeSelect.value = normalizedSize;
-+                    customInput.classList.add('hidden');
-+                    customInput.value = '';
-+                } else {
-+                    sizeSelect.value = 'custom';
-+                    customInput.classList.remove('hidden');
-+                    customInput.value = normalizedSize;
-+                }
-+                weightInput.value = initial.weight || '';
-+                const priceValue = Number(initial.price || 0);
-+                priceInput.value = Number.isFinite(priceValue) ? priceValue.toFixed(2) : '0.00';
-+
-+                row.append(sizeWrapper, weightWrapper, priceWrapper, removeButton);
-+                return row;
-+            }
-+
-+            function collectSizesFromForm() {
-+                const rows = Array.from(elements.sizeList.querySelectorAll('[data-size-row]'));
-+                if (rows.length === 0) {
-+                    throw new Error('En az bir boyut bilgisi giriniz.');
-+                }
-+                const sizes = [];
-+                rows.forEach((row) => {
-+                    const sizeSelect = row.querySelector('select[data-field="size"]');
-+                    const customInput = row.querySelector('input[data-field="custom-size"]');
-+                    const weightInput = row.querySelector('input[data-field="weight"]');
-+                    const priceInput = row.querySelector('input[data-field="price"]');
-+                    let sizeValue = sizeSelect.value;
-+                    if (sizeValue === 'custom') {
-+                        sizeValue = (customInput.value || '').trim();
-+                        if (!sizeValue) {
-+                            throw new Error('Özel boyut alanını boş bırakmayın.');
-+                        }
-+                    }
-+                    const weightValue = (weightInput.value || '').trim();
-+                    const priceValue = Number(priceInput.value);
-+                    if (!Number.isFinite(priceValue)) {
-+                        throw new Error('Geçerli bir fiyat giriniz.');
-+                    }
-+                    sizes.push({
-+                        size: sizeValue,
-+                        weight: weightValue,
-+                        price: Number(priceValue.toFixed(2))
-+                    });
-+                });
-+                return sizes;
-+            }
-+            function updateSizeRowRemoveButtons() {
-+                const rows = Array.from(elements.sizeList.querySelectorAll('[data-size-row]'));
-+                const disableRemoval = rows.length <= 1;
-+                rows.forEach((row) => {
-+                    const button = row.querySelector('[data-action="remove-size"]');
-+                    if (button) {
-+                        button.disabled = disableRemoval;
-+                        button.classList.toggle('opacity-40', disableRemoval);
-+                    }
-+                });
-+            }
-+
-+            function getOrderNote(order) {
-+                if (!order) return '';
-+                const raw = order.Note ?? order.note ?? '';
-+                return raw ? raw.toString().trim() : '';
-+            }
-+
-+            function buildOrderIdFromParts(counterDate, number) {
-+                const numeric = Number(number);
-+                if (!counterDate || !Number.isFinite(numeric)) {
-+                    return null;
-+                }
-+                const digits = counterDate.toString().replace(/[^0-9]/g, '');
-+                if (!digits) {
-+                    return null;
-+                }
-+                const datePart = digits.length >= 8 ? digits.slice(0, 8) : digits.padEnd(8, '0').slice(0, 8);
-+                return `${datePart}-${String(Math.trunc(numeric)).padStart(3, '0')}`;
-+            }
-+
-+            function formatOrderId(order) {
-+                if (!order) {
-+                    return '-';
-+                }
-+                const existing = order.OrderID || order.orderId;
-+                if (existing) {
-+                    return existing;
-+                }
-+                return buildOrderIdFromParts(order.CounterDate || order.counterDate || order.Date || order.date, order.OrderNumber || order.orderNumber) || '-';
-+            }
-+
-+            function formatOrderNumber(value) {
-+                const numeric = Number(value);
-+                if (!Number.isFinite(numeric)) {
-+                    return '-';
-+                }
-+                return String(Math.max(0, Math.trunc(numeric))).padStart(3, '0');
-+            }
-+
-+            function getFulfillmentSet(orderId, length = 0) {
-+                if (!state.fulfillment.has(orderId)) {
-+                    state.fulfillment.set(orderId, new Set());
-+                }
-+                const set = state.fulfillment.get(orderId);
-+                if (length > 0) {
-+                    Array.from(set).forEach((value) => {
-+                        if (value >= length) {
-+                            set.delete(value);
-+                        }
-+                    });
-+                }
-+                return set;
-+            }
-+
-+            function updateOrderActionState(orderId) {
-+                const card = elements.activeOrders.querySelector(`[data-order-id="${CSS.escape(orderId)}"]`);
-+                if (!card) return;
-+                const checkboxes = Array.from(card.querySelectorAll('[data-order-item]'));
-+                const allChecked = checkboxes.length > 0 && checkboxes.every((input) => input.checked);
-+                const completeButton = card.querySelector('[data-action="complete-order"]');
-+                if (completeButton) {
-+                    completeButton.disabled = !allChecked;
-+                }
-+            }
-+
-+            function showFormFeedback(message, type) {
-+                elements.productFormFeedback.textContent = message;
-+                elements.productFormFeedback.className = `text-sm font-semibold ${type === 'error' ? 'text-rose-600' : 'text-emerald-600'}`;
-+            }
-+
-+            function showCategoryFeedback(message, type) {
-+                elements.categoryFeedback.textContent = message;
-+                elements.categoryFeedback.className = `text-xs font-semibold ${type === 'error' ? 'text-rose-600' : 'text-emerald-600'}`;
-+                if (message) {
-+                    setTimeout(() => {
-+                        elements.categoryFeedback.textContent = '';
-+                    }, 2500);
-+                }
-+            }
-+
-+            function findProductById(categoryKey, productId) {
-+                const items = Array.isArray(state.menu[categoryKey]) ? state.menu[categoryKey] : [];
-+                return items.find((item) => item.id === productId) || null;
-+            }
-+
-+            function getBasePrice(product) {
-+                const sizes = Array.isArray(product && product.sizes) ? product.sizes : [];
-+                if (sizes.length === 0) {
-+                    return 0;
-+                }
-+                return sizes.reduce((min, size) => {
-+                    const value = Number(size.price || 0);
-+                    if (!Number.isFinite(value)) {
-+                        return min;
-+                    }
-+                    return min === null ? value : Math.min(min, value);
-+                }, null) || 0;
-+            }
-+
-+            function formatCurrency(value) {
-+                const numeric = Number(value);
-+                if (!Number.isFinite(numeric)) {
-+                    return '€0.00';
-+                }
-+                return `€${numeric.toFixed(2)}`;
-+            }
-+
-+            function formatDateText(value) {
-+                if (!value) return '-';
-+                const date = new Date(value);
-+                if (Number.isNaN(date.getTime())) {
-+                    return '-';
-+                }
-+                return date.toLocaleDateString('tr-TR');
-+            }
-+
-+            function formatDateTimeText(value) {
-+                if (!value) return '-';
-+                const date = new Date(value);
-+                if (Number.isNaN(date.getTime())) {
-+                    return '-';
-+                }
-+                return date.toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
-+            }
-+
-+            function escapeHtml(value) {
-+                return (value || '').toString()
-+                    .replace(/&/g, '&amp;')
-+                    .replace(/</g, '&lt;')
-+                    .replace(/>/g, '&gt;')
-+                    .replace(/"/g, '&quot;')
-+                    .replace(/'/g, '&#039;');
-+            }
-+
-+            function slugify(value, existing = []) {
-+                const base = (value || '').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'kategori';
-+                const used = new Set(existing);
-+                if (!used.has(base)) {
-+                    return base;
-+                }
-+                let counter = 2;
-+                let candidate = `${base}-${counter}`;
-+                while (used.has(candidate)) {
-+                    counter += 1;
-+                    candidate = `${base}-${counter}`;
-+                }
-+                return candidate;
-+            }
-+
-+            if (document.readyState === 'loading') {
-+                document.addEventListener('DOMContentLoaded', init, { once: true });
-+            } else {
-+                init();
-+            }
-+        })();
-+    </script>
-+</body>
-+</html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandwich XL - Admin Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#05594C',
+                        secondary: '#EF7F1A',
+                        accent: '#F2B705'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="assets/js/default-menu-data.js"></script>
+    <script src="assets/js/menu-data-store.js"></script>
+    <script src="assets/js/category-meta-store.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="assets/js/order-data-store.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, rgba(5, 89, 76, 0.08) 0%, #ffffff 65%);
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(5, 89, 76, 0.6);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(5, 89, 76, 0.8);
+        }
+        .card-shadow {
+            box-shadow: 0 30px 60px -35px rgba(15, 23, 42, 0.35);
+        }
+        .drag-over-top {
+            box-shadow: inset 0 3px 0 0 rgba(239, 127, 26, 0.5);
+        }
+        .drag-over-bottom {
+            box-shadow: inset 0 -3px 0 0 rgba(239, 127, 26, 0.5);
+        }
+        .modal-backdrop {
+            backdrop-filter: blur(6px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-900">
+    <header class="bg-primary text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <img src="logo/logoo.png" alt="Sandwich XL" class="h-12 w-auto rounded-lg bg-white/10 p-2">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">Sandwich XL Admin Paneli</h1>
+                    <p class="text-white/70 text-sm">Menü, sipariş ve istatistikleri gerçek zamanlı yönetin.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <a id="orders-download" href="#" download="orders.xlsx" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-xl text-sm font-semibold">
+                    <i class="fa-solid fa-file-excel"></i>
+                    Sipariş Exceli
+                </a>
+                <a id="stats-download" href="#" download="user_stats.xlsx" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-xl text-sm font-semibold">
+                    <i class="fa-solid fa-chart-line"></i>
+                    İstatistik Exceli
+                </a>
+                <a href="index.html" class="flex items-center gap-2 bg-white text-primary font-semibold px-4 py-2 rounded-xl shadow hover:bg-slate-50 transition-colors">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Menüye Dön
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-10">
+        <section class="bg-white/95 rounded-3xl card-shadow border border-primary/10 p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary">Aktif Siparişler &amp; Geçmiş</h2>
+                    <p class="text-slate-500 text-sm">Yeni siparişler otomatik gelir, tamamladıkça veya iptal ettikçe güncellenir.</p>
+                </div>
+                <div class="text-xs text-slate-400">Kaynak: OrderDataStore</div>
+            </div>
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-primary/5 rounded-2xl border border-primary/20 p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-primary">Aktif Siparişler</h3>
+                        <span class="text-sm text-slate-500" id="active-order-count">0 sipariş</span>
+                    </div>
+                    <div id="active-orders" class="flex-1 overflow-y-auto pr-1 space-y-4" aria-live="polite"></div>
+                </div>
+                <div class="bg-primary/5 rounded-2xl border border-primary/20 p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-primary">Sipariş Geçmişi</h3>
+                        <span class="text-sm text-slate-500" id="history-count">0 kayıt</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm divide-y divide-slate-200">
+                            <thead class="bg-white/80 text-slate-500 uppercase tracking-wide text-xs">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">Sipariş</th>
+                                    <th class="px-3 py-2 text-left">Durum</th>
+                                    <th class="px-3 py-2 text-left">Tarih</th>
+                                    <th class="px-3 py-2 text-left">Tutar</th>
+                                    <th class="px-3 py-2 text-left">Dil</th>
+                                    <th class="px-3 py-2 text-left">Not</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-history-body" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white/95 rounded-3xl card-shadow border border-primary/10 p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary">Kullanıcı İstatistikleri</h2>
+                    <p class="text-slate-500 text-sm">Sepet bazlı performans, ortalama sipariş tutarı ve tamamlayıcı ürün oranı.</p>
+                </div>
+                <div class="text-xs text-slate-400">Kaynak: user_stats.xlsx</div>
+            </div>
+            <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+        </section>
+
+        <section class="bg-white/95 rounded-3xl card-shadow border border-primary/10 p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary">Menü Yönetimi</h2>
+                    <p class="text-slate-500 text-sm">Kategorileri düzenleyin, ürünleri sürükleyerek sıralayın ve detayları güncelleyin.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button id="add-product" class="flex items-center gap-2 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors">
+                        <i class="fa-solid fa-plus"></i>
+                        Yeni Ürün
+                    </button>
+                    <button id="reset-menu" class="flex items-center gap-2 bg-slate-100 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        Varsayılanları Yükle
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 xl:grid-cols-[340px,1fr] gap-6">
+                <div class="space-y-6">
+                    <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-primary">Kategoriler</h3>
+                            <span class="text-xs text-slate-500">Sürükle-bırak ile sıralayın</span>
+                        </div>
+                        <ul id="category-list" class="space-y-3"></ul>
+                        <form id="category-form" class="mt-4 space-y-3">
+                            <div>
+                                <label for="new-category-name" class="text-sm font-semibold text-slate-600">Yeni Kategori Adı</label>
+                                <input id="new-category-name" type="text" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Örn: Çorbalar">
+                                <p class="text-xs text-slate-400 mt-1">Slug otomatik oluşturulur, boş bırakmayın.</p>
+                            </div>
+                            <button id="create-category" type="submit" class="w-full flex items-center justify-center gap-2 bg-secondary text-white font-semibold px-4 py-2 rounded-xl hover:bg-secondary/90 transition-colors">
+                                <i class="fa-solid fa-folder-plus"></i>
+                                Kategori Ekle
+                            </button>
+                            <p id="category-feedback" class="text-xs font-semibold"></p>
+                        </form>
+                    </div>
+                    <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+                        <h3 class="text-lg font-semibold text-primary mb-3">Kategori Özeti</h3>
+                        <select id="category-select" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none"></select>
+                        <p class="text-xs text-slate-500 mt-2">Kategori seçimi, tabloda hangi ürünlerin düzenleneceğini belirler.</p>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-primary" id="product-table-title">Ürünler</h3>
+                                <p class="text-xs text-slate-500" id="product-count"></p>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-slate-100">
+                            <table class="min-w-full divide-y divide-slate-100 text-sm" id="product-table">
+                                <thead class="bg-white/80 text-slate-500 uppercase tracking-wide text-xs">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Ürün</th>
+                                        <th class="px-4 py-3 text-left">Başlangıç Fiyatı</th>
+                                        <th class="px-4 py-3 text-left">Satış</th>
+                                        <th class="px-4 py-3 text-left">Popüler</th>
+                                        <th class="px-4 py-3 text-right">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="product-table-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-6 text-center text-xs text-slate-500">
+        Admin paneli açık kaldığı sürece index.html ile gerçek zamanlı senkronizasyon sağlanır.
+    </footer>
+
+    <div id="product-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/70 modal-backdrop" data-action="close-product-modal"></div>
+        <div class="relative max-w-3xl mx-auto mt-16 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+            <form id="product-form" class="flex flex-col max-h-[85vh]">
+                <div class="px-6 py-4 bg-primary text-white flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-semibold" id="product-modal-title">Ürün Oluştur</h3>
+                        <p class="text-sm text-white/70">Tüm alanlar müşteri tarafında birebir gösterilir.</p>
+                    </div>
+                    <button type="button" class="text-white/80 hover:text-white" data-action="close-product-modal">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-5 space-y-5 overflow-y-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="modal-product-name" class="text-sm font-semibold text-slate-600">Ürün Adı</label>
+                            <input type="text" id="modal-product-name" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label for="modal-product-image" class="text-sm font-semibold text-slate-600">Görsel Dosya Adı</label>
+                            <input type="text" id="modal-product-image" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Örn: CapreseKiss.png">
+                            <p class="text-xs text-slate-400 mt-1">/assets/images/menu/ klasöründeki dosya adı ile eşleşmelidir.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="modal-product-description" class="text-sm font-semibold text-slate-600">Ürün Açıklaması</label>
+                        <textarea id="modal-product-description" rows="3" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="İçerik, soslar, servis önerisi"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="modal-product-allergens" class="text-sm font-semibold text-slate-600">Alerjen Bilgisi</label>
+                            <input type="text" id="modal-product-allergens" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Gluten, Süt, Kuruyemiş">
+                            <p class="text-xs text-slate-400 mt-1">Virgülle ayırarak birden fazla alerjen ekleyebilirsiniz.</p>
+                        </div>
+                        <div class="flex items-end">
+                            <label class="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 w-full">
+                                <input type="checkbox" id="modal-product-popular" class="rounded border-primary text-primary focus:ring-primary">
+                                <span class="text-sm font-semibold text-primary">Popüler olarak göster</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="modal-product-nutrition" class="text-sm font-semibold text-slate-600">Besin &amp; Alerjen Notu</label>
+                        <textarea id="modal-product-nutrition" rows="2" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none" placeholder="Örn: 850 kcal • Gluten ve Süt içerir"></textarea>
+                        <p class="text-xs text-slate-400 mt-1">Bu bilgi ürün kartlarında müşteriye gösterilir.</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-semibold text-slate-600">Boyut &amp; Fiyat Bilgileri</h4>
+                            <button type="button" id="add-size-row" class="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-lg hover:bg-primary/20 transition-colors">
+                                <i class="fa-solid fa-plus"></i>
+                                Boyut Ekle
+                            </button>
+                        </div>
+                        <div id="modal-size-list" class="space-y-3"></div>
+                        <p class="text-xs text-slate-400 mt-2">Boyut için XL veya XXL seçebilir, özel boyut gerekiyorsa 3-4 karakterlik değeri girin.</p>
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                    <p id="product-form-feedback" class="text-sm font-semibold"></p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors" data-action="close-product-modal">Vazgeç</button>
+                        <button type="button" id="delete-product" class="px-4 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors hidden">Ürünü Sil</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors">Kaydet</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const menuStore = window.MenuDataStore;
+            const categoryStore = window.CategoryMetaStore;
+            const orderStore = window.OrderDataStore;
+
+            const state = {
+                menu: menuStore ? menuStore.loadMenuData() : {},
+                categoryMeta: categoryStore ? categoryStore.ensureSynced(menuStore ? menuStore.loadMenuData() : {}) : { order: [], labels: {} },
+                currentCategory: null,
+                orders: { active: [], history: [] },
+                stats: [],
+                productSales: new Map(),
+                fulfillment: new Map(),
+                ordersSignature: '',
+                statsSignature: '',
+                editingProductId: null,
+                editingCategory: null
+            };
+
+            const elements = {
+                ordersDownloadLink: document.getElementById('orders-download'),
+                statsDownloadLink: document.getElementById('stats-download'),
+                activeOrders: document.getElementById('active-orders'),
+                activeOrderCount: document.getElementById('active-order-count'),
+                historyBody: document.getElementById('order-history-body'),
+                historyCount: document.getElementById('history-count'),
+                statsGrid: document.getElementById('stats-grid'),
+                categoryList: document.getElementById('category-list'),
+                categoryForm: document.getElementById('category-form'),
+                categoryNameInput: document.getElementById('new-category-name'),
+                categoryFeedback: document.getElementById('category-feedback'),
+                categorySelect: document.getElementById('category-select'),
+                addProductButton: document.getElementById('add-product'),
+                resetMenuButton: document.getElementById('reset-menu'),
+                productTableBody: document.getElementById('product-table-body'),
+                productTableTitle: document.getElementById('product-table-title'),
+                productCount: document.getElementById('product-count'),
+                productModal: document.getElementById('product-modal'),
+                productForm: document.getElementById('product-form'),
+                productModalTitle: document.getElementById('product-modal-title'),
+                productNameInput: document.getElementById('modal-product-name'),
+                productDescriptionInput: document.getElementById('modal-product-description'),
+                productImageInput: document.getElementById('modal-product-image'),
+                productAllergensInput: document.getElementById('modal-product-allergens'),
+                productNutritionInput: document.getElementById('modal-product-nutrition'),
+                productPopularInput: document.getElementById('modal-product-popular'),
+                sizeList: document.getElementById('modal-size-list'),
+                addSizeButton: document.getElementById('add-size-row'),
+                deleteProductButton: document.getElementById('delete-product'),
+                productFormFeedback: document.getElementById('product-form-feedback'),
+                modalCloseControls: document.querySelectorAll('[data-action="close-product-modal"]')
+            };
+
+            let draggingProductId = null;
+            let draggingCategoryId = null;
+
+            function safeClone(value) {
+                try {
+                    return typeof structuredClone === 'function' ? structuredClone(value) : JSON.parse(JSON.stringify(value));
+                } catch (error) {
+                    return JSON.parse(JSON.stringify(value));
+                }
+            }
+
+            function init() {
+                state.categoryMeta = categoryStore ? categoryStore.ensureSynced(state.menu) : state.categoryMeta;
+                state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || null;
+                bindEvents();
+                renderAll();
+                subscribeStores();
+                if (menuStore) {
+                    menuStore.setAdminMode(true);
+                }
+                if (orderStore) {
+                    orderStore.init().then((snapshot) => {
+                        applyOrderSnapshot(snapshot);
+                        renderOrders();
+                        renderStats();
+                        updateDownloadLinks();
+                    }).catch((error) => {
+                        console.warn('Sipariş deposu başlatılamadı.', error);
+                    });
+                }
+                window.addEventListener('beforeunload', () => {
+                    if (menuStore) {
+                        menuStore.setAdminMode(false);
+                    }
+                });
+            }
+
+            function subscribeStores() {
+                if (menuStore) {
+                    menuStore.subscribe((nextMenu) => {
+                        state.menu = nextMenu;
+                        state.categoryMeta = categoryStore ? categoryStore.ensureSynced(state.menu) : state.categoryMeta;
+                        if (!state.categoryMeta.order.includes(state.currentCategory)) {
+                            state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || null;
+                        }
+                        renderCategoryControls();
+                        renderProductTable();
+                    });
+                }
+                if (categoryStore) {
+                    categoryStore.subscribe((meta) => {
+                        state.categoryMeta = meta;
+                        if (!state.categoryMeta.order.includes(state.currentCategory)) {
+                            state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || state.currentCategory;
+                        }
+                        renderCategoryControls();
+                        renderProductTable();
+                    });
+                }
+                if (orderStore) {
+                    orderStore.subscribe((snapshot) => {
+                        applyOrderSnapshot(snapshot);
+                        renderOrders();
+                        renderStats();
+                        updateDownloadLinks();
+                    });
+                }
+            }
+
+            function applyOrderSnapshot(snapshot) {
+                if (!snapshot || typeof snapshot !== 'object') {
+                    return;
+                }
+                const orders = snapshot.orders || { active: [], history: [] };
+                const active = Array.isArray(orders.active) ? orders.active : [];
+                const historySource = orders.history || orders.completed || [];
+                const history = Array.isArray(historySource) ? historySource : [];
+                const ordersPayload = { active, history };
+                const statsPayload = Array.isArray(snapshot.stats) ? snapshot.stats : [];
+                const ordersSignature = JSON.stringify(ordersPayload);
+                const statsSignature = JSON.stringify(statsPayload);
+                if (ordersSignature === state.ordersSignature && statsSignature === state.statsSignature) {
+                    return;
+                }
+                state.orders = ordersPayload;
+                state.stats = statsPayload;
+                state.ordersSignature = ordersSignature;
+                state.statsSignature = statsSignature;
+                computeProductSales();
+                pruneFulfillmentState();
+            }
+
+            function computeProductSales() {
+                const map = new Map();
+                const allOrders = [...state.orders.active, ...state.orders.history];
+                allOrders.forEach((order) => {
+                    (order.Items || []).forEach((item) => {
+                        const id = item.id || item.ProductID || item.productId;
+                        const quantity = Number(item.quantity ?? item.Quantity ?? 0);
+                        if (!id || !Number.isFinite(quantity)) {
+                            return;
+                        }
+                        map.set(id, (map.get(id) || 0) + quantity);
+                    });
+                });
+                state.productSales = map;
+            }
+
+            function pruneFulfillmentState() {
+                const activeIds = new Set(state.orders.active.map((order) => formatOrderId(order)));
+                Array.from(state.fulfillment.keys()).forEach((orderId) => {
+                    if (!activeIds.has(orderId)) {
+                        state.fulfillment.delete(orderId);
+                    }
+                });
+            }
+            function bindEvents() {
+                elements.addProductButton.addEventListener('click', () => {
+                    if (!state.currentCategory) {
+                        showFormFeedback('Önce bir kategori oluşturun.', 'error');
+                        return;
+                    }
+                    openProductModal(null, state.currentCategory);
+                });
+
+                elements.resetMenuButton.addEventListener('click', () => {
+                    if (!menuStore) return;
+                    const confirmed = confirm('Menüyü varsayılan değerlere döndürmek istediğinize emin misiniz?');
+                    if (!confirmed) return;
+                    state.menu = menuStore.resetMenuData();
+                    state.categoryMeta = categoryStore ? categoryStore.ensureSynced(state.menu) : state.categoryMeta;
+                    state.currentCategory = state.categoryMeta.order[0] || Object.keys(state.menu)[0] || state.currentCategory;
+                    renderAll();
+                    showCategoryFeedback('Menü varsayılanlara döndürüldü.', 'success');
+                });
+
+                elements.categoryForm.addEventListener('submit', handleCategoryCreate);
+                elements.categorySelect.addEventListener('change', (event) => {
+                    state.currentCategory = event.target.value;
+                    renderCategoryControls();
+                    renderProductTable();
+                });
+
+                elements.categoryList.addEventListener('input', handleCategoryLabelChange);
+                elements.categoryList.addEventListener('click', handleCategoryClick);
+                elements.categoryList.addEventListener('dragstart', handleCategoryDragStart);
+                elements.categoryList.addEventListener('dragover', handleCategoryDragOver);
+                elements.categoryList.addEventListener('dragleave', handleCategoryDragLeave);
+                elements.categoryList.addEventListener('drop', handleCategoryDrop);
+                elements.categoryList.addEventListener('dragend', handleCategoryDragEnd);
+
+                elements.productTableBody.addEventListener('click', handleProductTableClick);
+                elements.productTableBody.addEventListener('dragstart', handleProductDragStart);
+                elements.productTableBody.addEventListener('dragover', handleProductDragOver);
+                elements.productTableBody.addEventListener('dragleave', handleProductDragLeave);
+                elements.productTableBody.addEventListener('drop', handleProductDrop);
+                elements.productTableBody.addEventListener('dragend', handleProductDragEnd);
+
+                elements.activeOrders.addEventListener('change', handleOrderItemToggle);
+                elements.activeOrders.addEventListener('click', handleOrderActionClick);
+
+                elements.addSizeButton.addEventListener('click', () => {
+                    const row = createSizeRow();
+                    elements.sizeList.appendChild(row);
+                    updateSizeRowRemoveButtons();
+                });
+
+                elements.productForm.addEventListener('submit', handleProductSave);
+                elements.deleteProductButton.addEventListener('click', handleProductDelete);
+                elements.modalCloseControls.forEach((control) => control.addEventListener('click', closeProductModal));
+                elements.productModal.addEventListener('click', (event) => {
+                    if (event.target === elements.productModal) {
+                        closeProductModal();
+                    }
+                });
+            }
+
+            function renderAll() {
+                renderCategoryControls();
+                renderProductTable();
+                renderOrders();
+                renderStats();
+                updateDownloadLinks();
+            }
+
+            function renderCategoryControls() {
+                const order = Array.isArray(state.categoryMeta.order) ? state.categoryMeta.order : [];
+                const labels = state.categoryMeta.labels || {};
+                elements.categoryList.innerHTML = '';
+                const fragment = document.createDocumentFragment();
+                order.forEach((key, index) => {
+                    const label = labels[key] || key;
+                    const item = document.createElement('li');
+                    item.className = `bg-white border border-slate-200 rounded-2xl px-4 py-3 flex items-center gap-3 transition ${state.currentCategory === key ? 'ring-2 ring-primary/40 shadow-sm' : ''}`;
+                    item.draggable = true;
+                    item.dataset.categoryId = key;
+                    item.dataset.index = index;
+
+                    const grip = document.createElement('span');
+                    grip.className = 'text-slate-400 cursor-grab';
+                    grip.innerHTML = '<i class="fa-solid fa-grip-lines"></i>';
+                    grip.dataset.role = 'category-grip';
+
+                    const content = document.createElement('div');
+                    content.className = 'flex-1';
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = label;
+                    input.dataset.categoryLabel = key;
+                    input.className = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
+                    const slug = document.createElement('p');
+                    slug.className = 'text-xs text-slate-400 mt-1';
+                    slug.textContent = key;
+                    content.append(input, slug);
+
+                    const selectButton = document.createElement('button');
+                    selectButton.type = 'button';
+                    selectButton.dataset.action = 'select-category';
+                    selectButton.dataset.categoryId = key;
+                    selectButton.className = `px-3 py-1.5 rounded-lg text-xs font-semibold ${state.currentCategory === key ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
+                    selectButton.textContent = state.currentCategory === key ? 'Seçili' : 'Seç';
+
+                    item.append(grip, content, selectButton);
+                    fragment.appendChild(item);
+                });
+                elements.categoryList.appendChild(fragment);
+
+                elements.categorySelect.innerHTML = '';
+                order.forEach((key) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = labels[key] || key;
+                    if (key === state.currentCategory) {
+                        option.selected = true;
+                    }
+                    elements.categorySelect.appendChild(option);
+                });
+            }
+            function renderProductTable() {
+                const categoryKey = state.currentCategory;
+                if (!categoryKey) {
+                    elements.productTableBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-sm text-slate-500">Henüz kategori bulunmuyor.</td></tr>';
+                    elements.productTableTitle.textContent = 'Ürünler';
+                    elements.productCount.textContent = '';
+                    return;
+                }
+                const label = state.categoryMeta.labels[categoryKey] || categoryKey;
+                const items = Array.isArray(state.menu[categoryKey]) ? state.menu[categoryKey] : [];
+                elements.productTableTitle.textContent = `${label}`;
+                elements.productCount.textContent = `${items.length} ürün`;
+                elements.productTableBody.innerHTML = '';
+                if (items.length === 0) {
+                    elements.productTableBody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-sm text-slate-500">Bu kategoride ürün bulunmuyor.</td></tr>';
+                    return;
+                }
+                const fragment = document.createDocumentFragment();
+                items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.dataset.productId = item.id;
+                    row.dataset.index = index;
+                    row.draggable = true;
+                    row.className = 'bg-white hover:bg-primary/5 transition-colors';
+
+                    const infoCell = document.createElement('td');
+                    infoCell.className = 'px-4 py-3 align-top';
+                    const infoWrapper = document.createElement('div');
+                    infoWrapper.className = 'flex items-start gap-3';
+                    const grip = document.createElement('span');
+                    grip.className = 'text-slate-400 cursor-grab mt-1';
+                    grip.dataset.role = 'product-grip';
+                    grip.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
+                    const texts = document.createElement('div');
+                    const title = document.createElement('p');
+                    title.className = 'font-semibold text-slate-900';
+                    title.textContent = item.name || 'İsimsiz Ürün';
+                    const description = document.createElement('p');
+                    description.className = 'text-xs text-slate-500 mt-1';
+                    description.textContent = item.description || 'Açıklama eklenmedi.';
+                    texts.append(title, description);
+                    infoWrapper.append(grip, texts);
+                    infoCell.appendChild(infoWrapper);
+
+                    const priceCell = document.createElement('td');
+                    priceCell.className = 'px-4 py-3 align-top text-slate-600';
+                    const basePrice = getBasePrice(item);
+                    priceCell.textContent = formatCurrency(basePrice);
+
+                    const salesCell = document.createElement('td');
+                    salesCell.className = 'px-4 py-3 align-top text-slate-600';
+                    const sales = state.productSales.get(item.id) || 0;
+                    salesCell.textContent = sales > 0 ? `${sales} adet` : '-';
+
+                    const popularCell = document.createElement('td');
+                    popularCell.className = 'px-4 py-3 align-top';
+                    if (item.isPopular) {
+                        popularCell.innerHTML = '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/10 text-secondary text-xs font-semibold"><i class="fa-solid fa-star"></i> Popüler</span>';
+                    } else {
+                        popularCell.innerHTML = '<span class="text-xs text-slate-400">-</span>';
+                    }
+
+                    const actionCell = document.createElement('td');
+                    actionCell.className = 'px-4 py-3 align-top text-right';
+                    const editButton = document.createElement('button');
+                    editButton.type = 'button';
+                    editButton.dataset.action = 'edit-product';
+                    editButton.dataset.productId = item.id;
+                    editButton.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-primary/90';
+                    editButton.innerHTML = '<i class="fa-solid fa-pen"></i> Düzenle';
+                    actionCell.appendChild(editButton);
+
+                    row.append(infoCell, priceCell, salesCell, popularCell, actionCell);
+                    fragment.appendChild(row);
+                });
+                elements.productTableBody.appendChild(fragment);
+            }
+
+            function renderOrders() {
+                const active = Array.isArray(state.orders.active) ? state.orders.active : [];
+                const history = Array.isArray(state.orders.history) ? state.orders.history : [];
+
+                elements.activeOrders.innerHTML = '';
+                if (active.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'px-4 py-6 text-sm text-primary bg-white/80 border border-primary/20 rounded-2xl text-center';
+                    empty.textContent = 'Aktif sipariş bulunmuyor.';
+                    elements.activeOrders.appendChild(empty);
+                } else {
+                    const fragment = document.createDocumentFragment();
+                    active.forEach((order) => {
+                        fragment.appendChild(createOrderCard(order));
+                    });
+                    elements.activeOrders.appendChild(fragment);
+                    active.forEach((order) => updateOrderActionState(formatOrderId(order)));
+                }
+                elements.activeOrderCount.textContent = `${active.length} sipariş`;
+
+                elements.historyBody.innerHTML = '';
+                if (history.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="6" class="px-3 py-6 text-sm text-slate-500">Henüz geçmiş sipariş bulunmuyor.</td>';
+                    elements.historyBody.appendChild(row);
+                } else {
+                    const fragment = document.createDocumentFragment();
+                    history.forEach((order) => {
+                        const row = document.createElement('tr');
+                        row.className = 'bg-white hover:bg-primary/5 transition-colors';
+                        const statusBadge = order.Status === 'Cancelled'
+                            ? '<span class="inline-flex items-center px-2 py-1 rounded-lg bg-rose-100 text-rose-600 text-xs font-semibold">İptal</span>'
+                            : '<span class="inline-flex items-center px-2 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-semibold">Tamamlandı</span>';
+                        row.innerHTML = `
+                            <td class="px-3 py-2 font-semibold text-slate-700">${order.OrderID || '-'}</td>
+                            <td class="px-3 py-2">${statusBadge}</td>
+                            <td class="px-3 py-2 text-slate-600">${formatDateText(order.CreatedAt || order.Date)}</td>
+                            <td class="px-3 py-2 text-slate-700 font-semibold">${formatCurrency(order.Total)}</td>
+                            <td class="px-3 py-2 text-slate-500">${order.Language || '-'}</td>
+                            <td class="px-3 py-2 text-slate-500">${order.Note ? escapeHtml(order.Note) : '-'}</td>
+                        `;
+                        fragment.appendChild(row);
+                    });
+                    elements.historyBody.appendChild(fragment);
+                }
+                elements.historyCount.textContent = `${history.length} kayıt`;
+            }
+
+            function createOrderCard(order) {
+                const card = document.createElement('div');
+                const orderId = formatOrderId(order);
+                const customerNumber = formatOrderNumber(order && order.OrderNumber);
+                const noteText = getOrderNote(order);
+                card.className = 'bg-white/95 border border-primary/20 rounded-2xl p-4 shadow-sm';
+                card.dataset.orderId = orderId;
+                const header = document.createElement('div');
+                header.className = 'flex flex-wrap items-start justify-between gap-3';
+                const left = document.createElement('div');
+                left.innerHTML = `
+                    <p class="text-xs font-semibold text-secondary uppercase tracking-wide">Sipariş ID</p>
+                    <p class="text-lg font-bold text-primary leading-tight">${escapeHtml(orderId || '-')}</p>
+                    <p class="text-xs text-secondary font-semibold mt-1">Müşteri No: ${customerNumber}</p>
+                    <p class="text-xs text-slate-500 mt-2">Alındı: ${formatDateTimeText(order.CreatedAt || order.Date)}</p>
+                `;
+                const right = document.createElement('div');
+                right.className = 'text-right';
+                right.innerHTML = `
+                    <p class="text-lg font-bold text-secondary">${formatCurrency(order.Total)}</p>
+                    <p class="text-xs text-slate-500">Dil: ${order.Language || '-'}</p>
+                `;
+                header.append(left, right);
+                card.appendChild(header);
+
+                if (noteText) {
+                    const note = document.createElement('div');
+                    note.className = 'mt-3 rounded-xl border border-secondary/30 bg-secondary/10 px-3 py-2';
+                    note.innerHTML = `
+                        <p class="text-xs font-semibold text-secondary uppercase tracking-wide">Sipariş Notu</p>
+                        <p class="text-sm text-primary mt-1 leading-snug">${escapeHtml(noteText)}</p>
+                    `;
+                    card.appendChild(note);
+                }
+
+                const list = document.createElement('ul');
+                list.className = 'mt-4 space-y-3';
+                const items = Array.isArray(order.Items) ? order.Items : [];
+                const completionSet = getFulfillmentSet(orderId, items.length);
+                items.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'border border-primary/20 bg-white rounded-xl px-3 py-2 flex items-start gap-3';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'mt-1 rounded border-slate-300 text-primary focus:ring-primary';
+                    checkbox.dataset.orderId = orderId;
+                    checkbox.dataset.itemIndex = index;
+                    checkbox.checked = completionSet.has(index);
+                    checkbox.setAttribute('data-order-item', '');
+                    const content = document.createElement('div');
+                    content.className = 'flex-1 text-sm text-slate-600';
+                    const name = item.name || item.ProductName || 'Ürün';
+                    const size = item.size || item.Size ? `<span class="text-xs text-slate-400">${item.size || item.Size}</span>` : '';
+                    content.innerHTML = `
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="font-semibold text-slate-700">${escapeHtml(name)}</span>
+                            <span class="text-sm font-semibold text-slate-700">${formatCurrency(item.total ?? item.Total)}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-500 mt-1">
+                            <span>${item.quantity ?? item.Quantity} adet ${size}</span>
+                            <span>${item.isAddOn || (item.AddOn && item.AddOn !== '') ? 'Tamamlayıcı' : ''}</span>
+                        </div>
+                    `;
+                    li.append(checkbox, content);
+                    list.appendChild(li);
+                });
+                card.appendChild(list);
+
+                const actions = document.createElement('div');
+                actions.className = 'mt-4 flex flex-wrap items-center justify-end gap-3';
+                const cancelButton = document.createElement('button');
+                cancelButton.type = 'button';
+                cancelButton.dataset.action = 'cancel-order';
+                cancelButton.dataset.orderId = orderId;
+                cancelButton.className = 'px-4 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-semibold transition-colors shadow-sm';
+                cancelButton.textContent = 'İptal Et';
+                const completeButton = document.createElement('button');
+                completeButton.type = 'button';
+                completeButton.dataset.action = 'complete-order';
+                completeButton.dataset.orderId = orderId;
+                completeButton.className = 'px-5 py-2 rounded-xl bg-primary text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 shadow';
+                completeButton.textContent = 'Tamamlandı';
+                completeButton.disabled = completionSet.size !== items.length || items.length === 0;
+                actions.append(cancelButton, completeButton);
+                card.appendChild(actions);
+
+                return card;
+            }
+
+            function renderStats() {
+                elements.statsGrid.innerHTML = '';
+                if (!Array.isArray(state.stats) || state.stats.length === 0) {
+                    elements.statsGrid.innerHTML = '<div class="col-span-full text-sm text-slate-500">İstatistik verisi bulunamadı.</div>';
+                    return;
+                }
+                const fragment = document.createDocumentFragment();
+                state.stats.forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'rounded-2xl border border-primary/15 bg-white/95 p-4 flex flex-col gap-3 shadow-sm';
+                    card.innerHTML = `
+                        <div class="text-xs uppercase text-secondary font-semibold tracking-wide">${item.Language}</div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl font-bold text-primary">${item.Orders}</span>
+                            <span class="text-sm text-slate-500">sepet</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-xs text-slate-600">
+                            <div class="rounded-xl bg-primary/5 border border-primary/15 px-3 py-2">
+                                <p class="font-semibold text-primary">Toplam</p>
+                                <p class="text-sm text-slate-700">${formatCurrency(item.TotalValue)}</p>
+                            </div>
+                            <div class="rounded-xl bg-secondary/10 border border-secondary/20 px-3 py-2">
+                                <p class="font-semibold text-secondary">Ortalama</p>
+                                <p class="text-sm text-slate-700">${formatCurrency(item.AverageOrderValue)}</p>
+                            </div>
+                            <div class="col-span-2 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-2">
+                                <p class="font-semibold text-emerald-700">Tamamlayıcı Ürün Oranı</p>
+                                <p class="text-sm text-emerald-600">%${item.ComplementaryRate}</p>
+                            </div>
+                        </div>
+                    `;
+                    fragment.appendChild(card);
+                });
+                elements.statsGrid.appendChild(fragment);
+            }
+
+            function updateDownloadLinks() {
+                if (!orderStore) return;
+                const ordersUrl = orderStore.getDownloadUrl();
+                const statsUrl = orderStore.getDownloadUrl('stats');
+                if (ordersUrl) {
+                    elements.ordersDownloadLink.href = ordersUrl;
+                    const stamp = new Date().toISOString().split('T')[0];
+                    elements.ordersDownloadLink.download = `orders-${stamp}.xlsx`;
+                }
+                if (statsUrl) {
+                    elements.statsDownloadLink.href = statsUrl;
+                    const stamp = new Date().toISOString().split('T')[0];
+                    elements.statsDownloadLink.download = `user-stats-${stamp}.xlsx`;
+                }
+            }
+            function handleCategoryCreate(event) {
+                event.preventDefault();
+                const name = (elements.categoryNameInput.value || '').trim();
+                if (!name) {
+                    showCategoryFeedback('Kategori adı boş olamaz.', 'error');
+                    return;
+                }
+                const existingKeys = state.categoryMeta.order || [];
+                const slug = typeof categoryStore.generateKey === 'function'
+                    ? categoryStore.generateKey(name, existingKeys)
+                    : slugify(name, existingKeys);
+                if (!slug) {
+                    showCategoryFeedback('Kategori anahtarı oluşturulamadı.', 'error');
+                    return;
+                }
+                if (state.menu[slug]) {
+                    showCategoryFeedback('Bu kategori zaten mevcut.', 'error');
+                    return;
+                }
+                const updatedMenu = safeClone(state.menu);
+                updatedMenu[slug] = [];
+                state.menu = menuStore ? menuStore.saveMenuData(updatedMenu) : updatedMenu;
+                const nextMeta = {
+                    order: [...(state.categoryMeta.order || []), slug],
+                    labels: Object.assign({}, state.categoryMeta.labels, { [slug]: name })
+                };
+                state.categoryMeta = categoryStore ? categoryStore.saveMeta(nextMeta, state.menu) : nextMeta;
+                state.currentCategory = slug;
+                elements.categoryNameInput.value = '';
+                showCategoryFeedback('Yeni kategori eklendi.', 'success');
+                renderCategoryControls();
+                renderProductTable();
+            }
+
+            function handleCategoryLabelChange(event) {
+                const input = event.target.closest('input[data-category-label]');
+                if (!input) return;
+                const key = input.dataset.categoryLabel;
+                const value = input.value.trim();
+                state.categoryMeta.labels[key] = value || key;
+                if (categoryStore) {
+                    state.categoryMeta = categoryStore.saveMeta(state.categoryMeta, state.menu);
+                }
+                renderCategoryControls();
+            }
+
+            function handleCategoryClick(event) {
+                const button = event.target.closest('[data-action="select-category"]');
+                if (!button) return;
+                state.currentCategory = button.dataset.categoryId;
+                renderCategoryControls();
+                renderProductTable();
+            }
+
+            function handleCategoryDragStart(event) {
+                const item = event.target.closest('[data-category-id]');
+                if (!item) return;
+                draggingCategoryId = item.dataset.categoryId;
+                item.classList.add('opacity-60');
+                event.dataTransfer.effectAllowed = 'move';
+            }
+
+            function handleCategoryDragOver(event) {
+                event.preventDefault();
+                const item = event.target.closest('[data-category-id]');
+                if (!item || item.dataset.categoryId === draggingCategoryId) {
+                    return;
+                }
+                const rect = item.getBoundingClientRect();
+                const position = event.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
+                item.classList.toggle('drag-over-top', position === 'top');
+                item.classList.toggle('drag-over-bottom', position === 'bottom');
+                item.dataset.dropPosition = position;
+            }
+
+            function handleCategoryDragLeave(event) {
+                const item = event.target.closest('[data-category-id]');
+                if (!item) return;
+                item.classList.remove('drag-over-top', 'drag-over-bottom');
+                delete item.dataset.dropPosition;
+            }
+
+            function handleCategoryDrop(event) {
+                event.preventDefault();
+                const item = event.target.closest('[data-category-id]');
+                if (!item || !draggingCategoryId) return;
+                const fromIndex = state.categoryMeta.order.indexOf(draggingCategoryId);
+                let toIndex = Number(item.dataset.index);
+                if (item.dataset.dropPosition === 'bottom') {
+                    toIndex += 1;
+                }
+                reorderCategories(fromIndex, toIndex);
+                item.classList.remove('drag-over-top', 'drag-over-bottom');
+                delete item.dataset.dropPosition;
+            }
+
+            function handleCategoryDragEnd(event) {
+                const item = event.target.closest('[data-category-id]');
+                if (item) {
+                    item.classList.remove('opacity-60', 'drag-over-top', 'drag-over-bottom');
+                    delete item.dataset.dropPosition;
+                }
+                draggingCategoryId = null;
+            }
+
+            function reorderCategories(fromIndex, toIndex) {
+                const order = Array.isArray(state.categoryMeta.order) ? state.categoryMeta.order.slice() : [];
+                if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+                    return;
+                }
+                if (toIndex > order.length) {
+                    toIndex = order.length;
+                }
+                const [moved] = order.splice(fromIndex, 1);
+                order.splice(toIndex > fromIndex ? toIndex - 1 : toIndex, 0, moved);
+                const nextMeta = {
+                    order,
+                    labels: state.categoryMeta.labels
+                };
+                state.categoryMeta = categoryStore ? categoryStore.saveMeta(nextMeta, state.menu) : nextMeta;
+                renderCategoryControls();
+            }
+            function handleProductTableClick(event) {
+                const button = event.target.closest('[data-action]');
+                if (!button) return;
+                if (button.dataset.action === 'edit-product') {
+                    const productId = button.dataset.productId;
+                    const product = findProductById(state.currentCategory, productId);
+                    if (product) {
+                        openProductModal(product, state.currentCategory);
+                    }
+                }
+            }
+
+            function handleProductDragStart(event) {
+                const row = event.target.closest('tr[data-product-id]');
+                if (!row) return;
+                draggingProductId = row.dataset.productId;
+                row.classList.add('opacity-60');
+                event.dataTransfer.effectAllowed = 'move';
+            }
+
+            function handleProductDragOver(event) {
+                event.preventDefault();
+                const row = event.target.closest('tr[data-product-id]');
+                if (!row || row.dataset.productId === draggingProductId) {
+                    return;
+                }
+                const rect = row.getBoundingClientRect();
+                const position = event.clientY < rect.top + rect.height / 2 ? 'top' : 'bottom';
+                row.classList.toggle('drag-over-top', position === 'top');
+                row.classList.toggle('drag-over-bottom', position === 'bottom');
+                row.dataset.dropPosition = position;
+            }
+
+            function handleProductDragLeave(event) {
+                const row = event.target.closest('tr[data-product-id]');
+                if (!row) return;
+                row.classList.remove('drag-over-top', 'drag-over-bottom');
+                delete row.dataset.dropPosition;
+            }
+
+            function handleProductDrop(event) {
+                event.preventDefault();
+                const row = event.target.closest('tr[data-product-id]');
+                if (!row || !draggingProductId) return;
+                const items = Array.isArray(state.menu[state.currentCategory]) ? state.menu[state.currentCategory] : [];
+                const fromIndex = items.findIndex((item) => item.id === draggingProductId);
+                let toIndex = Number(row.dataset.index);
+                if (row.dataset.dropPosition === 'bottom') {
+                    toIndex += 1;
+                }
+                reorderProducts(fromIndex, toIndex);
+                row.classList.remove('drag-over-top', 'drag-over-bottom');
+                delete row.dataset.dropPosition;
+            }
+
+            function handleProductDragEnd(event) {
+                const row = event.target.closest('tr[data-product-id]');
+                if (row) {
+                    row.classList.remove('opacity-60', 'drag-over-top', 'drag-over-bottom');
+                    delete row.dataset.dropPosition;
+                }
+                draggingProductId = null;
+            }
+
+            function reorderProducts(fromIndex, toIndex) {
+                const items = Array.isArray(state.menu[state.currentCategory]) ? state.menu[state.currentCategory].slice() : [];
+                if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+                    return;
+                }
+                if (toIndex > items.length) {
+                    toIndex = items.length;
+                }
+                const [moved] = items.splice(fromIndex, 1);
+                items.splice(toIndex > fromIndex ? toIndex - 1 : toIndex, 0, moved);
+                const updatedMenu = safeClone(state.menu);
+                updatedMenu[state.currentCategory] = items;
+                state.menu = menuStore ? menuStore.saveMenuData(updatedMenu) : updatedMenu;
+                renderProductTable();
+            }
+
+            function handleOrderItemToggle(event) {
+                const checkbox = event.target.closest('[data-order-item]');
+                if (!checkbox) return;
+                const orderId = checkbox.dataset.orderId;
+                const itemIndex = Number(checkbox.dataset.itemIndex);
+                const set = getFulfillmentSet(orderId);
+                if (checkbox.checked) {
+                    set.add(itemIndex);
+                } else {
+                    set.delete(itemIndex);
+                }
+                updateOrderActionState(orderId);
+            }
+
+            function handleOrderActionClick(event) {
+                const button = event.target.closest('[data-action]');
+                if (!button || !orderStore) return;
+                const orderId = button.dataset.orderId;
+                if (button.dataset.action === 'complete-order') {
+                    const set = getFulfillmentSet(orderId);
+                    const order = state.orders.active.find((item) => formatOrderId(item) === orderId);
+                    const itemCount = Array.isArray(order && order.Items) ? order.Items.length : 0;
+                    if (set.size !== itemCount) {
+                        alert('Tüm ürünleri hazırlamadan siparişi tamamlayamazsınız.');
+                        return;
+                    }
+                    orderStore.completeOrder(orderId);
+                    state.fulfillment.delete(orderId);
+                }
+                if (button.dataset.action === 'cancel-order') {
+                    const confirmed = confirm('Siparişi iptal etmek istediğinize emin misiniz?');
+                    if (!confirmed) return;
+                    orderStore.cancelOrder(orderId);
+                    state.fulfillment.delete(orderId);
+                }
+            }
+            function handleProductSave(event) {
+                event.preventDefault();
+                if (!state.editingCategory) {
+                    showFormFeedback('Kategori bulunamadı.', 'error');
+                    return;
+                }
+                try {
+                    const sizes = collectSizesFromForm();
+                    const allergensRaw = (elements.productAllergensInput.value || '')
+                        .split(',')
+                        .map((item) => item.trim())
+                        .filter(Boolean);
+                    const payload = {
+                        id: state.editingProductId || `${state.editingCategory}-${Date.now()}`,
+                        name: elements.productNameInput.value.trim() || 'İsimsiz Ürün',
+                        description: elements.productDescriptionInput.value.trim(),
+                        image: elements.productImageInput.value.trim(),
+                        sizes,
+                        isPopular: elements.productPopularInput.checked,
+                        allergens: allergensRaw
+                    };
+                    if (payload.allergens.length === 0) {
+                        delete payload.allergens;
+                    }
+                    const nutritionValue = elements.productNutritionInput.value.trim();
+                    if (nutritionValue) {
+                        payload.nutritionNote = nutritionValue;
+                    } else {
+                        delete payload.nutritionNote;
+                    }
+                    const updatedMenu = safeClone(state.menu);
+                    const categoryItems = Array.isArray(updatedMenu[state.editingCategory]) ? updatedMenu[state.editingCategory] : [];
+                    const existingIndex = categoryItems.findIndex((item) => item.id === payload.id);
+                    if (existingIndex >= 0) {
+                        categoryItems[existingIndex] = Object.assign({}, categoryItems[existingIndex], payload);
+                    } else {
+                        categoryItems.push(payload);
+                        state.editingProductId = payload.id;
+                    }
+                    updatedMenu[state.editingCategory] = categoryItems;
+                    state.menu = menuStore ? menuStore.saveMenuData(updatedMenu) : updatedMenu;
+                    showFormFeedback('Değişiklikler kaydedildi ve index.html güncellendi.', 'success');
+                    elements.deleteProductButton.classList.remove('hidden');
+                    renderProductTable();
+                } catch (error) {
+                    showFormFeedback(error.message || 'Kaydetme işlemi başarısız oldu.', 'error');
+                }
+            }
+
+            function handleProductDelete() {
+                if (!menuStore || !state.editingProductId || !state.editingCategory) {
+                    return;
+                }
+                const confirmed = confirm('Bu ürünü silmek istediğinize emin misiniz?');
+                if (!confirmed) return;
+                const updatedMenu = safeClone(state.menu);
+                const categoryItems = Array.isArray(updatedMenu[state.editingCategory]) ? updatedMenu[state.editingCategory] : [];
+                const filtered = categoryItems.filter((item) => item.id !== state.editingProductId);
+                updatedMenu[state.editingCategory] = filtered;
+                state.menu = menuStore.saveMenuData(updatedMenu);
+                closeProductModal();
+                renderProductTable();
+            }
+
+            function openProductModal(product, categoryKey) {
+                state.editingCategory = categoryKey;
+                state.editingProductId = product ? product.id : null;
+                elements.productModalTitle.textContent = product ? `${product.name} düzenle` : 'Yeni Ürün Oluştur';
+                elements.productNameInput.value = product ? (product.name || '') : '';
+                elements.productDescriptionInput.value = product ? (product.description || '') : '';
+                elements.productImageInput.value = product ? (product.image || '') : '';
+                elements.productPopularInput.checked = Boolean(product && product.isPopular);
+                elements.productAllergensInput.value = Array.isArray(product && product.allergens) ? product.allergens.join(', ') : '';
+                elements.productNutritionInput.value = product && product.nutritionNote ? product.nutritionNote : '';
+                elements.sizeList.innerHTML = '';
+                const sizes = Array.isArray(product && product.sizes) && product.sizes.length > 0 ? product.sizes : [{ size: 'XL', price: 0, weight: '' }];
+                sizes.forEach((size) => {
+                    elements.sizeList.appendChild(createSizeRow(size));
+                });
+                updateSizeRowRemoveButtons();
+                elements.productFormFeedback.textContent = '';
+                if (product) {
+                    elements.deleteProductButton.classList.remove('hidden');
+                } else {
+                    elements.deleteProductButton.classList.add('hidden');
+                }
+                elements.productModal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeProductModal() {
+                elements.productModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                elements.productForm.reset();
+                elements.productNutritionInput.value = '';
+                elements.sizeList.innerHTML = '';
+                state.editingProductId = null;
+                state.editingCategory = null;
+                elements.productFormFeedback.textContent = '';
+            }
+
+            function createSizeRow(initial = {}) {
+                const row = document.createElement('div');
+                row.className = 'size-row grid grid-cols-1 md:grid-cols-[140px,120px,120px,auto] items-end gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3';
+                row.dataset.sizeRow = '';
+
+                const sizeWrapper = document.createElement('div');
+                const sizeLabel = document.createElement('label');
+                sizeLabel.className = 'text-xs font-semibold text-slate-500 block';
+                sizeLabel.textContent = 'Boyut';
+                const sizeSelect = document.createElement('select');
+                sizeSelect.className = 'mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
+                sizeSelect.dataset.field = 'size';
+                sizeSelect.innerHTML = `
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="custom">Özel</option>
+                `;
+                const customInput = document.createElement('input');
+                customInput.type = 'text';
+                customInput.maxLength = 4;
+                customInput.placeholder = 'Örn: SM';
+                customInput.dataset.field = 'custom-size';
+                customInput.className = 'mt-2 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none hidden';
+                sizeWrapper.append(sizeLabel, sizeSelect, customInput);
+
+                const weightWrapper = document.createElement('div');
+                const weightLabel = document.createElement('label');
+                weightLabel.className = 'text-xs font-semibold text-slate-500 block';
+                weightLabel.textContent = 'Gram (GR)';
+                const weightInput = document.createElement('input');
+                weightInput.type = 'text';
+                weightInput.maxLength = 4;
+                weightInput.dataset.field = 'weight';
+                weightInput.placeholder = 'Örn: 320';
+                weightInput.className = 'mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
+                weightWrapper.append(weightLabel, weightInput);
+
+                const priceWrapper = document.createElement('div');
+                const priceLabel = document.createElement('label');
+                priceLabel.className = 'text-xs font-semibold text-slate-500 block';
+                priceLabel.textContent = 'Fiyat (€)';
+                const priceInput = document.createElement('input');
+                priceInput.type = 'number';
+                priceInput.dataset.field = 'price';
+                priceInput.className = 'mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/60 focus:outline-none';
+                priceInput.placeholder = '0.00';
+                priceInput.min = '0';
+                priceInput.step = '0.01';
+                priceWrapper.append(priceLabel, priceInput);
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.dataset.action = 'remove-size';
+                removeButton.className = 'text-xs font-semibold text-rose-600 hover:text-rose-700';
+                removeButton.textContent = 'Sil';
+                removeButton.addEventListener('click', () => {
+                    row.remove();
+                    updateSizeRowRemoveButtons();
+                });
+
+                sizeSelect.addEventListener('change', () => {
+                    const isCustom = sizeSelect.value === 'custom';
+                    customInput.classList.toggle('hidden', !isCustom);
+                    if (!isCustom) {
+                        customInput.value = '';
+                    }
+                });
+
+                const normalizedSize = (initial.size || '').trim();
+                if (normalizedSize === 'XL' || normalizedSize === 'XXL') {
+                    sizeSelect.value = normalizedSize;
+                    customInput.classList.add('hidden');
+                    customInput.value = '';
+                } else {
+                    sizeSelect.value = 'custom';
+                    customInput.classList.remove('hidden');
+                    customInput.value = normalizedSize;
+                }
+                weightInput.value = initial.weight || '';
+                const priceValue = Number(initial.price || 0);
+                priceInput.value = Number.isFinite(priceValue) ? priceValue.toFixed(2) : '0.00';
+
+                row.append(sizeWrapper, weightWrapper, priceWrapper, removeButton);
+                return row;
+            }
+
+            function collectSizesFromForm() {
+                const rows = Array.from(elements.sizeList.querySelectorAll('[data-size-row]'));
+                if (rows.length === 0) {
+                    throw new Error('En az bir boyut bilgisi giriniz.');
+                }
+                const sizes = [];
+                rows.forEach((row) => {
+                    const sizeSelect = row.querySelector('select[data-field="size"]');
+                    const customInput = row.querySelector('input[data-field="custom-size"]');
+                    const weightInput = row.querySelector('input[data-field="weight"]');
+                    const priceInput = row.querySelector('input[data-field="price"]');
+                    let sizeValue = sizeSelect.value;
+                    if (sizeValue === 'custom') {
+                        sizeValue = (customInput.value || '').trim();
+                        if (!sizeValue) {
+                            throw new Error('Özel boyut alanını boş bırakmayın.');
+                        }
+                    }
+                    const weightValue = (weightInput.value || '').trim();
+                    const priceValue = Number(priceInput.value);
+                    if (!Number.isFinite(priceValue)) {
+                        throw new Error('Geçerli bir fiyat giriniz.');
+                    }
+                    sizes.push({
+                        size: sizeValue,
+                        weight: weightValue,
+                        price: Number(priceValue.toFixed(2))
+                    });
+                });
+                return sizes;
+            }
+            function updateSizeRowRemoveButtons() {
+                const rows = Array.from(elements.sizeList.querySelectorAll('[data-size-row]'));
+                const disableRemoval = rows.length <= 1;
+                rows.forEach((row) => {
+                    const button = row.querySelector('[data-action="remove-size"]');
+                    if (button) {
+                        button.disabled = disableRemoval;
+                        button.classList.toggle('opacity-40', disableRemoval);
+                    }
+                });
+            }
+
+            function getOrderNote(order) {
+                if (!order) return '';
+                const raw = order.Note ?? order.note ?? '';
+                return raw ? raw.toString().trim() : '';
+            }
+
+            function buildOrderIdFromParts(counterDate, number) {
+                const numeric = Number(number);
+                if (!counterDate || !Number.isFinite(numeric)) {
+                    return null;
+                }
+                const digits = counterDate.toString().replace(/[^0-9]/g, '');
+                if (!digits) {
+                    return null;
+                }
+                const datePart = digits.length >= 8 ? digits.slice(0, 8) : digits.padEnd(8, '0').slice(0, 8);
+                return `${datePart}-${String(Math.trunc(numeric)).padStart(3, '0')}`;
+            }
+
+            function formatOrderId(order) {
+                if (!order) {
+                    return '-';
+                }
+                const existing = order.OrderID || order.orderId;
+                if (existing) {
+                    return existing;
+                }
+                return buildOrderIdFromParts(order.CounterDate || order.counterDate || order.Date || order.date, order.OrderNumber || order.orderNumber) || '-';
+            }
+
+            function formatOrderNumber(value) {
+                const numeric = Number(value);
+                if (!Number.isFinite(numeric)) {
+                    return '-';
+                }
+                return String(Math.max(0, Math.trunc(numeric))).padStart(3, '0');
+            }
+
+            function getFulfillmentSet(orderId, length = 0) {
+                if (!state.fulfillment.has(orderId)) {
+                    state.fulfillment.set(orderId, new Set());
+                }
+                const set = state.fulfillment.get(orderId);
+                if (length > 0) {
+                    Array.from(set).forEach((value) => {
+                        if (value >= length) {
+                            set.delete(value);
+                        }
+                    });
+                }
+                return set;
+            }
+
+            function updateOrderActionState(orderId) {
+                const card = elements.activeOrders.querySelector(`[data-order-id="${CSS.escape(orderId)}"]`);
+                if (!card) return;
+                const checkboxes = Array.from(card.querySelectorAll('[data-order-item]'));
+                const allChecked = checkboxes.length > 0 && checkboxes.every((input) => input.checked);
+                const completeButton = card.querySelector('[data-action="complete-order"]');
+                if (completeButton) {
+                    completeButton.disabled = !allChecked;
+                }
+            }
+
+            function showFormFeedback(message, type) {
+                elements.productFormFeedback.textContent = message;
+                elements.productFormFeedback.className = `text-sm font-semibold ${type === 'error' ? 'text-rose-600' : 'text-emerald-600'}`;
+            }
+
+            function showCategoryFeedback(message, type) {
+                elements.categoryFeedback.textContent = message;
+                elements.categoryFeedback.className = `text-xs font-semibold ${type === 'error' ? 'text-rose-600' : 'text-emerald-600'}`;
+                if (message) {
+                    setTimeout(() => {
+                        elements.categoryFeedback.textContent = '';
+                    }, 2500);
+                }
+            }
+
+            function findProductById(categoryKey, productId) {
+                const items = Array.isArray(state.menu[categoryKey]) ? state.menu[categoryKey] : [];
+                return items.find((item) => item.id === productId) || null;
+            }
+
+            function getBasePrice(product) {
+                const sizes = Array.isArray(product && product.sizes) ? product.sizes : [];
+                if (sizes.length === 0) {
+                    return 0;
+                }
+                return sizes.reduce((min, size) => {
+                    const value = Number(size.price || 0);
+                    if (!Number.isFinite(value)) {
+                        return min;
+                    }
+                    return min === null ? value : Math.min(min, value);
+                }, null) || 0;
+            }
+
+            function formatCurrency(value) {
+                const numeric = Number(value);
+                if (!Number.isFinite(numeric)) {
+                    return '€0.00';
+                }
+                return `€${numeric.toFixed(2)}`;
+            }
+
+            function formatDateText(value) {
+                if (!value) return '-';
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) {
+                    return '-';
+                }
+                return date.toLocaleDateString('tr-TR');
+            }
+
+            function formatDateTimeText(value) {
+                if (!value) return '-';
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) {
+                    return '-';
+                }
+                return date.toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+
+            function escapeHtml(value) {
+                return (value || '').toString()
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function slugify(value, existing = []) {
+                const base = (value || '').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'kategori';
+                const used = new Set(existing);
+                if (!used.has(base)) {
+                    return base;
+                }
+                let counter = 2;
+                let candidate = `${base}-${counter}`;
+                while (used.has(candidate)) {
+                    counter += 1;
+                    candidate = `${base}-${counter}`;
+                }
+                return candidate;
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init, { once: true });
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>
