@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandwich XL - Admin Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="assets/js/default-menu-data.js"></script>
+    <script src="assets/js/menu-data-store.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .card {
+            box-shadow: 0 10px 35px -15px rgba(15, 23, 42, 0.35);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <header class="bg-primary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <img src="logo/logoo.png" alt="Sandwich XL" class="h-10 w-auto">
+                <div>
+                    <h1 class="text-2xl font-bold">Sandwich XL Admin Paneli</h1>
+                    <p class="text-white/70 text-sm">Menü, sipariş ve istatistik yönetimi</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="data/orders.xlsx" download class="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-lg text-sm font-semibold">
+                    <i class="fa-solid fa-file-excel"></i>
+                    Sipariş Exceli
+                </a>
+                <a href="data/user_stats.xlsx" download class="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-lg text-sm font-semibold">
+                    <i class="fa-solid fa-chart-line"></i>
+                    İstatistik Exceli
+                </a>
+                <a href="index.html" class="flex items-center gap-2 bg-white text-primary font-semibold px-4 py-2 rounded-lg shadow hover:bg-gray-100 transition-colors">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Menüye Dön
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10 space-y-10">
+        <section class="bg-white rounded-2xl p-6 card">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary">Menü Yönetimi</h2>
+                    <p class="text-slate-500 text-sm">Ürünleri düzenleyin, popüler seçimleri güncelleyin ve yeni fiyatları kaydedin.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <label class="text-sm font-semibold text-slate-600" for="category-select">Kategori</label>
+                    <select id="category-select" class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"></select>
+                    <button id="add-product" class="flex items-center gap-2 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        <i class="fa-solid fa-plus"></i>
+                        Yeni Ürün
+                    </button>
+                    <button id="reset-menu" class="flex items-center gap-2 bg-slate-100 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        Varsayılanları Yükle
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="min-w-full divide-y divide-slate-100 text-sm" id="product-table">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-semibold text-slate-600">Ürün</th>
+                                    <th class="px-4 py-2 text-left font-semibold text-slate-600">Fiyat</th>
+                                    <th class="px-4 py-2 text-left font-semibold text-slate-600">Satış Adedi</th>
+                                    <th class="px-4 py-2 text-left font-semibold text-slate-600">Popüler</th>
+                                    <th class="px-4 py-2 text-left font-semibold text-slate-600">İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100" id="product-table-body"></tbody>
+                        </table>
+                    </div>
+                    <p id="table-hint" class="text-xs text-slate-400">Not: Satış adetleri "Sipariş Exceli" dosyasındaki gerçek siparişlerden otomatik hesaplanır.</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <h3 class="text-lg font-semibold text-primary mb-4" id="editor-title">Ürün Detayları</h3>
+                    <form id="product-form" class="space-y-4">
+                        <div>
+                            <label class="text-sm font-semibold text-slate-600">Ürün Adı</label>
+                            <input type="text" id="product-name" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none" required>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-600">Açıklama</label>
+                            <textarea id="product-description" rows="3" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ürün içeriği"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-600">Görsel Dosyası</label>
+                            <input type="text" id="product-image" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Örn: CapreseKiss.png">
+                            <p class="text-xs text-slate-400 mt-1">Dosyalar /assets/images/menu/ klasöründen yüklenir.</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-semibold text-slate-600">Boyut & Fiyat Bilgileri</label>
+                            <textarea id="product-sizes" rows="4" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-primary focus:outline-none" placeholder='[
+  {"size": "XL", "price": 10, "weight": "500gr"}
+]'></textarea>
+                            <p class="text-xs text-slate-400 mt-1">JSON formatında girin. Her bir kayıt "size", "price" ve "weight" alanlarını içermelidir.</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                                <input type="checkbox" id="product-popular" class="rounded border-slate-300 text-primary focus:ring-primary">
+                                Popüler olarak işaretle
+                            </label>
+                            <button type="button" id="delete-product" class="text-xs font-semibold text-rose-600 hover:text-rose-700">Ürünü Sil</button>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">Kaydet</button>
+                        <p id="form-feedback" class="text-sm font-semibold"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl p-6 card border border-slate-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-primary">Aktif Siparişler</h2>
+                    <span class="text-sm text-slate-500" id="active-order-count">0 sipariş</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-100 text-sm">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Sipariş No</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Ürün</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Adet</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Tutar</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Dil</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-orders" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 card border border-slate-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-primary">Sipariş Geçmişi</h2>
+                    <span class="text-sm text-slate-500" id="completed-order-count">0 kayıt</span>
+                </div>
+                <div class="overflow-x-auto max-h-80">
+                    <table class="min-w-full divide-y divide-slate-100 text-sm">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Tarih</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Ürün</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Adet</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Tutar</th>
+                                <th class="px-3 py-2 text-left font-semibold text-slate-600">Not</th>
+                            </tr>
+                        </thead>
+                        <tbody id="completed-orders" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl p-6 card border border-slate-100">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary">Kullanıcı İstatistikleri</h2>
+                    <p class="text-slate-500 text-sm">Dil tercihi, kişi başı sipariş adedi ve tamamlayıcı ürün performansını takip edin.</p>
+                </div>
+                <div class="text-xs text-slate-400">Kaynak: <code>data/user_stats.xlsx</code></div>
+            </div>
+            <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </section>
+    </main>
+
+    <footer class="py-6 text-center text-xs text-slate-500">
+        Gerçek zamanlı güncellemeler için bu sekme açık kaldığı sürece index.html otomatik olarak senkronize edilir.
+    </footer>
+
+    <script>
+        const menuStore = window.MenuDataStore;
+        let menuData = menuStore ? menuStore.loadMenuData() : (window.SandwichXLDefaultMenuData || {});
+        let orders = [];
+        let productSales = new Map();
+        let stats = [];
+        let currentCategory = Object.keys(menuData)[0] || 'sandwiches';
+        let editingProductId = null;
+
+        const categorySelect = document.getElementById('category-select');
+        const productTableBody = document.getElementById('product-table-body');
+        const productForm = document.getElementById('product-form');
+        const productNameInput = document.getElementById('product-name');
+        const productDescriptionInput = document.getElementById('product-description');
+        const productImageInput = document.getElementById('product-image');
+        const productSizesInput = document.getElementById('product-sizes');
+        const productPopularInput = document.getElementById('product-popular');
+        const formFeedback = document.getElementById('form-feedback');
+        const deleteProductButton = document.getElementById('delete-product');
+        const editorTitle = document.getElementById('editor-title');
+        const activeOrdersBody = document.getElementById('active-orders');
+        const completedOrdersBody = document.getElementById('completed-orders');
+        const activeOrderCount = document.getElementById('active-order-count');
+        const completedOrderCount = document.getElementById('completed-order-count');
+        const statsGrid = document.getElementById('stats-grid');
+        const addProductButton = document.getElementById('add-product');
+        const resetMenuButton = document.getElementById('reset-menu');
+
+        deleteProductButton.classList.add('hidden');
+
+        if (menuStore) {
+            menuStore.setAdminMode(true);
+            menuStore.subscribe((nextData) => {
+                menuData = nextData;
+                renderCategoryOptions();
+                renderProductTable();
+                if (editingProductId) {
+                    const refreshed = getProductById(editingProductId);
+                    if (refreshed) {
+                        fillForm(refreshed);
+                    }
+                }
+            });
+            window.addEventListener('beforeunload', () => {
+                menuStore.setAdminMode(false);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategoryOptions();
+            renderProductTable();
+            bindFormEvents();
+            loadExcelData();
+        });
+
+        async function loadExcelData() {
+            try {
+                orders = await readWorkbookAsJson('data/orders.xlsx');
+                computeProductSales();
+                renderProductTable();
+                renderOrders();
+            } catch (error) {
+                console.error('Sipariş verileri okunamadı', error);
+            }
+
+            try {
+                stats = await readWorkbookAsJson('data/user_stats.xlsx');
+                renderStats();
+            } catch (error) {
+                console.error('İstatistik verileri okunamadı', error);
+            }
+        }
+
+        async function readWorkbookAsJson(path) {
+            const response = await fetch(path);
+            const arrayBuffer = await response.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        }
+
+        function computeProductSales() {
+            productSales = new Map();
+            orders.forEach(order => {
+                const productId = order.ProductID || order.productId;
+                const quantity = Number(order.Quantity || order.quantity || 0);
+                if (!productId || !Number.isFinite(quantity)) {
+                    return;
+                }
+                const previous = productSales.get(productId) || 0;
+                productSales.set(productId, previous + quantity);
+            });
+        }
+
+        function renderCategoryOptions() {
+            const categories = Object.keys(menuData || {});
+            categorySelect.innerHTML = '';
+            categories.forEach((key) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = formatCategoryLabel(key);
+                if (key === currentCategory) {
+                    option.selected = true;
+                }
+                categorySelect.appendChild(option);
+            });
+            if (!categories.includes(currentCategory)) {
+                currentCategory = categories[0];
+            }
+        }
+
+        function formatCategoryLabel(key) {
+            switch (key) {
+                case 'sandwiches': return 'Sandviçler';
+                case 'pasta': return 'Makarnalar';
+                case 'salads': return 'Salatalar';
+                case 'desserts': return 'Tatlılar';
+                case 'drinks': return 'İçecekler';
+                default: return key;
+            }
+        }
+
+        function renderProductTable() {
+            productTableBody.innerHTML = '';
+            const products = menuData[currentCategory] || [];
+            if (products.length === 0) {
+                const emptyRow = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 5;
+                cell.className = 'px-4 py-6 text-center text-slate-400 text-sm';
+                cell.textContent = 'Bu kategoride ürün bulunmuyor.';
+                emptyRow.appendChild(cell);
+                productTableBody.appendChild(emptyRow);
+                return;
+            }
+
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 transition-colors';
+
+                const titleCell = document.createElement('td');
+                titleCell.className = 'px-4 py-3 font-semibold text-slate-700';
+                titleCell.textContent = product.name;
+
+                const priceCell = document.createElement('td');
+                priceCell.className = 'px-4 py-3 text-slate-600';
+                const basePrice = Number(product?.sizes?.[0]?.price || 0);
+                priceCell.textContent = `${basePrice.toFixed(2)} €`;
+
+                const salesCell = document.createElement('td');
+                salesCell.className = 'px-4 py-3 text-slate-600';
+                const sales = productSales.get(product.id) || 0;
+                salesCell.textContent = `${sales} adet`;
+
+                const popularCell = document.createElement('td');
+                popularCell.className = 'px-4 py-3';
+                popularCell.innerHTML = product.isPopular
+                    ? '<span class="inline-flex items-center gap-1 text-emerald-600 font-semibold"><i class="fa-solid fa-star"></i> Evet</span>'
+                    : '<span class="inline-flex items-center gap-1 text-slate-400"><i class="fa-regular fa-star"></i> Hayır</span>';
+
+                const actionCell = document.createElement('td');
+                actionCell.className = 'px-4 py-3 text-right';
+                const editButton = document.createElement('button');
+                editButton.type = 'button';
+                editButton.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-white hover:bg-primary/90';
+                editButton.innerHTML = '<i class="fa-solid fa-pen"></i> Düzenle';
+                editButton.addEventListener('click', () => {
+                    editingProductId = product.id;
+                    fillForm(product);
+                });
+                actionCell.appendChild(editButton);
+
+                row.append(titleCell, priceCell, salesCell, popularCell, actionCell);
+                productTableBody.appendChild(row);
+            });
+        }
+
+        function fillForm(product) {
+            editorTitle.textContent = `${product.name} düzenle`;
+            productNameInput.value = product.name || '';
+            productDescriptionInput.value = product.description || '';
+            productImageInput.value = product.image || '';
+            productSizesInput.value = JSON.stringify(product.sizes || [], null, 2);
+            productPopularInput.checked = Boolean(product.isPopular);
+            deleteProductButton.classList.toggle('hidden', false);
+            formFeedback.textContent = '';
+        }
+
+        function bindFormEvents() {
+            categorySelect.addEventListener('change', () => {
+                currentCategory = categorySelect.value;
+                editingProductId = null;
+                editorTitle.textContent = 'Ürün Detayları';
+                productForm.reset();
+                deleteProductButton.classList.add('hidden');
+                renderProductTable();
+            });
+
+            addProductButton.addEventListener('click', () => {
+                editingProductId = null;
+                editorTitle.textContent = 'Yeni Ürün Ekle';
+                productForm.reset();
+                productSizesInput.value = '[\n  {"size": "XL", "price": 0, "weight": ""}\n]';
+                formFeedback.textContent = '';
+                deleteProductButton.classList.add('hidden');
+            });
+
+            resetMenuButton.addEventListener('click', () => {
+                if (!menuStore) return;
+                const confirmed = confirm('Varsayılan menü verilerini yeniden yüklemek istediğinize emin misiniz?');
+                if (!confirmed) return;
+                menuData = menuStore.resetMenuData();
+                currentCategory = Object.keys(menuData)[0];
+                editingProductId = null;
+                renderCategoryOptions();
+                renderProductTable();
+                formFeedback.textContent = 'Menü varsayılan değerlere döndürüldü.';
+                formFeedback.className = 'text-sm font-semibold text-emerald-600';
+            });
+
+            productForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                saveProduct();
+            });
+
+            deleteProductButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (!editingProductId) {
+                    formFeedback.textContent = 'Silinecek ürün seçilmedi.';
+                    formFeedback.className = 'text-sm font-semibold text-rose-600';
+                    return;
+                }
+                const confirmed = confirm('Bu ürünü kalıcı olarak silmek istediğinize emin misiniz?');
+                if (!confirmed) return;
+                deleteProduct(editingProductId);
+            });
+        }
+
+        function getProductById(id) {
+            const items = menuData[currentCategory] || [];
+            return items.find(item => item.id === id);
+        }
+
+        function saveProduct() {
+            if (!menuStore) return;
+            try {
+                const sizes = JSON.parse(productSizesInput.value || '[]');
+                if (!Array.isArray(sizes) || sizes.length === 0) {
+                    throw new Error('En az bir boyut bilgisi giriniz.');
+                }
+
+                const normalizedSizes = sizes.map((size, index) => ({
+                    size: size.size || `Boyut ${index + 1}`,
+                    price: Number(size.price) || 0,
+                    weight: size.weight || ''
+                }));
+
+                const updatedMenu = JSON.parse(JSON.stringify(menuData));
+                const categoryItems = updatedMenu[currentCategory] || [];
+                if (editingProductId) {
+                    const index = categoryItems.findIndex(item => item.id === editingProductId);
+                    if (index === -1) {
+                        throw new Error('Ürün bulunamadı.');
+                    }
+                    categoryItems[index] = {
+                        ...categoryItems[index],
+                        name: productNameInput.value.trim(),
+                        description: productDescriptionInput.value.trim(),
+                        image: productImageInput.value.trim(),
+                        sizes: normalizedSizes,
+                        isPopular: productPopularInput.checked
+                    };
+                } else {
+                    const newId = `${currentCategory}-${Date.now()}`;
+                    categoryItems.push({
+                        id: newId,
+                        name: productNameInput.value.trim(),
+                        description: productDescriptionInput.value.trim(),
+                        image: productImageInput.value.trim(),
+                        sizes: normalizedSizes,
+                        isPopular: productPopularInput.checked
+                    });
+                    editingProductId = newId;
+                }
+                updatedMenu[currentCategory] = categoryItems;
+                menuData = menuStore.saveMenuData(updatedMenu);
+                renderProductTable();
+                formFeedback.textContent = 'Değişiklikler kaydedildi ve index.html güncellendi.';
+                formFeedback.className = 'text-sm font-semibold text-emerald-600';
+            } catch (error) {
+                console.error(error);
+                formFeedback.textContent = error.message || 'Kaydetme işlemi başarısız oldu.';
+                formFeedback.className = 'text-sm font-semibold text-rose-600';
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (!menuStore) return;
+            const updatedMenu = JSON.parse(JSON.stringify(menuData));
+            const categoryItems = updatedMenu[currentCategory] || [];
+            const filtered = categoryItems.filter(item => item.id !== productId);
+            updatedMenu[currentCategory] = filtered;
+            menuData = menuStore.saveMenuData(updatedMenu);
+            editingProductId = null;
+            productForm.reset();
+            deleteProductButton.classList.add('hidden');
+            renderProductTable();
+            formFeedback.textContent = 'Ürün silindi.';
+            formFeedback.className = 'text-sm font-semibold text-emerald-600';
+        }
+
+        function renderOrders() {
+            activeOrdersBody.innerHTML = '';
+            completedOrdersBody.innerHTML = '';
+            let activeCount = 0;
+            let completedCount = 0;
+
+            orders.forEach(order => {
+                const status = (order.Status || order.status || '').toLowerCase();
+                if (status === 'completed') {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50 transition-colors';
+                    const cells = [
+                        order.Date || order.date || '-',
+                        order.ProductName || order.productName || '-',
+                        order.Quantity || order.quantity || '-',
+                        `${Number(order.Total || order.total || 0).toFixed(2)} €`,
+                        order.Note || order.note || '-'
+                    ];
+                    cells.forEach(value => {
+                        const cell = document.createElement('td');
+                        cell.className = 'px-3 py-2 text-slate-600';
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+                    completedOrdersBody.appendChild(row);
+                    completedCount += 1;
+                } else {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50 transition-colors';
+                    const cells = [
+                        order.OrderID || order.orderId || '-',
+                        order.ProductName || order.productName || '-',
+                        order.Quantity || order.quantity || '-',
+                        `${Number(order.Total || order.total || 0).toFixed(2)} €`,
+                        order.Language || order.language || '-'
+                    ];
+                    cells.forEach(value => {
+                        const cell = document.createElement('td');
+                        cell.className = 'px-3 py-2 text-slate-600';
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+                    activeOrdersBody.appendChild(row);
+                    activeCount += 1;
+                }
+            });
+
+            activeOrderCount.textContent = `${activeCount} sipariş`;
+            completedOrderCount.textContent = `${completedCount} kayıt`;
+        }
+
+        function renderStats() {
+            statsGrid.innerHTML = '';
+            if (!Array.isArray(stats) || stats.length === 0) {
+                statsGrid.innerHTML = '<p class="text-sm text-slate-500">İstatistik verisi bulunamadı.</p>';
+                return;
+            }
+
+            stats.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'rounded-2xl border border-slate-100 p-4 bg-slate-50';
+
+                const language = item.Language || item.language || 'Bilinmiyor';
+                const ordersCount = Number(item.Orders || item.orders || 0);
+                const perPerson = Number(item.ItemsPerPerson || item.itemsPerPerson || 0).toFixed(1);
+                const avgValue = Number(item.AverageOrderValue || item.averageOrderValue || 0).toFixed(2);
+                const complementaryRate = Number(item.ComplementaryRate || item.complementaryRate || 0);
+
+                card.innerHTML = `
+                    <div class="text-xs uppercase text-slate-400 font-semibold tracking-wide">${language}</div>
+                    <div class="mt-1 text-2xl font-bold text-primary">${perPerson}</div>
+                    <div class="mt-2 text-sm text-slate-600">Kişi başı ürün</div>
+                    <div class="mt-2 flex items-center justify-between text-sm">
+                        <span class="font-semibold text-slate-500">Toplam Sipariş</span>
+                        <span class="font-bold text-slate-700">${ordersCount}</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-sm">
+                        <span class="font-semibold text-slate-500">Ortalama Tutar</span>
+                        <span class="text-primary font-bold">${avgValue} €</span>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between text-sm">
+                        <span class="font-semibold text-slate-500">Tamamlayıcı Ürün</span>
+                        <span class="font-bold ${complementaryRate >= 50 ? 'text-emerald-600' : 'text-amber-600'}">%${complementaryRate}</span>
+                    </div>
+                `;
+
+                statsGrid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
