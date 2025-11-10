@@ -12,6 +12,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Paylaşılan menü verileri ve depolama yardımcıları -->
+    <script src="assets/js/default-menu-data.js"></script>
+    <script src="assets/js/menu-data-store.js"></script>
     
     <!-- İkonlar için Font Awesome (Sepet vb.) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -85,6 +89,14 @@
             75% { transform: translateY(-4px) scale(1.03); }
             100% { transform: translateY(0) scale(1); }
         }
+
+        .admin-control {
+            display: none;
+        }
+
+        body.admin-mode .admin-control {
+            display: inline-flex;
+        }
     </style>
 </head>
 
@@ -100,7 +112,7 @@
                     <span class="sr-only">Sandwich XL</span>
                 </a>
             </h1>
-            
+
             <!-- Kategori Navigasyonu (Masaüstü) -->
             <nav class="hidden md:flex space-x-2">
                 <button data-action="show-category" data-category="sandwiches" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Sandviçler</button>
@@ -109,13 +121,23 @@
                 <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Tatlılar</button>
                 <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">İçecekler</button>
             </nav>
-            
-            <!-- Sepet Butonu -->
-            <button data-action="open-cart" class="relative flex items-center justify-center p-3 bg-white text-primary rounded-full shadow-md hover:bg-gray-100 transition-colors">
-                <i class="fa-solid fa-basket-shopping text-xl"></i>
-                <!-- Sepet Ürün Sayacı -->
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
-            </button>
+
+            <div class="flex items-center space-x-3">
+                <button data-action="toggle-admin-mode" class="flex items-center space-x-2 bg-white/20 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-white/30 transition-colors" title="İşletme düzenleme modunu aç/kapat">
+                    <i class="fa-solid fa-wrench"></i>
+                    <span class="hidden sm:inline">Admin Modu</span>
+                </button>
+                <a href="admin.html" class="hidden sm:inline-flex items-center space-x-2 bg-white text-primary px-3 py-2 rounded-lg text-sm font-semibold shadow-md hover:bg-gray-100 transition-colors">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Admin Paneli</span>
+                </a>
+                <!-- Sepet Butonu -->
+                <button data-action="open-cart" class="relative flex items-center justify-center p-3 bg-white text-primary rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                    <i class="fa-solid fa-basket-shopping text-xl"></i>
+                    <!-- Sepet Ürün Sayacı -->
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-secondary text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
+                </button>
+            </div>
         </div>
         
         <!-- Kategori Navigasyonu (Mobil) -->
@@ -324,49 +346,10 @@
     <script>
         // --- 1. VERİTABANI (Menu Data) ---
         // PDF'ten ve varsayılanlardan oluşturulan menü
-        const menuData = {
-            'sandwiches': [
-                { id: 's1', name: 'CapreseKiss', description: 'Pesto, Tomatoes, Mozzarella, Arugula', image: 'CapreseKiss.png', sizes: [{ size: 'XL', price: 8, weight: '600gr' }] },
-                { id: 's2', name: 'TunaTurner', description: 'SXL Sauce, Tuna, Corn, Capers, Red Onion, Pickles, Green Olives, Lettuce, Lemon', image: 'TunaTurner.png', isPopular: true, sizes: [{ size: 'XL', price: 10, weight: '510gr' }] },
-                { id: 's3', name: 'PilePile', description: 'Chicken Breast, Yogurt Sauce, Pickles, Walnuts, Dried Dill', image: 'PilePile.png', sizes: [{ size: 'XL', price: 7, weight: '400gr' }] },
-                { id: 's4', name: 'AdriaticBond', description: 'SXL Sauce, Ajvar Sauce, Beef Kullen, Salami, Kobasica, Pickles, Tomato, Mozzarella, Green Olive, Lettuce', image: 'AdriaticBond.png', sizes: [{ size: 'XL', price: 13, weight: '500gr' }, { size: 'XXL', price: 16, weight: '640gr' }] },
-                { id: 's5', name: 'MeatMax', description: 'Tandoori Meat, Dry Beef Rump Steak, Prosciutto, Dried Tomatoes, Pickles, Red Onion, Eggplant, Zucchini, Potato', image: 'meatmax.png', isPopular: true, sizes: [{ size: 'XL', price: 18, weight: '570gr' }, { size: 'XXL', price: 21, weight: '670gr' }] },
-                { id: 's6', name: 'HolyCow!', description: 'SXL Sauce, Dry Beef Prosciutto, Rump Steak, Smoked Beef, Gouda, Mozzarella, Dried Tomatoes, Pickles, Walnuts, Arugula', image: 'holycow.png', sizes: [{ size: 'XL', price: 15, weight: '550gr' }, { size: 'XXL', price: 18, weight: '640gr' }] },
-                { id: 's7', name: 'CrunchZilla', description: 'Fresh Crispy Chicken, SXL Sauce, Gouda, Lettuce, Pesto Sauce', image: 'CrunchZilla.png', isPopular: true, sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] },
-                { id: 's8', name: 'RoyalSmokeBurrata', description: 'Smoked Salmon, Smoked Beef, Truffle Ajoli, Light Crushed Walnuts, Baby Arugula, Fresh Burrata Cheese', image: 'RoyalSmokeBurrata.png', isPopular: true, sizes: [{ size: 'XL', price: 39, weight: '320gr' }] },
-                { id: 's9', name: 'Tandoorium', description: 'Tandoori Meat, Cheddar Cheese, Barbecue Sauce, Cheddar Sauce', image: 'Tandoorium.png', sizes: [{ size: 'XL', price: 15, weight: '400gr' }, { size: 'XXL', price: 18, weight: '500gr' }] },
-                { id: 's10', name: 'BalkanMorning', description: 'SXL Sauce, Ajvar Sauce, Egg, Gouda, Mozzarella, Tomato, Cucumber, Green Pepper, Red Pepper, Olive, Lettuce, Walnut', image: 'BalkanMorning.png', sizes: [{ size: 'XL', price: 9, weight: '470gr' }] },
-                { id: 's11', name: 'ChocoVita', description: 'Nutella, Pistachio, Pistachio Cream, Banana, Oreo, Honey', image: 'ChocoVita.png', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
-                { id: 's12', name: 'MortaLisa', description: 'Pesto Sauce, Mortadella, Olives, Pistachios, Mozzarella, Honey, Arugula', image: 'MortaLisa.png', sizes: [{ size: 'XL', price: 10, weight: '470gr' }, { size: 'XXL', price: 12, weight: '540gr' }] },
-                { id: 's13', name: 'VeggieLand', description: 'Ajvar Sauce, Zucchini, Eggplant, Potatoes, Carrots, Dried Tomatoes, Green Peppers, Kapia', image: 'VeggieLand.png', sizes: [{ size: 'XL', price: 8, weight: '450gr' }] },
-                { id: 's14', name: 'VeggieBoom', description: 'Sxl Vegan Meatball Mix, Ajvar Sauce, Green Pepper, Red Onion, Arugula, Basil Tomato Sauce', image: 'VeggieBoom.png', sizes: [{ size: 'XL', price: 14, weight: '510gr' }, { size: 'XXL', price: 17, weight: '600gr' }] }
-            ],
-            'pasta': [
-                { id: 'p1', name: 'PilePasta', description: 'Fusilli Pasta, Chicken Breast, Pesto Sauce, Parmesan Cheese', image: 'PilePasta.png', isPopular: true, sizes: [{ size: 'XL', price: 9, weight: '400gr' }] },
-                { id: 'p2', name: 'BoomPasta', description: 'Fusilli Pasta, Basil Tomato Sauce, Vegan Boom Balls', image: 'BoomPasta.png', sizes: [{ size: 'XL', price: 11, weight: '430gr' }] },
-                { id: 'p3', name: 'TunaTwist', description: 'Fusilli Pasta, Tuna, Capers, Corn, Pickles, Green Olives', image: 'TunaTwist.png', sizes: [{ size: 'XL', price: 10, weight: '480gr' }] },
-                { id: 'p4', name: 'TandooriTangle', description: 'Fusilli Pasta, Tandoori Meat, Cheddar Sauce, Parmesan Cheese', image: 'TandooriTangle.png', isPopular: true, sizes: [{ size: 'XL', price: 12, weight: '410gr' }] },
-                { id: 'p5', name: 'CrunchPasta', description: 'Fusilli Pasta, Crispy Chicken, Cheddar Sauce, Caesar Sauce, Parmesan Cheese', image: 'CrunchPasta.png', sizes: [{ size: 'XL', price: 12, weight: '420gr' }] },
-                { id: 'p6', name: 'Veganissimo', description: 'Fusilli Pasta, Tomato Sauce, Tomato, Red Peppers, Green Peppers, Green Olive, Thinly sliced Pickles, Sweet Corn', image: 'Veganissimo.png', sizes: [{ size: 'XL', price: 9, weight: '420gr' }] }
-            ],
-            'salads': [
-                { id: 'sa1', name: 'VegetableSalad', description: 'Tomato, Cucumber, Pickles, Green-Red Pepper, Red Onion, Corn, Olive, Lemon, Olive Oil, Lettuce, Arugula', image: 'VegetableSalad.png', sizes: [{ size: 'XL', price: 8, weight: '400gr' }] },
-                { id: 'sa2', name: 'TunaSalad', description: 'Tuna, Capers, Corn, Pickles, Red Onion, Green Olives, Lettuce, Arugula, Green-Red Peppers', image: 'TunaSalad.png', isPopular: true, sizes: [{ size: 'XL', price: 10, weight: '530gr' }] },
-                { id: 'sa3', name: 'CaesarSalad', description: 'Crispy Chicken, Caesar Sauce, Lettuce, Tomatoes, Arugula, Lemon', image: 'CaesarSalad.png', sizes: [{ size: 'XL', price: 10, weight: '470gr' }] }
-            ],
-            'desserts': [ // Kullanıcının isteği üzerine eklenen varsayılan kategori
-                { id: 'd1', name: 'Çikolatalı Sufle', description: 'Akışkan çikolatalı, sıcak ve taze sufle.', image: 'CikolatalSufle.png', sizes: [{ size: 'Tek Boy', price: 6, weight: '200gr' }] },
-                { id: 'd2', name: 'Cheesecake', description: 'Limonlu veya Çilekli seçenekleriyle.', image: 'Cheesecake.png', isPopular: true, sizes: [{ size: 'Tek Boy', price: 5, weight: '250gr' }] },
-                { id: 'd3', name: 'Tiramisu', description: 'Geleneksel İtalyan tatlısı.', image: 'Tiramisu.png', sizes: [{ size: 'Tek Boy', price: 7, weight: '220gr' }] }
-            ],
-            'drinks': [ // İçecek seçimi için eklenen varsayılan kategori
-                { id: 'dr1', name: 'Kola', description: '330ml Kutu', image: 'Kola.png', isPopular: true, sizes: [{ size: '330ml', price: 2.5, weight: '330ml' }] },
-                { id: 'dr2', name: 'Ayran', description: '300ml Kutu', image: 'Ayran.png', sizes: [{ size: '300ml', price: 2, weight: '300ml' }] },
-                { id: 'dr3', name: 'Su', description: '500ml Pet', image: 'Su.png', sizes: [{ size: '500ml', price: 1.5, weight: '500ml' }] },
-                { id: 'dr4', name: 'Portakal Suyu', description: 'Taze Sıkılmış', image: 'PortakalSuyu.png', isPopular: true, sizes: [{ size: '300ml', price: 4, weight: '300ml' }] },
-                { id: 'dr5', name: 'Kahve', description: 'Filtre Kahve', image: 'Kahve.png', sizes: [{ size: 'Orta Boy', price: 3.5, weight: '250ml' }] }
-            ]
-        };
+        const menuStore = window.MenuDataStore;
+        const defaultMenuData = window.SandwichXLDefaultMenuData ? JSON.parse(JSON.stringify(window.SandwichXLDefaultMenuData)) : {};
+        let menuData = menuStore ? menuStore.loadMenuData() : defaultMenuData;
+        let isAdminMode = menuStore ? menuStore.isAdminModeEnabled() : false;
 
         // --- 2. UYGULAMA DURUMU (State) ---
         let cart = []; // Sepet
@@ -377,6 +360,8 @@
         let quickConfirmImageSources = [];
         let pendingOrderNote = '';
         let lastSubmittedOrderNote = '';
+        let hasMountedMenu = false;
+        const DEFAULT_CATEGORY = 'sandwiches';
         const CART_STORAGE_KEY = 'sandwichXL_cart';
         const ORDER_COUNTER_KEY = 'sandwichXL_orderCounter';
         const IMAGE_BASE_PATH = 'assets/images/menu';
@@ -397,6 +382,112 @@
             { label: 'Kakao', keywords: ['chocolate', 'cocoa'] }
         ];
         const LAST_ORDER_NOTE_KEY = 'sandwichXL_lastOrderNote';
+
+        function applyAdminModeState(enabled) {
+            isAdminMode = Boolean(enabled);
+            syncAdminModeClass();
+            updateAdminToggleVisual();
+        }
+
+        function syncAdminModeClass() {
+            if (!document || !document.body) {
+                return;
+            }
+            document.body.classList.toggle('admin-mode', isAdminMode);
+        }
+
+        function updateAdminToggleVisual() {
+            const toggleButton = document.querySelector('[data-action="toggle-admin-mode"]');
+            if (!toggleButton) {
+                return;
+            }
+
+            toggleButton.setAttribute('aria-pressed', String(isAdminMode));
+            toggleButton.classList.toggle('bg-white', isAdminMode);
+            toggleButton.classList.toggle('text-primary', isAdminMode);
+            toggleButton.classList.toggle('shadow-md', isAdminMode);
+            toggleButton.classList.toggle('bg-white/20', !isAdminMode);
+            toggleButton.classList.toggle('text-white', !isAdminMode);
+
+            const labelSpan = toggleButton.querySelector('span');
+            if (labelSpan) {
+                labelSpan.textContent = isAdminMode ? 'Admin Modu Açık' : 'Admin Modu';
+            }
+
+            const icon = toggleButton.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-lock-open', isAdminMode);
+                icon.classList.toggle('fa-wrench', !isAdminMode);
+            }
+        }
+
+        function toggleAdminMode() {
+            if (!menuStore) {
+                showToast('Admin modu kullanılamıyor.');
+                return;
+            }
+            const nextState = menuStore.setAdminMode(!isAdminMode);
+            applyAdminModeState(nextState);
+        }
+
+        function cloneMenuData(data) {
+            return JSON.parse(JSON.stringify(data));
+        }
+
+        function handleMenuDataChange(updatedData) {
+            menuData = updatedData;
+            enrichMenuData();
+
+            if (!hasMountedMenu) {
+                return;
+            }
+
+            let activeCategory = currentCategoryKey || DEFAULT_CATEGORY;
+            if (!menuData[activeCategory]) {
+                const availableCategories = Object.keys(menuData || {});
+                activeCategory = availableCategories[0] || DEFAULT_CATEGORY;
+                currentCategoryKey = activeCategory;
+            }
+
+            renderProducts(activeCategory);
+            updateActiveCategory(activeCategory);
+        }
+
+        function togglePopularProduct(categoryKey, productId) {
+            if (!menuStore) {
+                showToast('Menü verisi güncellenemedi.');
+                return;
+            }
+
+            if (!isAdminMode) {
+                showToast('Popüler ürün seçmek için admin modunu açın.');
+                return;
+            }
+
+            const cloned = cloneMenuData(menuData);
+            const categoryItems = cloned[categoryKey];
+            if (!Array.isArray(categoryItems)) {
+                showToast('Kategori bulunamadı.');
+                return;
+            }
+
+            const product = categoryItems.find(item => item.id === productId);
+            if (!product) {
+                showToast('Ürün bulunamadı.');
+                return;
+            }
+
+            product.isPopular = !product.isPopular;
+            menuStore.saveMenuData(cloned);
+            showToast(product.isPopular ? 'Ürün popülerler alanına taşındı.' : 'Ürün popülerlerden çıkarıldı.');
+        }
+
+        if (menuStore) {
+            menuStore.subscribe(handleMenuDataChange);
+            window.addEventListener('sandwichXL:adminModeChanged', (event) => {
+                applyAdminModeState(Boolean(event?.detail?.enabled));
+            });
+        }
 
         function buildLocalImagePath(fileName) {
             if (!fileName || typeof fileName !== 'string') {
@@ -649,6 +740,17 @@
                 imageWrapper.appendChild(badge);
             }
 
+            const adminToggle = document.createElement('button');
+            adminToggle.type = 'button';
+            adminToggle.dataset.action = 'toggle-popular';
+            adminToggle.dataset.productId = item.id;
+            adminToggle.dataset.category = categoryKey;
+            adminToggle.className = 'admin-control absolute top-3 right-3 rounded-full bg-white text-secondary shadow px-2 py-2 transition-transform hover:scale-105';
+            adminToggle.setAttribute('aria-pressed', String(Boolean(item.isPopular)));
+            adminToggle.setAttribute('title', item.isPopular ? 'Popülerden çıkar' : 'Popüler yap');
+            adminToggle.innerHTML = `<i class="fa-${item.isPopular ? 'solid' : 'regular'} fa-star"></i>`;
+            imageWrapper.appendChild(adminToggle);
+
             const body = document.createElement('div');
             body.className = 'p-5 flex flex-col flex-grow';
 
@@ -719,12 +821,13 @@
          * Sayfa yüklendiğinde menüyü ve sepeti başlatır
          */
         document.addEventListener('DOMContentLoaded', () => {
-            enrichMenuData();
+            hasMountedMenu = true;
+            currentCategoryKey = currentCategoryKey || DEFAULT_CATEGORY;
+            applyAdminModeState(isAdminMode);
+            handleMenuDataChange(menuData);
             loadPersistedOrderNote();
             initializeEventDelegation();
             loadCart();
-            renderProducts('sandwiches'); // Ana sayfa sandviçler
-            updateActiveCategory('sandwiches');
             attachModalListeners();
             setupOrderNoteListener();
             updateSuccessNote(lastSubmittedOrderNote);
@@ -839,6 +942,7 @@
          * Kategori değiştirme fonksiyonu
          */
         function showCategory(categoryKey) {
+            currentCategoryKey = categoryKey;
             renderProducts(categoryKey);
             updateActiveCategory(categoryKey);
         }
@@ -865,6 +969,9 @@
                 }
                 case 'open-cart':
                     toggleCartModal(true);
+                    break;
+                case 'toggle-admin-mode':
+                    toggleAdminMode();
                     break;
                 case 'close-cart':
                     toggleCartModal(false);
@@ -901,6 +1008,14 @@
                     const category = actionElement.dataset.category;
                     if (productId && category) {
                         startAddToCartFlow(productId, category);
+                    }
+                    break;
+                }
+                case 'toggle-popular': {
+                    const productId = actionElement.dataset.productId;
+                    const category = actionElement.dataset.category;
+                    if (productId && category) {
+                        togglePopularProduct(category, productId);
                     }
                     break;
                 }
@@ -1836,4 +1951,3 @@
     </script>
 </body>
 </html>
-
