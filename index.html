@@ -16,6 +16,9 @@
     <!-- Paylaşılan menü verileri ve depolama yardımcıları -->
     <script src="assets/js/default-menu-data.js"></script>
     <script src="assets/js/menu-data-store.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="assets/js/category-meta-store.js"></script>
+    <script src="assets/js/order-data-store.js"></script>
     
     <!-- İkonlar için Font Awesome (Sepet vb.) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -97,6 +100,27 @@
         body.admin-mode .admin-control {
             display: inline-flex;
         }
+
+        body.admin-mode [data-edit-field] {
+            cursor: text;
+            border-bottom: 1px dashed rgba(5, 89, 76, 0.4);
+        }
+
+        body.admin-mode [data-product-id] {
+            cursor: grab;
+        }
+
+        body.admin-mode [data-product-id].dragging {
+            opacity: 0.6;
+        }
+
+        .card-drop-top {
+            box-shadow: inset 0 4px 0 0 rgba(239, 127, 26, 0.6);
+        }
+
+        .card-drop-bottom {
+            box-shadow: inset 0 -4px 0 0 rgba(239, 127, 26, 0.6);
+        }
     </style>
 </head>
 
@@ -114,13 +138,7 @@
             </h1>
 
             <!-- Kategori Navigasyonu (Masaüstü) -->
-            <nav class="hidden md:flex space-x-2">
-                <button data-action="show-category" data-category="sandwiches" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Sandviçler</button>
-                <button data-action="show-category" data-category="pasta" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Makarnalar</button>
-                <button data-action="show-category" data-category="salads" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Salatalar</button>
-                <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">Tatlılar</button>
-                <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary">İçecekler</button>
-            </nav>
+            <nav id="desktop-nav" class="hidden md:flex space-x-2"></nav>
 
             <div class="flex items-center space-x-3">
                 <button data-action="toggle-admin-mode" class="flex items-center space-x-2 bg-white/20 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-white/30 transition-colors" title="İşletme düzenleme modunu aç/kapat">
@@ -142,13 +160,7 @@
         
         <!-- Kategori Navigasyonu (Mobil) -->
         <nav class="md:hidden bg-white text-primary p-2 overflow-x-auto">
-            <div class="flex space-x-2 whitespace-nowrap">
-                <button data-action="show-category" data-category="sandwiches" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Sandviçler</button>
-                <button data-action="show-category" data-category="pasta" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Makarnalar</button>
-                <button data-action="show-category" data-category="salads" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Salatalar</button>
-                <button data-action="show-category" data-category="desserts" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">Tatlılar</button>
-                <button data-action="show-category" data-category="drinks" class="nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm">İçecekler</button>
-            </div>
+            <div id="mobile-nav" class="flex space-x-2 whitespace-nowrap"></div>
         </nav>
     </header>
 
@@ -347,27 +359,35 @@
         // --- 1. VERİTABANI (Menu Data) ---
         // PDF'ten ve varsayılanlardan oluşturulan menü
         const menuStore = window.MenuDataStore;
+        const categoryStore = window.CategoryMetaStore;
+        const orderStore = window.OrderDataStore;
         const defaultMenuData = window.SandwichXLDefaultMenuData ? JSON.parse(JSON.stringify(window.SandwichXLDefaultMenuData)) : {};
         let menuData = menuStore ? menuStore.loadMenuData() : defaultMenuData;
+        let categoryMeta = categoryStore ? categoryStore.ensureSynced(menuData) : { order: Object.keys(menuData), labels: {} };
         let isAdminMode = menuStore ? menuStore.isAdminModeEnabled() : false;
 
         // --- 2. UYGULAMA DURUMU (State) ---
         let cart = []; // Sepet
         let currentProductToAdd = null; // Boyut/içecek seçimi için geçici ürün
-        let currentCategoryKey = null; // Ürünün ait olduğu kategori
+        let defaultCategoryKey = categoryMeta.order[0] || 'sandwiches';
+        let currentCategoryKey = defaultCategoryKey; // Ürünün ait olduğu kategori
         let currentSizeSelection = null; // Geçici boyut seçimi
         let currentDrinkSelection = null; // Seçilen içecek bilgisi
         let quickConfirmImageSources = [];
         let pendingOrderNote = '';
         let lastSubmittedOrderNote = '';
         let hasMountedMenu = false;
-        const DEFAULT_CATEGORY = 'sandwiches';
+        let draggingProductCard = null;
+        let draggingProductIndex = null;
+        let draggingProductCategory = null;
+        const FALLBACK_CATEGORY = 'sandwiches';
         const CART_STORAGE_KEY = 'sandwichXL_cart';
         const ORDER_COUNTER_KEY = 'sandwichXL_orderCounter';
         const IMAGE_BASE_PATH = 'assets/images/menu';
         const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/cccccc/FFFFFF?text=Resim+Yok';
         const COMMON_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
         const DRINK_SELECTION_CATEGORIES = new Set(['sandwiches', 'pasta']);
+        const drinkIdSet = new Set();
         const productImageCache = new Map();
         const imagePreferenceCache = new Map();
         const ALLERGEN_RULES = [
@@ -383,10 +403,21 @@
         ];
         const LAST_ORDER_NOTE_KEY = 'sandwichXL_lastOrderNote';
 
+        refreshDrinkIds();
+
+        if (orderStore) {
+            orderStore.init().catch((error) => {
+                console.warn('Sipariş deposu başlatılamadı.', error);
+            });
+        }
+
         function applyAdminModeState(enabled) {
             isAdminMode = Boolean(enabled);
             syncAdminModeClass();
             updateAdminToggleVisual();
+            if (hasMountedMenu) {
+                renderProducts(currentCategoryKey || defaultCategoryKey || FALLBACK_CATEGORY);
+            }
         }
 
         function syncAdminModeClass() {
@@ -434,18 +465,92 @@
             return JSON.parse(JSON.stringify(data));
         }
 
+        function syncCategoryMetaWithMenu(data) {
+            if (categoryStore) {
+                categoryMeta = categoryStore.ensureSynced(data);
+            } else {
+                categoryMeta = { order: Object.keys(data || {}), labels: {} };
+            }
+            defaultCategoryKey = categoryMeta.order[0] || FALLBACK_CATEGORY;
+        }
+
+        function refreshDrinkIds() {
+            drinkIdSet.clear();
+            const drinks = Array.isArray(menuData.drinks) ? menuData.drinks : [];
+            drinks.forEach((drink) => {
+                if (drink && drink.id) {
+                    drinkIdSet.add(drink.id);
+                }
+            });
+        }
+
+        function findCategoryForProduct(productId) {
+            if (!productId) {
+                return null;
+            }
+            const entries = Object.entries(menuData || {});
+            for (const [key, items] of entries) {
+                if (!Array.isArray(items)) {
+                    continue;
+                }
+                if (items.some(item => item && item.id === productId)) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        function renderCategoryNavigation() {
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileNav = document.getElementById('mobile-nav');
+            const order = Array.isArray(categoryMeta.order) ? categoryMeta.order : [];
+
+            if (desktopNav) {
+                desktopNav.innerHTML = '';
+                order.forEach((key) => {
+                    const label = categoryMeta.labels[key] || key;
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.dataset.action = 'show-category';
+                    button.dataset.category = key;
+                    button.className = 'nav-link p-2 px-4 rounded-lg font-medium transition-colors hover:bg-secondary';
+                    button.textContent = label;
+                    desktopNav.appendChild(button);
+                });
+            }
+
+            if (mobileNav) {
+                mobileNav.innerHTML = '';
+                order.forEach((key) => {
+                    const label = categoryMeta.labels[key] || key;
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.dataset.action = 'show-category';
+                    button.dataset.category = key;
+                    button.className = 'nav-link p-2 px-4 rounded-lg font-medium transition-colors text-sm';
+                    button.textContent = label;
+                    mobileNav.appendChild(button);
+                });
+            }
+
+            updateActiveCategory(currentCategoryKey);
+        }
+
         function handleMenuDataChange(updatedData) {
             menuData = updatedData;
+            syncCategoryMetaWithMenu(menuData);
             enrichMenuData();
+            refreshDrinkIds();
+            renderCategoryNavigation();
 
             if (!hasMountedMenu) {
                 return;
             }
 
-            let activeCategory = currentCategoryKey || DEFAULT_CATEGORY;
+            let activeCategory = currentCategoryKey || defaultCategoryKey || FALLBACK_CATEGORY;
             if (!menuData[activeCategory]) {
                 const availableCategories = Object.keys(menuData || {});
-                activeCategory = availableCategories[0] || DEFAULT_CATEGORY;
+                activeCategory = availableCategories[0] || defaultCategoryKey || FALLBACK_CATEGORY;
                 currentCategoryKey = activeCategory;
             }
 
@@ -486,6 +591,21 @@
             menuStore.subscribe(handleMenuDataChange);
             window.addEventListener('sandwichXL:adminModeChanged', (event) => {
                 applyAdminModeState(Boolean(event?.detail?.enabled));
+            });
+        }
+
+        if (categoryStore) {
+            categoryStore.subscribe((meta) => {
+                categoryMeta = meta;
+                defaultCategoryKey = categoryMeta.order[0] || FALLBACK_CATEGORY;
+                if (!categoryMeta.order.includes(currentCategoryKey)) {
+                    currentCategoryKey = categoryMeta.order[0] || defaultCategoryKey || FALLBACK_CATEGORY;
+                }
+                renderCategoryNavigation();
+                if (hasMountedMenu) {
+                    renderProducts(currentCategoryKey);
+                    updateActiveCategory(currentCategoryKey);
+                }
             });
         }
 
@@ -696,14 +816,18 @@
                     return;
                 }
                 items.forEach(item => {
-                    item.allergens = deriveAllergensFromDescription(item);
-                    item.nutritionNote = deriveNutritionNote(item);
+                    if (!Array.isArray(item.allergens) || item.allergens.length === 0) {
+                        item.allergens = deriveAllergensFromDescription(item);
+                    }
+                    if (!item.nutritionNote) {
+                        item.nutritionNote = deriveNutritionNote(item);
+                    }
                 });
             });
         }
 
         function buildProductCardElement(item, categoryKey, options = {}) {
-            const { isPopular = false } = options;
+            const { isPopular = false, orderIndex = null } = options;
             const basePrice = Number(item.sizes?.[0]?.price ?? 0);
             const basePriceLabel = formatCurrency(basePrice);
             const sizeLabel = (item.sizes || [])
@@ -716,10 +840,18 @@
             button.dataset.action = 'start-add';
             button.dataset.productId = item.id;
             button.dataset.category = categoryKey;
+            if (orderIndex !== null && orderIndex !== undefined) {
+                button.dataset.productIndex = String(orderIndex);
+            }
             button.setAttribute('aria-label', `${item.name} detaylarını aç`);
             button.className = 'group bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-transform duration-300 hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-secondary/40 text-left';
             if (isPopular) {
                 button.classList.add('ring-2', 'ring-secondary/50', 'shadow-xl');
+            }
+            if (isAdminMode) {
+                button.setAttribute('draggable', 'true');
+            } else {
+                button.removeAttribute('draggable');
             }
 
             const imageWrapper = document.createElement('div');
@@ -760,6 +892,9 @@
             const title = document.createElement('h3');
             title.className = 'text-xl font-bold text-primary';
             title.textContent = item.name;
+            title.dataset.editField = 'name';
+            title.dataset.productId = item.id;
+            title.dataset.category = categoryKey;
 
             const priceEl = document.createElement('span');
             priceEl.className = 'text-xl font-bold text-secondary';
@@ -771,6 +906,9 @@
             const description = document.createElement('p');
             description.className = 'text-gray-600 text-sm mb-3';
             description.textContent = item.description || '';
+            description.dataset.editField = 'description';
+            description.dataset.productId = item.id;
+            description.dataset.category = categoryKey;
             body.appendChild(description);
 
             if (item.nutritionNote) {
@@ -822,7 +960,7 @@
          */
         document.addEventListener('DOMContentLoaded', () => {
             hasMountedMenu = true;
-            currentCategoryKey = currentCategoryKey || DEFAULT_CATEGORY;
+            currentCategoryKey = currentCategoryKey || defaultCategoryKey || FALLBACK_CATEGORY;
             applyAdminModeState(isAdminMode);
             handleMenuDataChange(menuData);
             loadPersistedOrderNote();
@@ -851,8 +989,9 @@
             }
 
             const fragment = document.createDocumentFragment();
-            const popularItems = items.filter(item => item.isPopular);
-            const regularItems = items.filter(item => !item.isPopular);
+            const itemsWithIndex = items.map((item, index) => ({ item, index }));
+            const popularItems = itemsWithIndex.filter(({ item }) => item.isPopular);
+            const regularItems = itemsWithIndex.filter(({ item }) => !item.isPopular);
 
             if (popularItems.length > 0) {
                 const section = document.createElement('section');
@@ -871,15 +1010,15 @@
 
                 const popularGrid = document.createElement('div');
                 popularGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
-                popularItems.forEach(item => {
-                    popularGrid.appendChild(buildProductCardElement(item, categoryKey, { isPopular: true }));
+                popularItems.forEach(({ item, index }) => {
+                    popularGrid.appendChild(buildProductCardElement(item, categoryKey, { isPopular: true, orderIndex: index }));
                 });
                 section.appendChild(popularGrid);
                 fragment.appendChild(section);
             }
 
-            regularItems.forEach(item => {
-                fragment.appendChild(buildProductCardElement(item, categoryKey));
+            regularItems.forEach(({ item, index }) => {
+                fragment.appendChild(buildProductCardElement(item, categoryKey, { orderIndex: index }));
             });
 
             grid.appendChild(fragment);
@@ -948,7 +1087,23 @@
         }
 
         function initializeEventDelegation() {
-            document.addEventListener('click', handleGlobalClick);
+            document.addEventListener('click', (event) => {
+                if (isAdminMode) {
+                    const editable = event.target.closest('[data-edit-field]');
+                    if (editable) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        startInlineEdit(editable);
+                        return;
+                    }
+                }
+                handleGlobalClick(event);
+            });
+
+            document.addEventListener('dragstart', handleProductDragStart);
+            document.addEventListener('dragend', handleProductDragEnd);
+            document.addEventListener('dragover', handleProductDragOver);
+            document.addEventListener('drop', handleProductDrop);
         }
 
         function handleGlobalClick(event) {
@@ -1037,6 +1192,234 @@
                 default:
                     break;
             }
+        }
+
+        function startInlineEdit(element) {
+            if (!isAdminMode || !menuStore || !element || element.dataset.editing === 'true') {
+                return;
+            }
+
+            const field = element.dataset.editField;
+            const productId = element.dataset.productId;
+            if (!field || !productId) {
+                return;
+            }
+
+            const categoryKey = element.dataset.category || findCategoryForProduct(productId);
+            if (!categoryKey) {
+                showToast('Ürün kategorisi bulunamadı.');
+                return;
+            }
+
+            const isMultiline = field === 'description';
+            const currentValue = element.textContent.trim();
+            const input = document.createElement(isMultiline ? 'textarea' : 'input');
+            input.value = currentValue;
+            input.className = 'w-full text-sm border border-secondary/40 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-secondary/60 bg-white shadow-sm';
+            if (isMultiline) {
+                input.rows = Math.max(2, Math.min(6, Math.ceil((currentValue || ' ').length / 40)));
+            }
+
+            element.dataset.editing = 'true';
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+            input.select();
+
+            const cleanup = () => {
+                element.dataset.editing = 'false';
+            };
+
+            const cancel = () => {
+                cleanup();
+                element.textContent = currentValue;
+            };
+
+            const commit = () => {
+                cleanup();
+                persistInlineEdit({
+                    element,
+                    productId,
+                    categoryKey,
+                    field,
+                    value: input.value,
+                    fallback: currentValue
+                });
+            };
+
+            const handleBlur = () => {
+                input.removeEventListener('blur', handleBlur);
+                input.removeEventListener('keydown', handleKeydown);
+                commit();
+            };
+
+            const handleKeydown = (event) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    input.removeEventListener('blur', handleBlur);
+                    input.removeEventListener('keydown', handleKeydown);
+                    cancel();
+                }
+                if (!isMultiline && event.key === 'Enter') {
+                    event.preventDefault();
+                    input.removeEventListener('blur', handleBlur);
+                    input.removeEventListener('keydown', handleKeydown);
+                    commit();
+                }
+                if (isMultiline && event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    input.removeEventListener('blur', handleBlur);
+                    input.removeEventListener('keydown', handleKeydown);
+                    commit();
+                }
+            };
+
+            input.addEventListener('blur', handleBlur);
+            input.addEventListener('keydown', handleKeydown);
+        }
+
+        function persistInlineEdit({ element, productId, categoryKey, field, value, fallback }) {
+            if (!menuStore) {
+                element.textContent = fallback;
+                showToast('Menü verisi güncellenemedi.');
+                return;
+            }
+
+            const trimmedValue = typeof value === 'string' ? value.trim() : '';
+            if (field === 'name' && !trimmedValue) {
+                element.textContent = fallback;
+                showToast('Ürün adı boş bırakılamaz.');
+                return;
+            }
+
+            const updatedMenu = cloneMenuData(menuData);
+            const items = Array.isArray(updatedMenu[categoryKey]) ? updatedMenu[categoryKey] : [];
+            const product = items.find(item => item.id === productId);
+            if (!product) {
+                element.textContent = fallback;
+                showToast('Ürün bulunamadı.');
+                return;
+            }
+
+            if (trimmedValue === (fallback || '').trim()) {
+                element.textContent = fallback;
+                return;
+            }
+
+            if (field === 'name') {
+                product.name = trimmedValue;
+                element.textContent = trimmedValue;
+            } else if (field === 'description') {
+                product.description = trimmedValue;
+                element.textContent = trimmedValue;
+            }
+
+            menuStore.saveMenuData(updatedMenu);
+            showToast('Ürün bilgisi güncellendi.');
+        }
+
+        function handleProductDragStart(event) {
+            if (!isAdminMode) {
+                return;
+            }
+            const card = event.target.closest('[data-product-id][data-product-index]');
+            if (!card) {
+                return;
+            }
+            draggingProductCard = card;
+            draggingProductIndex = Number(card.dataset.productIndex);
+            draggingProductCategory = card.dataset.category;
+            card.classList.add('dragging');
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+            }
+        }
+
+        function handleProductDragEnd(event) {
+            const card = event.target.closest('[data-product-id][data-product-index]');
+            if (card) {
+                card.classList.remove('dragging');
+            }
+            draggingProductCard = null;
+            draggingProductIndex = null;
+            draggingProductCategory = null;
+            clearProductDragIndicators();
+        }
+
+        function handleProductDragOver(event) {
+            if (!isAdminMode || !draggingProductCard) {
+                return;
+            }
+            const target = event.target.closest('[data-product-id][data-product-index]');
+            if (!target || target === draggingProductCard) {
+                return;
+            }
+            if (target.dataset.category !== draggingProductCategory) {
+                return;
+            }
+            event.preventDefault();
+            clearProductDragIndicators();
+            const rect = target.getBoundingClientRect();
+            const insertBefore = (event.clientY - rect.top) < rect.height / 2;
+            target.classList.add(insertBefore ? 'card-drop-top' : 'card-drop-bottom');
+            target.dataset.dropPosition = insertBefore ? 'before' : 'after';
+        }
+
+        function handleProductDrop(event) {
+            if (!isAdminMode || !draggingProductCard) {
+                return;
+            }
+            const target = event.target.closest('[data-product-id][data-product-index]');
+            if (!target || target.dataset.category !== draggingProductCategory) {
+                clearProductDragIndicators();
+                return;
+            }
+            event.preventDefault();
+
+            const fromIndex = Number(draggingProductIndex);
+            let toIndex = Number(target.dataset.productIndex);
+            const dropPosition = target.dataset.dropPosition === 'after' ? 'after' : 'before';
+            if (dropPosition === 'after') {
+                toIndex += 1;
+            }
+
+            if (Number.isNaN(fromIndex) || Number.isNaN(toIndex)) {
+                clearProductDragIndicators();
+                return;
+            }
+
+            if (fromIndex < toIndex) {
+                toIndex -= 1;
+            }
+
+            reorderProductsInCategory(draggingProductCategory, fromIndex, toIndex);
+            clearProductDragIndicators();
+        }
+
+        function clearProductDragIndicators() {
+            document.querySelectorAll('[data-product-id][data-product-index]').forEach((card) => {
+                card.classList.remove('card-drop-top', 'card-drop-bottom');
+                delete card.dataset.dropPosition;
+            });
+        }
+
+        function reorderProductsInCategory(categoryKey, fromIndex, toIndex) {
+            if (!menuStore) {
+                return;
+            }
+            const items = Array.isArray(menuData[categoryKey]) ? menuData[categoryKey].slice() : [];
+            if (items.length === 0) {
+                return;
+            }
+            if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= items.length || toIndex > items.length) {
+                return;
+            }
+            const [moved] = items.splice(fromIndex, 1);
+            items.splice(toIndex, 0, moved);
+            const updatedMenu = cloneMenuData(menuData);
+            updatedMenu[categoryKey] = items;
+            menuStore.saveMenuData(updatedMenu);
+            showToast('Ürün sırası güncellendi.');
         }
 
         // --- 4. SEPETE EKLEME AKIŞI (Add to Cart Flow) ---
@@ -1440,12 +1823,19 @@
             }
 
             const mainProductName = currentProductToAdd.name;
-            addItemToCart(currentProductToAdd, currentSizeSelection);
+            addItemToCart(currentProductToAdd, currentSizeSelection, {
+                categoryKey: currentCategoryKey,
+                isAddOn: false
+            });
 
             let toastMessage = `${mainProductName} sepete eklendi.`;
 
             if (includeDrink && currentDrinkSelection) {
-                addItemToCart(currentDrinkSelection.product, currentDrinkSelection.size);
+                addItemToCart(currentDrinkSelection.product, currentDrinkSelection.size, {
+                    categoryKey: 'drinks',
+                    isAddOn: true,
+                    parentProductId: currentProductToAdd.id
+                });
                 toastMessage = `${mainProductName} ve ${currentDrinkSelection.product.name} sepete eklendi.`;
             }
 
@@ -1560,11 +1950,14 @@
         /**
          * Ürünü sepete ekler (ana mantık)
          */
-        function addItemToCart(product, sizeInfo) {
-            // Sepet öğesi için benzersiz bir kimlik oluştur (örn: 's1_XL' veya 'dr1_330ml')
-            const cartItemId = `${product.id}_${sizeInfo.size}`;
-            
-            // Bu ürün bu boyutla zaten sepette var mı?
+        function addItemToCart(product, sizeInfo, options = {}) {
+            if (!product || !sizeInfo) {
+                return;
+            }
+
+            const contextKey = options.isAddOn ? 'addon' : 'regular';
+            const cartItemId = `${product.id}_${sizeInfo.size}_${contextKey}`;
+
             const existingItem = cart.find(item => item.cartItemId === cartItemId);
 
             if (existingItem) {
@@ -1579,7 +1972,10 @@
                     size: sizeInfo.size,
                     price: sizeInfo.price,
                     quantity: 1,
-                    imageSources: resolveProductImageSources(product)
+                    imageSources: resolveProductImageSources(product),
+                    categoryKey: options.categoryKey || findCategoryForProduct(product.id),
+                    isAddOn: Boolean(options.isAddOn),
+                    parentProductId: options.parentProductId || null
                 });
             }
             // Sepeti güncelle
@@ -1710,6 +2106,10 @@
                     const parsed = JSON.parse(storedCart);
                     cart = Array.isArray(parsed) ? parsed.map(item => {
                         const normalized = { ...item };
+                        normalized.categoryKey = normalized.categoryKey || findCategoryForProduct(normalized.id);
+                        normalized.isAddOn = Boolean(normalized.isAddOn);
+                        normalized.parentProductId = normalized.parentProductId || null;
+
                         if (Array.isArray(normalized.imageSources) && normalized.imageSources.length > 0) {
                             return normalized;
                         }
@@ -1763,6 +2163,27 @@
                 }
             } catch (error) {
                 // localStorage erişimi başarısız olursa sessizce devam et
+            }
+
+            if (orderStore && typeof orderStore.addOrder === 'function') {
+                const language = (navigator.language || navigator.userLanguage || 'tr').toString();
+                const baseId = typeof orderStore.generateOrderId === 'function'
+                    ? orderStore.generateOrderId()
+                    : `SX-${new Date().toISOString().split('T')[0].replace(/-/g, '')}`;
+                cart.forEach((item, index) => {
+                    const totalValue = Number((item.price * item.quantity).toFixed(2));
+                    const payload = {
+                        OrderID: cart.length > 1 ? `${baseId}-${index + 1}` : baseId,
+                        ProductID: item.id,
+                        ProductName: item.name,
+                        Quantity: item.quantity,
+                        Total: totalValue,
+                        Language: language,
+                        AddOn: item.isAddOn ? 'Tamamlayıcı' : '',
+                        Note: index === 0 ? noteValue : ''
+                    };
+                    orderStore.addOrder(payload);
+                });
             }
 
             updateSuccessNote(noteValue);
